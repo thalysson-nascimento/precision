@@ -1,0 +1,32 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Employee {
+  id         String       @id @default(uuid())
+  name       String
+  email      String       @unique
+  role       String
+  workStart  String       @default("08:00")
+  lunchStart String       @default("12:00")
+  lunchEnd   String       @default("13:00")
+  workEnd    String       @default("18:00")
+  createdAt  DateTime     @default(now())
+  records    TimeRecord[]
+}
+
+model TimeRecord {
+  id         String   @id @default(uuid())
+  employeeId String
+  date       String   // "YYYY-MM-DD" representando o dia do registro
+  type       String   // "IN" (Entrada), "LUNCH_OUT" (Saída Almoço), "LUNCH_IN" (Retorno Almoço), "OUT" (Saída Final)
+  time       String   // "HH:MM" representando o horário registrado
+  confirmed  Boolean  @default(false)
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date, type])
+}
