@@ -1,0 +1,308 @@
+'use client';
+
+import { reportService, ReportMonth, MonthlyReportsResponse } from '@precision/api-client';
+import React, { useEffect, useState } from 'react';
+
+export const ReportsScreen: React.FC = () => {
+  const [data, setData] = useState<MonthlyReportsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        setIsLoading(true);
+        const res = await reportService.getMonthlyReports();
+        setData(res);
+      } catch (err) {
+        console.error(err);
+        setError('Erro ao carregar os relatórios de horas extras.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  // Helper para converter string "HH:MM" em número decimal de horas para o gráfico
+  const timeStrToDecimal = (timeStr: string): number => {
+    if (!timeStr || timeStr === '--:--') return 0;
+    const [h, m] = timeStr.split(':').map(Number);
+    return h + m / 60;
+  };
+
+  // Encontra o valor máximo para dimensionar a altura do gráfico
+  const getMaxHoursValue = (reports: ReportMonth[]): number => {
+    let max = 180; // Mínimo padrão de escala (180 horas)
+    reports.forEach(r => {
+      const worked = timeStrToDecimal(r.total);
+      const expected = timeStrToDecimal(r.expected);
+      if (worked > max) max = worked;
+      if (expected > max) max = expected;
+    });
+    return max + 20; // Folga no topo
+  };
+
+  if (isLoading) {
+    return <ReportsSkeleton />;
+  }
+
+  if (error || !data) {
+    return (
+      <div className="text-center py-xl bg-surface-container-low rounded-xl border border-dashed border-error/40 p-lg max-w-2xl mx-auto space-y-md">
+        <span className="material-symbols-outlined text-error text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+          error
+        </span>
+        <p className="text-body-lg font-bold text-on-background">{error || 'Erro inesperado'}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-primary text-on-primary px-lg py-sm rounded-xl font-bold hover:bg-primary-container transition-colors cursor-pointer"
+        >
+          Tentar Novamente
+        </button>
+      </div>
+    );
+  }
+
+  const { employee, reports, summary } = data;
+  const maxHours = getMaxHoursValue(reports);
+  
+  // Encontrar relatório do mês atual (ou do último mês se não houver dados no banco para o corrente)
+  const currentMonthKey = new Date().toISOString().slice(0, 7);
+  const currentMonthReport = reports.find(r => r.monthKey === currentMonthKey) || reports[reports.length - 1];
+
+  return (
+    <div className="space-y-xl w-full">
+      {/* Cabeçalho */}
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+        <div>
+          <p className="text-body-sm text-on-surface-variant mt-xs">
+            {employee.name} • <span className="font-semibold">{employee.role}</span>
+          </p>
+        </div>
+        <div className="bg-surface-container p-sm px-md rounded-xl border border-outline-variant/30 text-body-sm text-on-surface font-semibold flex items-center gap-xs">
+          <span className="material-symbols-outlined text-outline">calendar_month</span>
+          Período Trabalhado Completo
+        </div>
+      </section>
+
+      {/* Cards de Resumo do Mês Atual */}
+      {currentMonthReport && (
+        <section className="grid grid-cols-2 gap-md w-full">
+          {/* Card 1: Horas total trabalhadas */}
+          <div className="glass-card rounded-xl p-md flex items-center gap-md border border-outline-variant/30 relative overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary shadow-sm flex-shrink-0">
+              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
+            </div>
+            <div>
+              <h4 className="text-label-caps font-label-caps text-on-surface-variant text-[10px]">Horas Total Trabalhadas</h4>
+              <h2 className="text-headline-md md:text-headline-lg font-bold text-on-background mt-xs">{currentMonthReport.total}h</h2>
+              <p className="text-body-sm text-outline mt-1 font-semibold text-[11px]">{currentMonthReport.monthLabel}</p>
+            </div>
+          </div>
+
+          {/* Card 2: Horas extra trabalhadas */}
+          <div className="glass-card rounded-xl p-md flex items-center gap-md border border-outline-variant/30 relative overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container shadow-sm flex-shrink-0">
+              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
+            </div>
+            <div>
+              <h4 className="text-label-caps font-label-caps text-on-surface-variant text-[10px]">Horas Extra Trabalhadas</h4>
+              <h2 className="text-headline-md md:text-headline-lg font-bold text-secondary mt-xs">{currentMonthReport.totalOvertime}h</h2>
+              <p className="text-body-sm text-outline mt-1 font-semibold text-[11px]">{currentMonthReport.monthLabel}</p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Gráfico de Barras Horizontais (Horas Trabalhadas vs. Previstas) */}
+      <section className="glass-card rounded-xl p-lg space-y-lg">
+        <div>
+          <h3 className="text-headline-md font-headline-md text-on-background">Carga Horária Mensal</h3>
+          <p className="text-body-sm text-on-surface-variant">Comparativo entre horas previstas do contrato e horas efetivamente trabalhadas por mês.</p>
+        </div>
+
+        {/* Gráfico Horizontal */}
+        <div className="space-y-lg pt-sm">
+          {reports.map(r => {
+            const workedDec = timeStrToDecimal(r.total);
+            const expectedDec = timeStrToDecimal(r.expected);
+
+            // Largura em porcentagem (limita em no máximo 100%)
+            const workedWidth = Math.min(100, Math.max(0, (workedDec / maxHours) * 100));
+            const expectedWidth = Math.min(100, Math.max(0, (expectedDec / maxHours) * 100));
+
+            return (
+              <div key={r.monthKey} className="space-y-xs pb-sm border-b border-outline-variant/10 last:border-0 last:pb-0">
+                {/* Título da Linha */}
+                <div className="flex flex-col gap-[2px]">
+                  <span className="text-body-lg font-bold text-on-background">
+                    {r.monthLabel}
+                  </span>
+                  <span className="text-body-sm text-on-surface-variant font-medium">
+                    Trabalhado: <strong className="text-on-background">{r.total}h</strong> / Previsto: {r.expected}h
+                  </span>
+                </div>
+
+                {/* Linhas de Barras Horizontais */}
+                <div className="space-y-[6px]">
+                  {/* Barra Trabalhado */}
+                  <div className="flex items-center">
+                    <div className="flex-1 bg-surface-container/30 h-[10px] rounded-full overflow-hidden border border-outline-variant/10">
+                      <div
+                        style={{ width: `${workedWidth}%` }}
+                        className="bg-primary h-full rounded-full transition-all duration-500 relative"
+                      >
+                        {workedDec > expectedDec && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-secondary-fixed/30 animate-pulse" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Barra Previsto */}
+                  <div className="flex items-center">
+                    <div className="flex-1 bg-surface-container/30 h-[10px] rounded-full overflow-hidden border border-outline-variant/10">
+                      <div
+                        style={{ width: `${expectedWidth}%` }}
+                        className="bg-surface-container-high border border-outline-variant/50 h-full rounded-full transition-all duration-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Legenda do Gráfico */}
+        <div className="flex flex-wrap gap-md justify-center text-body-sm mt-sm pt-sm border-t border-outline-variant/10">
+          <div className="flex items-center gap-xs">
+            <span className="w-3 h-3 rounded bg-primary inline-block"></span>
+            <span className="text-on-surface-variant font-medium">Horas Efetivas Trabalhadas</span>
+          </div>
+          <div className="flex items-center gap-xs">
+            <span className="w-3 h-3 rounded bg-surface-container-high border border-outline-variant inline-block"></span>
+            <span className="text-on-surface-variant font-medium">Carga Horária Prevista</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Tabela de Dados Agregados por Mês */}
+      <section className="space-y-md">
+        <h3 className="text-headline-md font-headline-md text-on-background">Detalhamento dos Saldos por Mês</h3>
+        
+        {/* Tabela Responsiva */}
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[900px]">
+              <thead>
+                <tr className="bg-surface-container-low border-b border-outline-variant text-label-caps font-label-caps text-on-surface-variant">
+                  <th className="p-md font-bold whitespace-nowrap">Mês / Ano</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Total</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Hora Prevista</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Total Hora Extras</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Hora extra em NRO</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Máximo Diário</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Padrão</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Até 2 horas (50%)</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Após 2 horas (100%)</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Sábado</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">Feriado / Domingo</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/30 text-body-sm text-on-surface">
+                {reports.map((row) => (
+                  <tr key={row.monthKey} className="hover:bg-surface-container-low/40 transition-colors">
+                    <td className="p-md font-bold flex items-center gap-xs whitespace-nowrap">
+                      <span className="material-symbols-outlined text-primary text-lg">calendar_month</span>
+                      {row.monthLabel}
+                    </td>
+                    <td className="p-md font-semibold text-right">{row.total}</td>
+                    <td className="p-md text-right text-on-surface-variant">{row.expected || '--:--'}</td>
+                    <td className="p-md font-semibold text-right text-secondary-container bg-secondary-container/5 rounded-md">{row.totalOvertime}</td>
+                    <td className="p-md font-medium text-right text-on-surface-variant">{row.overtimeNro}</td>
+                    <td className="p-md text-right text-outline">{row.maxDaily}</td>
+                    <td className="p-md text-right text-outline">{row.standard}</td>
+                    <td className="p-md text-right text-on-surface-variant">{row.overtimeUpTo2}</td>
+                    <td className="p-md text-right text-on-surface-variant">{row.overtimeAfter2}</td>
+                    <td className="p-md text-right text-on-surface-variant">{row.overtimeSaturday}</td>
+                    <td className="p-md text-right text-on-surface-variant">{row.overtimeSunday}</td>
+                  </tr>
+                ))}
+              </tbody>
+              {/* Linha de Totais */}
+              <tfoot>
+                <tr className="bg-surface-container-low font-bold border-t border-outline-variant text-body-sm text-on-background">
+                  <td className="p-md flex items-center gap-xs whitespace-nowrap">
+                    <span className="material-symbols-outlined text-on-background text-lg">analytics</span>
+                    Total Acumulado
+                  </td>
+                  <td className="p-md text-right font-bold">{summary.totalWorked}</td>
+                  <td className="p-md text-right font-bold text-on-surface-variant">{summary.totalExpected}</td>
+                  <td className="p-md text-right font-bold text-secondary-container">{summary.totalOvertime}</td>
+                  <td className="p-md text-right font-bold text-on-surface-variant">{summary.totalOvertimeNro}</td>
+                  <td className="p-md text-right text-outline">--:--</td>
+                  <td className="p-md text-right text-outline">--:--</td>
+                  <td className="p-md text-right text-on-surface-variant">{summary.totalUpTo2}</td>
+                  <td className="p-md text-right text-on-surface-variant">{summary.totalAfter2}</td>
+                  <td className="p-md text-right text-on-surface-variant">{summary.totalSaturday}</td>
+                  <td className="p-md text-right text-on-surface-variant">{summary.totalSunday}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// Componente Local de Skeleton Loader
+const ReportsSkeleton: React.FC = () => {
+  return (
+    <div className="space-y-xl w-full">
+      {/* Header Skeleton */}
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+        <div className="space-y-sm w-full md:w-1/3">
+          <div className="h-7 w-48 shimmer rounded"></div>
+          <div className="h-4 w-64 shimmer rounded"></div>
+        </div>
+        <div className="h-10 w-44 shimmer rounded-xl"></div>
+      </section>
+
+      {/* Chart Card Skeleton */}
+      <section className="glass-card rounded-xl p-lg space-y-lg">
+        <div className="space-y-sm">
+          <div className="h-6 w-36 shimmer rounded"></div>
+          <div className="h-4 w-96 shimmer rounded"></div>
+        </div>
+        <div className="space-y-md">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="space-y-sm">
+              <div className="flex justify-between">
+                <div className="h-5 w-24 shimmer rounded"></div>
+                <div className="h-4 w-32 shimmer rounded"></div>
+              </div>
+              <div className="h-3 w-full bg-surface-container-low rounded-full shimmer"></div>
+              <div className="h-3 w-4/5 bg-surface-container-low rounded-full shimmer"></div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Table Skeleton */}
+      <section className="space-y-md">
+        <div className="h-6 w-48 shimmer rounded"></div>
+        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden p-md space-y-md">
+          <div className="h-10 w-full shimmer rounded"></div>
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="h-8 w-full shimmer rounded"></div>
+          ))}
+          <div className="h-12 w-full shimmer rounded pt-md"></div>
+        </div>
+      </section>
+    </div>
+  );
+};
