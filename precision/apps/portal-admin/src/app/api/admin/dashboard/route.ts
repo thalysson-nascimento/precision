@@ -44,21 +44,21 @@ export async function GET() {
 
     const pendingRequestsCount = pendingRequests.length;
 
-    // Calcular as horas extras de todos os funcionários no mês atual (Junho de 2026)
-    const currentMonthPrefix = '2026-06-';
-    const juneRecords = await prisma.timeRecord.findMany({
+    // Calcular as horas extras de todos os funcionários no ano atual (2026)
+    const currentYearStr = '2026';
+    const yearRecords = await prisma.timeRecord.findMany({
       where: {
         date: {
-          startsWith: currentMonthPrefix,
+          startsWith: `${currentYearStr}-`,
         },
         confirmed: true,
       },
     });
 
-    // Agrupar registros de Junho por employeeId e data
+    // Agrupar registros do ano por employeeId e data
     const dailyRecordsMap: { [key: string]: { [type: string]: string } } = {};
     
-    juneRecords.forEach(r => {
+    yearRecords.forEach(r => {
       const key = `${r.employeeId}_${r.date}`;
       if (!dailyRecordsMap[key]) {
         dailyRecordsMap[key] = {};
@@ -66,11 +66,16 @@ export async function GET() {
       dailyRecordsMap[key][r.type] = r.time;
     });
 
-    let totalOvertimeMinutes = 0;
+    // Minutos de horas extras agrupados por mês (ex: "01", "02", etc.)
+    const overtimeByMonth: { [month: string]: number } = {
+      '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0,
+      '07': 0, '08': 0, '09': 0, '10': 0, '11': 0, '12': 0
+    };
 
     Object.keys(dailyRecordsMap).forEach(key => {
       const parts = key.split('_');
-      const dateStr = parts[1];
+      const dateStr = parts[1]; // "YYYY-MM-DD"
+      const monthStr = dateStr.split('-')[1]; // "MM"
       const dayRecords = dailyRecordsMap[key];
 
       const inTime = dayRecords['IN'];
@@ -94,46 +99,63 @@ export async function GET() {
       const d = new Date(year, month - 1, day);
       const dayOfWeek = d.getDay();
 
+      let overtimeMinutes = 0;
       if (dayOfWeek === 0 || dayOfWeek === 6) {
         // Fim de semana: todas as horas trabalhadas são extras
-        totalOvertimeMinutes += workedMinutes;
+        overtimeMinutes = workedMinutes;
       } else {
         // Dia de semana: trabalhado acima de 8h (480 min) é extra
         if (workedMinutes > 480) {
-          totalOvertimeMinutes += (workedMinutes - 480);
+          overtimeMinutes = workedMinutes - 480;
         }
+      }
+
+      if (overtimeByMonth[monthStr] !== undefined) {
+        overtimeByMonth[monthStr] += overtimeMinutes;
       }
     });
 
-    const overtimeHoursNum = Math.floor(totalOvertimeMinutes / 60);
+    // Horas extras do mês atual (Junho - "06") para o card de métrica
+    const currentMonthOvertimeMinutes = overtimeByMonth['06'] || 0;
+    const overtimeHoursNum = Math.floor(currentMonthOvertimeMinutes / 60);
     const overtimeHoursStr = `${overtimeHoursNum}h`;
 
-    // Calcular Frequência Semanal (Segunda 22/06 a Sexta 26/06)
-    const weekDays = [
-      { date: '2026-06-22', label: 'VENDAS', shortLabel: 'SEG' },
-      { date: '2026-06-23', label: 'TI', shortLabel: 'TER' },
-      { date: '2026-06-24', label: 'RH', shortLabel: 'QUA' },
-      { date: '2026-06-25', label: 'OPERA.', shortLabel: 'QUI' },
-      { date: '2026-06-26', label: 'FINAN.', shortLabel: 'SEX' },
-    ];
+    // Mapeamento de meses para labels
+    const monthLabelsMap: { [key: string]: { label: string; shortLabel: string } } = {
+      '01': { label: 'JANEIRO', shortLabel: 'JAN' },
+      '02': { label: 'FEVEREIRO', shortLabel: 'FEV' },
+      '03': { label: 'MARÇO', shortLabel: 'MAR' },
+      '04': { label: 'ABRIL', shortLabel: 'ABR' },
+      '05': { label: 'MAIO', shortLabel: 'MAI' },
+      '06': { label: 'JUNHO', shortLabel: 'JUN' },
+      '07': { label: 'JULHO', shortLabel: 'JUL' },
+      '08': { label: 'AGOSTO', shortLabel: 'AGO' },
+      '09': { label: 'SETEMBRO', shortLabel: 'SET' },
+      '10': { label: 'OUTUBRO', shortLabel: 'OUT' },
+      '11': { label: 'NOVEMBRO', shortLabel: 'NOV' },
+      '12': { label: 'DEZEMBRO', shortLabel: 'DEZ' },
+    };
 
-    const weeklyPresence = await Promise.all(
-      weekDays.map(async (day) => {
-        const presentCount = await prisma.timeRecord.count({
-          where: {
-            date: day.date,
-            type: 'IN',
-            confirmed: true,
-          },
-        });
-        const pct = totalEmployees > 0 ? Math.round((presentCount / totalEmployees) * 100) : 0;
-        return {
-          label: day.label, // Mantém a label original da barra do HTML pra não quebrar estilo/layout do gráfico
-          dayLabel: day.shortLabel, // Label real do dia da semana
-          percentage: pct,
-        };
-      })
-    );
+    // Meses que realmente contêm dados no banco para o ano atual
+    const availableMonths = Array.from(new Set(
+      yearRecords.map(r => r.date.split('-')[1])
+    )).sort();
+
+    // Calcular dados mensais e calcular porcentagem em relação ao mês de pico (máximo)
+    const monthlyOvertimeRaw = availableMonths.map(m => {
+      const hours = Math.round((overtimeByMonth[m] / 60) * 10) / 10;
+      return {
+        label: monthLabelsMap[m].label,
+        monthLabel: monthLabelsMap[m].shortLabel,
+        hours,
+      };
+    });
+
+    const maxHours = Math.max(...monthlyOvertimeRaw.map(m => m.hours), 1);
+    const monthlyOvertime = monthlyOvertimeRaw.map(m => ({
+      ...m,
+      percentage: Math.round((m.hours / maxHours) * 100),
+    }));
 
     // Buscar Atividades Recentes: últimas 10 batidas confirmadas na data alvo (26/06) ordenadas por horário decrescente
     const recentRecords = await prisma.timeRecord.findMany({
@@ -199,7 +221,7 @@ export async function GET() {
         overtimeHours: overtimeHoursStr,
         overtimeGrowth: '+15% em relação ao último mês',
       },
-      weeklyPresence,
+      monthlyOvertime,
       recentActivities,
       pendingRequests,
     });

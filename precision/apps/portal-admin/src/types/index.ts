@@ -33,9 +33,10 @@ export interface MetricData {
   overtimeGrowth: string;
 }
 
-export interface WeeklyPresenceData {
+export interface MonthlyOvertimeData {
   label: string;
-  dayLabel: string;
+  monthLabel: string;
+  hours: number;
   percentage: number;
 }
 
@@ -53,7 +54,7 @@ export interface RecentActivity {
 
 export interface DashboardData {
   metrics: MetricData;
-  weeklyPresence: WeeklyPresenceData[];
+  monthlyOvertime: MonthlyOvertimeData[];
   recentActivities: RecentActivity[];
   pendingRequests: PendingRequest[];
 }

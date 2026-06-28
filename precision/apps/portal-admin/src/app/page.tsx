@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import { MetricsSummary } from '@/components/dashboard/MetricsSummary';
-import { WeeklyPresenceChart } from '@/components/dashboard/WeeklyPresenceChart';
+import { MonthlyOvertimeChart } from '@/components/dashboard/MonthlyOvertimeChart';
 import { RecentActivitiesList } from '@/components/dashboard/RecentActivitiesList';
 import { PendingRequestsTable } from '@/components/dashboard/PendingRequestsTable';
 import { DashboardData } from '@/types';
@@ -156,7 +156,7 @@ export default function PortalAdmin() {
 
               {/* Main Grid: Charts & Activity */}
               <section className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
-                <WeeklyPresenceChart weeklyPresence={data?.weeklyPresence} loading={loading} />
+                <MonthlyOvertimeChart monthlyOvertime={data?.monthlyOvertime} loading={loading} />
                 <RecentActivitiesList activities={data?.recentActivities} loading={loading} />
               </section>
 
