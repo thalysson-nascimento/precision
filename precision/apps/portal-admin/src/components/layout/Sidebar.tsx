@@ -1,8 +1,27 @@
+'use client';
+
 import Image from 'next/image';
 import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import logoImg from '../../../../../public/images/precision.png';
 
 export const Sidebar: React.FC = () => {
+  const pathname = usePathname();
+
+  const getLinkClass = (path: string) => {
+    const isActive = pathname === path || (path !== '/' && pathname.startsWith(path));
+    if (isActive) {
+      return "flex items-center gap-md py-sm px-md rounded-lg text-primary font-bold border-r-4 border-primary bg-primary/5 font-body-lg text-body-lg cursor-pointer active:opacity-80 transition-all duration-200";
+    }
+    return "flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant hover:text-primary font-body-lg text-body-lg hover:bg-surface-container-high transition-all duration-200 cursor-pointer active:opacity-80";
+  };
+
+  const getIconStyle = (path: string) => {
+    const isActive = pathname === path || (path !== '/' && pathname.startsWith(path));
+    return isActive ? { fontVariationSettings: "'FILL' 1" } : undefined;
+  };
+
   return (
     <nav className="bg-surface-container-low h-screen w-64 fixed left-0 top-0 border-r border-outline-variant flex flex-col py-lg px-md hidden md:flex z-20">
       {/* Header Brand */}
@@ -15,12 +34,33 @@ export const Sidebar: React.FC = () => {
       </div>
       {/* Navigation Links */}
       <ul className="flex flex-col gap-sm flex-grow">
-        {/* Dashboard (Active) */}
+        {/* Dashboard */}
         <li>
-          <a className="flex items-center gap-md py-sm px-md rounded-lg text-primary font-bold border-r-4 border-primary bg-primary/5 font-body-lg text-body-lg cursor-pointer active:opacity-80" href="#">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>dashboard</span>
+          <Link href="/" className={getLinkClass('/')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/')}>dashboard</span>
             <span>Dashboard</span>
-          </a>
+          </Link>
+        </li>
+        {/* Equipes */}
+        <li>
+          <Link href="/teams" className={getLinkClass('/teams')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/teams')}>groups</span>
+            <span>Equipes</span>
+          </Link>
+        </li>
+        {/* Empresas */}
+        <li>
+          <Link href="/companies" className={getLinkClass('/companies')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/companies')}>domain</span>
+            <span>Empresas</span>
+          </Link>
+        </li>
+        {/* Cargos */}
+        <li>
+          <Link href="/roles" className={getLinkClass('/roles')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/roles')}>badge</span>
+            <span>Cargos</span>
+          </Link>
         </li>
         {/* Colaboradores */}
         <li>

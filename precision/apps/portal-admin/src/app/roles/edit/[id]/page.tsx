@@ -1,0 +1,167 @@
+'use client';
+
+import React, { use, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Header } from '@/components/layout/Header';
+
+export default function EditRolePage({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter();
+  const { id } = use(params);
+  
+  const [name, setName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const res = await fetch(`/api/admin/roles`);
+        if (!res.ok) throw new Error('Falha ao carregar cargos');
+        const data = await res.json();
+        const found = data.find((r: any) => r.id === id);
+        if (!found) throw new Error('Cargo não encontrado');
+        setName(found.name);
+      } catch (err: any) {
+        console.error(err);
+        showToast(err.message || 'Erro ao carregar dados do cargo.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRole();
+  }, [id]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!name.trim()) {
+      showToast('O nome do cargo é obrigatório.', 'error');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/admin/roles/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Erro ao atualizar cargo');
+      }
+
+      showToast('Cargo atualizado com sucesso!', 'success');
+      setTimeout(() => {
+        router.push('/roles');
+      }, 1000);
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || 'Erro ao atualizar cargo.', 'error');
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="admin-theme bg-background text-on-surface font-body-sm min-h-screen">
+      <div className="flex h-screen overflow-hidden">
+        
+        {/* Toast Notification */}
+        {toast && (
+          <div className={`fixed top-4 right-4 z-50 px-md py-sm rounded-lg shadow-lg text-white font-semibold transition-all duration-300 transform scale-100 flex items-center gap-sm ${toast.type === 'success' ? 'bg-secondary' : 'bg-error'}`}>
+            <span className="material-symbols-outlined">{toast.type === 'success' ? 'check_circle' : 'error'}</span>
+            <span>{toast.message}</span>
+          </div>
+        )}
+
+        <Sidebar />
+
+        <main className="flex-1 ml-0 md:ml-64 flex flex-col h-screen overflow-hidden bg-background">
+          <Header 
+            searchTerm="" 
+            onSearchChange={() => {}} 
+            pendingRequestsCount={0} 
+          />
+
+          <div className="flex-1 overflow-y-auto p-container-margin md:p-xl">
+            <div className="max-w-[800px] mx-auto flex flex-col gap-xl">
+              
+              {/* Back Button and Title */}
+              <section className="flex flex-col gap-xs">
+                <button 
+                  onClick={() => router.push('/roles')}
+                  className="self-start text-on-surface-variant hover:text-primary flex items-center gap-xs font-label-caps text-label-caps transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                  VOLTAR PARA LISTA
+                </button>
+                <h1 className="font-headline-lg text-headline-lg text-on-surface mt-sm">Editar Cargo</h1>
+                <p className="font-body-lg text-body-lg text-on-surface-variant">Altere o nome do cargo selecionado.</p>
+              </section>
+
+              {/* Form Card */}
+              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+                {loading ? (
+                  <div className="p-xl flex justify-center items-center h-32">
+                    <span className="animate-spin material-symbols-outlined text-primary text-[32px]">progress_activity</span>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="flex flex-col gap-lg">
+                    <div className="flex flex-col gap-xs">
+                      <label htmlFor="roleName" className="font-label-caps text-label-caps text-on-surface-variant font-bold">
+                        NOME DO CARGO
+                      </label>
+                      <input 
+                        id="roleName"
+                        type="text"
+                        className="bg-surface-bright border border-outline-variant rounded-md py-sm px-md text-body-lg focus:ring-2 focus:ring-primary focus:border-primary focus:outline-none transition-all text-on-surface"
+                        placeholder="Ex: Desenvolvedor Senior, Coordenadora de RH..."
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-md mt-sm">
+                      <button 
+                        type="submit"
+                        disabled={submitting}
+                        className="bg-primary text-on-primary font-bold px-md py-sm rounded-lg flex items-center justify-center gap-sm hover:opacity-90 active:opacity-80 transition-all cursor-pointer font-label-caps text-label-caps min-w-[120px]"
+                      >
+                        {submitting ? (
+                          <span className="animate-spin material-symbols-outlined text-[18px]">progress_activity</span>
+                        ) : (
+                          'SALVAR'
+                        )}
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => router.push('/roles')}
+                        disabled={submitting}
+                        className="border border-outline text-on-surface-variant font-bold px-md py-sm rounded-lg hover:bg-surface-container-high active:opacity-80 transition-all cursor-pointer font-label-caps text-label-caps"
+                      >
+                        CANCELAR
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}

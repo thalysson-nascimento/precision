@@ -15,6 +15,9 @@ async function main() {
   await prisma.timeAdjustment.deleteMany();
   await prisma.timeRecord.deleteMany();
   await prisma.employee.deleteMany();
+  await prisma.team.deleteMany();
+  await prisma.company.deleteMany();
+  await prisma.jobRole.deleteMany();
 
   // Criar o funcionário padrão (Thalysson Nascimento)
   const mainEmployee = await prisma.employee.create({
@@ -228,6 +231,38 @@ async function main() {
         status: 'PENDING',
         createdAt: new Date('2026-06-24T08:30:00Z'),
       },
+    ],
+  });
+
+  // Criar Equipes
+  await prisma.team.createMany({
+    data: [
+      { name: 'Desenvolvimento' },
+      { name: 'Design' },
+      { name: 'Recursos Humanos' },
+      { name: 'Vendas' },
+      { name: 'Suporte de TI' },
+    ],
+  });
+
+  // Criar Empresas
+  await prisma.company.createMany({
+    data: [
+      { name: 'Precision Matriz', address: 'Av. Paulista', number: '1000', contact: 'contato@precision.com.br' },
+      { name: 'Precision Filial Sul', address: 'Rua das Flores', number: '45', contact: 'filial.sul@precision.com.br' },
+      { name: 'Precision Filial Nordeste', address: 'Av. Beira Mar', number: '200', contact: 'filial.ne@precision.com.br' },
+    ],
+  });
+
+  // Criar Cargos
+  await prisma.jobRole.createMany({
+    data: [
+      { name: 'Desenvolvedor Senior' },
+      { name: 'Desenvolvedor Pleno' },
+      { name: 'Analista de Operações' },
+      { name: 'Executiva de Vendas' },
+      { name: 'Suporte de TI' },
+      { name: 'Coordenadora de RH' },
     ],
   });
 

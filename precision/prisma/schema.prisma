@@ -1,31 +1,31 @@
-datasource db {
-  provider = "sqlite"
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
+datasource db {
+  provider = "sqlite"
+}
+
 model Employee {
-  id         String       @id @default(uuid())
-  name       String
-  email      String       @unique
-  role       String
-  workStart  String       @default("08:00")
-  lunchStart String       @default("12:00")
-  lunchEnd   String       @default("13:00")
-  workEnd    String       @default("18:00")
-  createdAt  DateTime     @default(now())
-  records    TimeRecord[]
+  id          String           @id @default(uuid())
+  name        String
+  email       String           @unique
+  role        String
+  workStart   String           @default("08:00")
+  lunchStart  String           @default("12:00")
+  lunchEnd    String           @default("13:00")
+  workEnd     String           @default("18:00")
+  createdAt   DateTime         @default(now())
   adjustments TimeAdjustment[]
+  records     TimeRecord[]
 }
 
 model TimeRecord {
   id         String   @id @default(uuid())
   employeeId String
-  date       String   // "YYYY-MM-DD" representando o dia do registro
-  type       String   // "IN" (Entrada), "LUNCH_OUT" (Saída Almoço), "LUNCH_IN" (Retorno Almoço), "OUT" (Saída Final)
-  time       String   // "HH:MM" representando o horário registrado
+  date       String
+  type       String
+  time       String
   confirmed  Boolean  @default(false)
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
@@ -35,13 +35,34 @@ model TimeRecord {
 model TimeAdjustment {
   id            String   @id @default(uuid())
   employeeId    String
-  date          String   // "YYYY-MM-DD"
-  type          String   // "ESQUECIMENTO DE SAÍDA", "ATESTADO MÉDICO", "AJUSTE MANUAL INÍCIO", etc.
-  time          String?  // "HH:MM"
+  date          String
+  type          String
+  time          String?
   justification String
-  attachment    String?  // e.g. "atestado_2410.pdf"
-  status        String   @default("PENDING") // "PENDING", "APPROVED", "REJECTED"
+  attachment    String?
+  status        String   @default("PENDING")
   createdAt     DateTime @default(now())
   employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model Team {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  address   String
+  number    String
+  contact   String
+  createdAt DateTime @default(now())
+}
+
+model JobRole {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
 }
 
