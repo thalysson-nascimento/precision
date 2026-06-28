@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { BottomNav } from "@/components/layout/BottomNav";
-import { Suspense } from 'react';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Precision - Registro de Horas",
-  description: "Sistema moderno para registro e controle de ponto de funcionários",
+  title: "Precision - Portal Administrativo",
+  description: "Painel administrativo de controle de ponto da Precision",
 };
 
 export default function RootLayout({
@@ -28,14 +25,8 @@ export default function RootLayout({
           rel="stylesheet" 
         />
       </head>
-      <body className="bg-background text-on-surface min-h-screen pb-24">
-        <Suspense fallback={null}>
-          <Header />
-        </Suspense>
+      <body className="bg-background text-on-surface min-h-screen">
         {children}
-        <Suspense fallback={null}>
-          <BottomNav />
-        </Suspense>
       </body>
     </html>
   );

@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(req: NextRequest) {
   try {
     // Obter o IP do cliente através dos cabeçalhos padrões do Next.js/Vercel
-    const ip = req.headers.get('x-forwarded-for') || req.ip || '';
+    const ip = req.headers.get('x-forwarded-for') || (req as any).ip || '';
     
     // No ambiente local, o IP será localhost. Podemos deixar vazio para o ipapi.co consultar o IP público do servidor
     const isLocal = ip === '127.0.0.1' || ip === '::1' || ip === '';

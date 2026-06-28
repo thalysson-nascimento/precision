@@ -1,12 +1,17 @@
 'use client';
 
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 export const BottomNav: React.FC = () => {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const currentTab = searchParams.get('tab') || 'inicio';
+
+  if (pathname?.startsWith('/portal-admin')) {
+    return null;
+  }
 
   const getLinkClasses = (tab: string) => {
     if (currentTab === tab) {

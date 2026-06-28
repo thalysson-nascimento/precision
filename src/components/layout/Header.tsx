@@ -1,12 +1,17 @@
 'use client';
 
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { CurrentDate } from '../ui/CurrentDate';
 
 export const Header: React.FC = () => {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const currentTab = searchParams.get('tab') || 'inicio';
+
+  if (pathname?.startsWith('/portal-admin')) {
+    return null;
+  }
 
   if (currentTab === 'perfil') {
     return null;
@@ -16,7 +21,7 @@ export const Header: React.FC = () => {
     <header className="bg-background sticky top-0 z-50 border-b border-outline-variant/30 backdrop-blur-md">
       {/* Top micro-bar for the Chronos branding */}
       <div className="max-w-7xl mx-auto px-container-margin py-[6px] flex justify-between items-center text-[10px] tracking-wider uppercase text-on-surface-variant font-bold border-b border-outline-variant/10">
-        <span className="text-primary font-bold">Chronos</span>
+        <span className="text-primary font-bold">Precision</span>
         <div className="flex items-center gap-1">
           <span className="w-[6px] h-[6px] rounded-full bg-secondary shadow-sm animate-pulse"></span>
           <span>Sistema Ativo</span>

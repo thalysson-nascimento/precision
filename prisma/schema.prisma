@@ -17,6 +17,7 @@ model Employee {
   workEnd    String       @default("18:00")
   createdAt  DateTime     @default(now())
   records    TimeRecord[]
+  adjustments TimeAdjustment[]
 }
 
 model TimeRecord {
@@ -30,3 +31,17 @@ model TimeRecord {
 
   @@unique([employeeId, date, type])
 }
+
+model TimeAdjustment {
+  id            String   @id @default(uuid())
+  employeeId    String
+  date          String   // "YYYY-MM-DD"
+  type          String   // "ESQUECIMENTO DE SAÍDA", "ATESTADO MÉDICO", "AJUSTE MANUAL INÍCIO", etc.
+  time          String?  // "HH:MM"
+  justification String
+  attachment    String?  // e.g. "atestado_2410.pdf"
+  status        String   @default("PENDING") // "PENDING", "APPROVED", "REJECTED"
+  createdAt     DateTime @default(now())
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
