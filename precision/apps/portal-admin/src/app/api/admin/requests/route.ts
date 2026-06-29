@@ -1,5 +1,7 @@
+import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getSessionFromCookies } from '@precision/auth';
 
 // Mapeador de tipo de pendência para tipo de TimeRecord
 const mapAdjustmentTypeToRecordType = (type: string): 'IN' | 'LUNCH_OUT' | 'LUNCH_IN' | 'OUT' | null => {
@@ -13,6 +15,16 @@ const mapAdjustmentTypeToRecordType = (type: string): 'IN' | 'LUNCH_OUT' | 'LUNC
 
 export async function POST(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const session = await getSessionFromCookies(cookieStore);
+
+    if (!session) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
+    const isSuperAdmin = session.userRole === 'SUPERADMIN';
+    const companyId = session.companyId;
+
     const body = await req.json();
     const { requestId, action } = body;
 
@@ -21,9 +33,12 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === 'bulk_approve') {
-      // Buscar todas as pendências PENDING
+      // Buscar todas as pendências PENDING filtrando por empresa
       const pendingAdjustments = await prisma.timeAdjustment.findMany({
-        where: { status: 'PENDING' },
+        where: { 
+          status: 'PENDING',
+          employee: isSuperAdmin ? {} : { companyId },
+        },
       });
 
       // Aprovar cada uma delas
@@ -69,13 +84,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'ID da solicitação não informado' }, { status: 400 });
     }
 
-    // Buscar a solicitação correspondente
+    // Buscar a solicitação correspondente incluindo o colaborador para verificar tenant
     const adjustment = await prisma.timeAdjustment.findUnique({
       where: { id: requestId },
+      include: { employee: true },
     });
 
     if (!adjustment) {
       return NextResponse.json({ error: 'Solicitação não encontrada' }, { status: 404 });
+    }
+
+    // Tenant check
+    if (!isSuperAdmin && adjustment.employee.companyId !== companyId) {
+      return NextResponse.json({ error: 'Acesso negado. Esta solicitação pertence a colaborador de outra empresa.' }, { status: 403 });
     }
 
     if (action === 'approve') {

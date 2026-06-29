@@ -1,12 +1,18 @@
 'use client';
 
 import React from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 export const BottomNav: React.FC = () => {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'inicio';
+
+  // Hide BottomNav completely on login or expired views
+  if (pathname === '/login' || pathname === '/expired') {
+    return null;
+  }
 
   const getLinkClasses = (tab: string) => {
     if (currentTab === tab) {

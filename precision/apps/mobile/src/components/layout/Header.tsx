@@ -1,16 +1,45 @@
 'use client';
 
-import React from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { CurrentDate } from '../ui/CurrentDate';
 
 export const Header: React.FC = () => {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'inicio';
+  
+  const [employee, setEmployee] = useState<{ name: string; role: string } | null>(null);
+
+  useEffect(() => {
+    // Prevent fetching if on login/expired page
+    if (pathname === '/login' || pathname === '/expired') {
+      return;
+    }
+    
+    fetch('/api/auth/me')
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Unauthorized');
+      })
+      .then(data => {
+        setEmployee({ name: data.name, role: data.role });
+      })
+      .catch(() => {
+        setEmployee(null);
+      });
+  }, [pathname]);
+
+  // Hide header completely on login or expired views
+  if (pathname === '/login' || pathname === '/expired') {
+    return null;
+  }
 
   if (currentTab === 'perfil') {
     return null;
   }
+
+  const displayName = employee?.name || 'Colaborador';
 
   return (
     <header className="bg-background sticky top-0 z-50 border-b border-outline-variant/30 backdrop-blur-md">
@@ -27,18 +56,14 @@ export const Header: React.FC = () => {
       <div className="flex justify-between items-center w-full px-container-margin py-md max-w-7xl mx-auto">
         <div className="flex flex-col">
           <h1 className="text-headline-lg font-headline-lg font-semibold text-on-background">
-            Olá, Thalysson Nascimento
+            Olá, {displayName}
           </h1>
           <p className="text-body-sm font-body-sm text-on-surface-variant">
             <CurrentDate />
           </p>
         </div>
-        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-fixed shadow-sm">
-          <img 
-            className="w-full h-full object-cover" 
-            alt="Thalysson Nascimento" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCkp041NLPg5O5xO4J6IwCpf0q0CgXDwxkyFoEV1frk8mxb8YAwdbOFloVN46WTxhA4JaJsDLdGbqWWT-ZWGqrGGSPHo_JEOz2nE7UnWFFMTsu_XKcBoLtybRk_2bIEAm6t_etmvAJMYHmPwKXfYMtW4okrarTmB1wl1R94xR5DNp8VDde68GIvtRxY9U2wwh1lkHcQSngTHKPi3VSnAg0otn113hgliTAvyheeceReSJ-rsS6M08cPuA"
-          />
+        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-fixed shadow-sm bg-surface-container-high flex items-center justify-center">
+          <span className="material-symbols-outlined text-primary text-3xl">account_circle</span>
         </div>
       </div>
     </header>

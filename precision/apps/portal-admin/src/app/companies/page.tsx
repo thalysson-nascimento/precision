@@ -20,16 +20,25 @@ export default function CompaniesListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-  const fetchCompanies = async () => {
+  const fetchProfileAndData = async () => {
     try {
+      // 1. Fetch user role
+      const profileRes = await fetch('/api/auth/me');
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        setUserRole(profileData.userRole);
+      }
+
+      // 2. Fetch companies list
       const res = await fetch('/api/admin/companies');
       if (!res.ok) throw new Error('Falha ao carregar empresas');
       const data = await res.json();
       setCompanies(data);
     } catch (err) {
       console.error(err);
-      showToast('Erro ao carregar lista de empresas.', 'error');
+      showToast('Erro ao carregar dados das empresas.', 'error');
     } finally {
       setLoading(false);
     }
@@ -48,7 +57,7 @@ export default function CompaniesListPage() {
   };
 
   useEffect(() => {
-    fetchCompanies();
+    fetchProfileAndData();
     fetchPendingCount();
   }, []);
 
@@ -71,7 +80,12 @@ export default function CompaniesListPage() {
       }
 
       showToast('Empresa excluída com sucesso!', 'success');
-      fetchCompanies();
+      // Re-fetch list
+      const companiesRes = await fetch('/api/admin/companies');
+      if (companiesRes.ok) {
+        const data = await companiesRes.json();
+        setCompanies(data);
+      }
     } catch (err: any) {
       console.error(err);
       showToast(err.message || 'Erro ao excluir empresa.', 'error');
@@ -82,6 +96,8 @@ export default function CompaniesListPage() {
     company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     company.contact.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const isSuperAdmin = userRole === 'SUPERADMIN';
 
   return (
     <div className="admin-theme bg-background text-on-surface font-body-sm min-h-screen">
@@ -111,15 +127,19 @@ export default function CompaniesListPage() {
               <section className="flex flex-col md:flex-row md:items-end justify-between gap-md">
                 <div>
                   <h1 className="font-headline-lg text-headline-lg text-on-surface">Empresas</h1>
-                  <p className="font-body-lg text-body-lg text-on-surface-variant mt-xs">Gerencie as empresas e filiais da organização.</p>
+                  <p className="font-body-lg text-body-lg text-on-surface-variant mt-xs">
+                    {isSuperAdmin ? 'Gerencie todas as empresas organizadas no sistema.' : 'Gerencie os dados cadastrais da sua empresa.'}
+                  </p>
                 </div>
-                <Link 
-                  href="/companies/new" 
-                  className="bg-primary text-on-primary font-bold px-md py-sm rounded-lg flex items-center gap-xs hover:opacity-90 active:opacity-80 transition-all cursor-pointer font-label-caps text-label-caps"
-                >
-                  <span className="material-symbols-outlined text-[18px]">add</span>
-                  ADICIONAR EMPRESA
-                </Link>
+                {isSuperAdmin && (
+                  <Link 
+                    href="/companies/new" 
+                    className="bg-primary text-on-primary font-bold px-md py-sm rounded-lg flex items-center gap-xs hover:opacity-90 active:opacity-80 transition-all cursor-pointer font-label-caps text-label-caps"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">add</span>
+                    ADICIONAR EMPRESA
+                  </Link>
+                )}
               </section>
 
               {/* Table Card */}
@@ -141,7 +161,7 @@ export default function CompaniesListPage() {
                           <th className="py-md px-lg font-bold">Empresa</th>
                           <th className="py-md px-lg font-bold">Endereço</th>
                           <th className="py-md px-lg font-bold">Contato</th>
-                          <th className="py-md px-lg font-bold text-right">Ações</th>
+                          <th className="py-md px-lg text-right font-bold">Ações</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-outline-variant">
@@ -165,13 +185,15 @@ export default function CompaniesListPage() {
                                 >
                                   <span className="material-symbols-outlined text-[20px]">edit</span>
                                 </Link>
-                                <button 
-                                  onClick={() => handleDelete(company.id)}
-                                  className="text-on-surface-variant hover:text-error hover:bg-error/10 rounded-full p-2 transition-all flex items-center justify-center cursor-pointer"
-                                  title="Excluir"
-                                >
-                                  <span className="material-symbols-outlined text-[20px]">delete</span>
-                                </button>
+                                {isSuperAdmin && (
+                                  <button 
+                                    onClick={() => handleDelete(company.id)}
+                                    className="text-on-surface-variant hover:text-error hover:bg-error/10 rounded-full p-2 transition-all flex items-center justify-center cursor-pointer"
+                                    title="Excluir"
+                                  >
+                                    <span className="material-symbols-outlined text-[20px]">delete</span>
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>

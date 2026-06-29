@@ -16,29 +16,144 @@ async function main() {
   await prisma.timeRecord.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.team.deleteMany();
-  await prisma.company.deleteMany();
   await prisma.jobRole.deleteMany();
+  await prisma.company.deleteMany();
 
-  // Criar o funcionário padrão (Thalysson Nascimento)
+  const now = new Date();
+  
+  // 1. Criar Empresas
+  const activeDate = new Date();
+  activeDate.setMonth(activeDate.getMonth() + 3);
+
+  const expiredDate = new Date();
+  expiredDate.setDate(expiredDate.getDate() - 1);
+
+  const companyTech = await prisma.company.create({
+    data: {
+      name: 'Precision Tech',
+      address: 'Av. Paulista',
+      number: '1000',
+      contact: 'contato@precisiontech.com.br',
+      subscriptionPlan: 'THREE_MONTHS',
+      subscriptionStatus: 'ACTIVE',
+      subscriptionEndsAt: activeDate,
+    },
+  });
+
+  const companyAlpha = await prisma.company.create({
+    data: {
+      name: 'Alpha Corp',
+      address: 'Rua das Flores',
+      number: '45',
+      contact: 'contato@alphacorp.com.br',
+      subscriptionPlan: 'SIX_MONTHS',
+      subscriptionStatus: 'EXPIRED',
+      subscriptionEndsAt: expiredDate,
+    },
+  });
+
+  // 2. Criar Cargos e Equipes por Empresa
+  const techDevRole = await prisma.jobRole.create({
+    data: { name: 'Desenvolvedor Senior', companyId: companyTech.id }
+  });
+  const techHRAssistantRole = await prisma.jobRole.create({
+    data: { name: 'Coordenadora de RH', companyId: companyTech.id }
+  });
+  const techOpsRole = await prisma.jobRole.create({
+    data: { name: 'Analista de Operacoes', companyId: companyTech.id }
+  });
+  const techSalesRole = await prisma.jobRole.create({
+    data: { name: 'Executiva de Vendas', companyId: companyTech.id }
+  });
+  const techITRole = await prisma.jobRole.create({
+    data: { name: 'Suporte de TI', companyId: companyTech.id }
+  });
+  const techNetworkRole = await prisma.jobRole.create({
+    data: { name: 'Administrador de Redes', companyId: companyTech.id }
+  });
+  const techFinRole = await prisma.jobRole.create({
+    data: { name: 'Analista Financeiro', companyId: companyTech.id }
+  });
+  const techOpsAssistantRole = await prisma.jobRole.create({
+    data: { name: 'Assistente Operacional', companyId: companyTech.id }
+  });
+  const techManagerRole = await prisma.jobRole.create({
+    data: { name: 'Gerente de RH', companyId: companyTech.id }
+  });
+
+  const alphaAnalystRole = await prisma.jobRole.create({
+    data: { name: 'Analista', companyId: companyAlpha.id }
+  });
+
+  const techDevTeam = await prisma.team.create({
+    data: { name: 'Desenvolvimento', companyId: companyTech.id }
+  });
+  const techHRTeam = await prisma.team.create({
+    data: { name: 'Recursos Humanos', companyId: companyTech.id }
+  });
+  const techSalesTeam = await prisma.team.create({
+    data: { name: 'Vendas', companyId: companyTech.id }
+  });
+
+  const alphaDevTeam = await prisma.team.create({
+    data: { name: 'Engenharia', companyId: companyAlpha.id }
+  });
+
+  // 3. Criar SUPERADMIN (sem empresa)
+  const superAdmin = await prisma.employee.create({
+    data: {
+      name: 'Admin Global',
+      email: 'superadmin@precision.com',
+      password: '123456',
+      userRole: 'SUPERADMIN',
+      role: 'Diretor Geral',
+    },
+  });
+
+  // 4. Criar Colaboradores Precision Tech
+  const techOwner = await prisma.employee.create({
+    data: {
+      name: 'Tech Owner',
+      email: 'owner@precisiontech.com',
+      password: '123456',
+      userRole: 'OWNER',
+      role: 'Presidente',
+      companyId: companyTech.id,
+    },
+  });
+
+  const techAdmin = await prisma.employee.create({
+    data: {
+      name: 'Tech Admin',
+      email: 'admin@precisiontech.com',
+      password: '123456',
+      userRole: 'ADMIN',
+      role: 'Gerente de RH',
+      companyId: companyTech.id,
+    },
+  });
+
   const mainEmployee = await prisma.employee.create({
     data: {
       name: 'Thalysson Nascimento',
       email: 'thalysson@example.com',
+      password: '123456',
+      userRole: 'EMPLOYEE',
       role: 'Desenvolvedor Senior',
       workStart: '08:00',
       lunchStart: '12:00',
       lunchEnd: '13:00',
       workEnd: '18:00',
+      companyId: companyTech.id,
     },
   });
 
-  // Criar outros funcionários para simular a equipe
   const employees = [
-    { name: 'Carlos Souza', email: 'carlos@example.com', role: 'Analista de Operações' },
+    { name: 'Carlos Souza', email: 'carlos@example.com', role: 'Analista de Operacoes' },
     { name: 'Ana Lima', email: 'ana@example.com', role: 'Executiva de Vendas' },
     { name: 'Fernando Costa', email: 'fernando@example.com', role: 'Suporte de TI' },
     { name: 'Mariana Silva', email: 'mariana@example.com', role: 'Analista de RH' },
-    { name: 'João Pedro', email: 'joao@example.com', role: 'Analista Financeiro' },
+    { name: 'Joao Pedro', email: 'joao@example.com', role: 'Analista Financeiro' },
     { name: 'Roberto Mendes', email: 'roberto@example.com', role: 'Assistente Operacional' },
     { name: 'Luciana Tavares', email: 'luciana@example.com', role: 'Coordenadora de RH' },
     { name: 'Paulo Roberto', email: 'paulo@example.com', role: 'Administrador de Redes' },
@@ -50,17 +165,47 @@ async function main() {
       data: {
         name: emp.name,
         email: emp.email,
+        password: '123456',
+        userRole: 'EMPLOYEE',
         role: emp.role,
         workStart: '08:00',
         lunchStart: '12:00',
         lunchEnd: '13:00',
         workEnd: '18:00',
+        companyId: companyTech.id,
       },
     });
     dbEmployees[emp.email] = created;
   }
 
-  // 1. Gerar registros históricos para o funcionário padrão (Thalysson) de Janeiro a Junho/2026
+  // 5. Criar Colaboradores Alpha Corp
+  const alphaOwner = await prisma.employee.create({
+    data: {
+      name: 'Alpha Owner',
+      email: 'owner@alphacorp.com',
+      password: '123456',
+      userRole: 'OWNER',
+      role: 'Presidente',
+      companyId: companyAlpha.id,
+    },
+  });
+
+  const alphaEmployee = await prisma.employee.create({
+    data: {
+      name: 'Alpha Employee',
+      email: 'employee@alphacorp.com',
+      password: '123456',
+      userRole: 'EMPLOYEE',
+      role: 'Analista',
+      workStart: '08:00',
+      lunchStart: '12:00',
+      lunchEnd: '13:00',
+      workEnd: '18:00',
+      companyId: companyAlpha.id,
+    },
+  });
+
+  // 6. Gerar registros históricos para Thalysson
   const mainRecords = [];
   const startYear = 2026;
   const startMonth = 0; // Janeiro
@@ -119,26 +264,23 @@ async function main() {
     data: mainRecords,
   });
 
-  // 2. Gerar registros de ponto da semana atual (Segunda 2026-06-22 a Sexta 2026-06-26) para os outros funcionários
+  // 7. Gerar registros de ponto da semana atual para outros funcionários
   const teamRecords = [];
   const weekDays = ['2026-06-22', '2026-06-23', '2026-06-24', '2026-06-25', '2026-06-26'];
 
   weekDays.forEach(dateStr => {
-    // Carlos Souza: presente todos os dias
     const cs = dbEmployees['carlos@example.com'];
     teamRecords.push({ date: dateStr, type: 'IN', time: '08:02', confirmed: true, employeeId: cs.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_OUT', time: '12:00', confirmed: true, employeeId: cs.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_IN', time: '13:00', confirmed: true, employeeId: cs.id });
     teamRecords.push({ date: dateStr, type: 'OUT', time: '18:00', confirmed: true, employeeId: cs.id });
 
-    // Ana Lima: presente todos os dias
     const al = dbEmployees['ana@example.com'];
     teamRecords.push({ date: dateStr, type: 'IN', time: '07:58', confirmed: true, employeeId: al.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_OUT', time: '12:15', confirmed: true, employeeId: al.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_IN', time: '13:15', confirmed: true, employeeId: al.id });
     teamRecords.push({ date: dateStr, type: 'OUT', time: '18:05', confirmed: true, employeeId: al.id });
 
-    // Fernando Costa: presente todos os dias, atraso na Sexta 26/06
     const fc = dbEmployees['fernando@example.com'];
     const fcInTime = dateStr === '2026-06-26' ? '09:30' : '08:05';
     teamRecords.push({ date: dateStr, type: 'IN', time: fcInTime, confirmed: true, employeeId: fc.id });
@@ -146,21 +288,18 @@ async function main() {
     teamRecords.push({ date: dateStr, type: 'LUNCH_IN', time: '13:00', confirmed: true, employeeId: fc.id });
     teamRecords.push({ date: dateStr, type: 'OUT', time: '18:00', confirmed: true, employeeId: fc.id });
 
-    // Mariana Silva: presente todos os dias
     const ms = dbEmployees['mariana@example.com'];
     teamRecords.push({ date: dateStr, type: 'IN', time: '07:55', confirmed: true, employeeId: ms.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_OUT', time: '12:00', confirmed: true, employeeId: ms.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_IN', time: '13:00', confirmed: true, employeeId: ms.id });
     teamRecords.push({ date: dateStr, type: 'OUT', time: '18:00', confirmed: true, employeeId: ms.id });
 
-    // João Pedro: presente todos os dias
     const jp = dbEmployees['joao@example.com'];
     teamRecords.push({ date: dateStr, type: 'IN', time: '07:50', confirmed: true, employeeId: jp.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_OUT', time: '12:00', confirmed: true, employeeId: jp.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_IN', time: '13:00', confirmed: true, employeeId: jp.id });
     teamRecords.push({ date: dateStr, type: 'OUT', time: '18:00', confirmed: true, employeeId: jp.id });
 
-    // Roberto Mendes: faltou bater a saída na Terça 23/06
     const rm = dbEmployees['roberto@example.com'];
     teamRecords.push({ date: dateStr, type: 'IN', time: '08:00', confirmed: true, employeeId: rm.id });
     teamRecords.push({ date: dateStr, type: 'LUNCH_OUT', time: '12:00', confirmed: true, employeeId: rm.id });
@@ -169,7 +308,6 @@ async function main() {
       teamRecords.push({ date: dateStr, type: 'OUT', time: '18:00', confirmed: true, employeeId: rm.id });
     }
 
-    // Luciana Tavares: atestado na Quarta 24/06 (sem registros nesse dia)
     const lt = dbEmployees['luciana@example.com'];
     if (dateStr !== '2026-06-24') {
       teamRecords.push({ date: dateStr, type: 'IN', time: '08:00', confirmed: true, employeeId: lt.id });
@@ -178,7 +316,6 @@ async function main() {
       teamRecords.push({ date: dateStr, type: 'OUT', time: '18:00', confirmed: true, employeeId: lt.id });
     }
 
-    // Paulo Roberto: ajuste manual pendente na Quarta 24/06 (apenas LUNCH_OUT, LUNCH_IN e OUT confirmados; IN pendente)
     const pr = dbEmployees['paulo@example.com'];
     if (dateStr === '2026-06-24') {
       teamRecords.push({ date: dateStr, type: 'LUNCH_OUT', time: '12:00', confirmed: true, employeeId: pr.id });
@@ -196,7 +333,7 @@ async function main() {
     data: teamRecords,
   });
 
-  // 3. Criar solicitações de ajuste pendentes iniciais
+  // 8. Criar solicitações de ajuste pendentes
   const rmEmp = dbEmployees['roberto@example.com'];
   const ltEmp = dbEmployees['luciana@example.com'];
   const prEmp = dbEmployees['paulo@example.com'];
@@ -234,41 +371,7 @@ async function main() {
     ],
   });
 
-  // Criar Equipes
-  await prisma.team.createMany({
-    data: [
-      { name: 'Desenvolvimento' },
-      { name: 'Design' },
-      { name: 'Recursos Humanos' },
-      { name: 'Vendas' },
-      { name: 'Suporte de TI' },
-    ],
-  });
-
-  // Criar Empresas
-  await prisma.company.createMany({
-    data: [
-      { name: 'Precision Matriz', address: 'Av. Paulista', number: '1000', contact: 'contato@precision.com.br' },
-      { name: 'Precision Filial Sul', address: 'Rua das Flores', number: '45', contact: 'filial.sul@precision.com.br' },
-      { name: 'Precision Filial Nordeste', address: 'Av. Beira Mar', number: '200', contact: 'filial.ne@precision.com.br' },
-    ],
-  });
-
-  // Criar Cargos
-  await prisma.jobRole.createMany({
-    data: [
-      { name: 'Desenvolvedor Senior' },
-      { name: 'Desenvolvedor Pleno' },
-      { name: 'Analista de Operações' },
-      { name: 'Executiva de Vendas' },
-      { name: 'Suporte de TI' },
-      { name: 'Coordenadora de RH' },
-    ],
-  });
-
-  console.log('Banco de dados semeado com sucesso para a Precision no monorepo!');
-  console.log(`Funcionário padrão: ${mainEmployee.name}`);
-  console.log(`Outros funcionários criados: ${Object.keys(dbEmployees).length}`);
+  console.log('Banco de dados semeado com sucesso em Precision no modo multi-tenant!');
 }
 
 main()

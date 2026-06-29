@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@precision/api-client": "*",
+    "@precision/auth": "*",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@tailwindcss/postcss": "^4.3.1",

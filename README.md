@@ -42,3 +42,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 turbo
 npx turbo run dev --filter=@precision/mobile
 npx turbo run dev --filter=@precision/portal-admin
+
+## rodar banco de dados prisma
+
+npx prisma generate --schema=precision/prisma/schema.prisma
+
+## Para garantir que tudo está perfeitamente correto e sem erros de compilação
+npx tsc --noEmit
+

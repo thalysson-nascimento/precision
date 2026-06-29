@@ -1,5 +1,7 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getSessionFromCookies } from '@precision/auth';
 
 // Helper para converter HH:MM para minutos desde a meia-noite
 const timeToMinutes = (timeStr: string): number => {
@@ -10,17 +12,31 @@ const timeToMinutes = (timeStr: string): number => {
 
 export async function GET() {
   try {
-    const totalEmployees = await prisma.employee.count();
+    const cookieStore = await cookies();
+    const session = await getSessionFromCookies(cookieStore);
+
+    if (!session) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
+    const isSuperAdmin = session.userRole === 'SUPERADMIN';
+    const companyId = session.companyId;
+
+    // 1. Total de funcionários
+    const totalEmployees = await prisma.employee.count({
+      where: isSuperAdmin ? {} : { companyId },
+    });
     
     // Como hoje no seed é sábado (2026-06-27), usamos a última data útil com registros (26/06)
     // para preencher os dados do painel principal (Presentes Agora) de forma realista.
     const targetDate = '2026-06-26';
     
-    // Contar funcionários que registraram entrada na data alvo
+    // 2. Contar funcionários que registraram entrada na data alvo
     const checkedInToday = await prisma.timeRecord.findMany({
       where: {
         date: targetDate,
         type: 'IN',
+        employee: isSuperAdmin ? {} : { companyId },
       },
     });
 
@@ -29,10 +45,11 @@ export async function GET() {
       ? Math.round((presentNow / totalEmployees) * 100) 
       : 0;
 
-    // Buscar pendências de ajustes com status PENDING
+    // 3. Buscar pendências de ajustes com status PENDING
     const pendingRequests = await prisma.timeAdjustment.findMany({
       where: {
         status: 'PENDING',
+        employee: isSuperAdmin ? {} : { companyId },
       },
       include: {
         employee: true,
@@ -44,7 +61,7 @@ export async function GET() {
 
     const pendingRequestsCount = pendingRequests.length;
 
-    // Calcular as horas extras de todos os funcionários no ano atual (2026)
+    // 4. Calcular as horas extras de todos os funcionários no ano atual (2026)
     const currentYearStr = '2026';
     const yearRecords = await prisma.timeRecord.findMany({
       where: {
@@ -52,6 +69,7 @@ export async function GET() {
           startsWith: `${currentYearStr}-`,
         },
         confirmed: true,
+        employee: isSuperAdmin ? {} : { companyId },
       },
     });
 
@@ -66,7 +84,7 @@ export async function GET() {
       dailyRecordsMap[key][r.type] = r.time;
     });
 
-    // Minutos de horas extras agrupados por mês (ex: "01", "02", etc.)
+    // Minutos de horas extras agrupados por mês
     const overtimeByMonth: { [month: string]: number } = {
       '01': 0, '02': 0, '03': 0, '04': 0, '05': 0, '06': 0,
       '07': 0, '08': 0, '09': 0, '10': 0, '11': 0, '12': 0
@@ -101,10 +119,8 @@ export async function GET() {
 
       let overtimeMinutes = 0;
       if (dayOfWeek === 0 || dayOfWeek === 6) {
-        // Fim de semana: todas as horas trabalhadas são extras
         overtimeMinutes = workedMinutes;
       } else {
-        // Dia de semana: trabalhado acima de 8h (480 min) é extra
         if (workedMinutes > 480) {
           overtimeMinutes = workedMinutes - 480;
         }
@@ -157,11 +173,12 @@ export async function GET() {
       percentage: Math.round((m.hours / maxHours) * 100),
     }));
 
-    // Buscar Atividades Recentes: últimas 10 batidas confirmadas na data alvo (26/06) ordenadas por horário decrescente
+    // 5. Buscar Atividades Recentes: últimas 10 batidas confirmadas na data alvo (26/06) ordenadas por horário decrescente
     const recentRecords = await prisma.timeRecord.findMany({
       where: {
         date: targetDate,
         confirmed: true,
+        employee: isSuperAdmin ? {} : { companyId },
       },
       include: {
         employee: true,

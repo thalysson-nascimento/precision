@@ -1,7 +1,23 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import path from 'path';
 
-const dbUrl = process.env.DATABASE_URL || 'file:../../prisma/dev.db';
+let dbUrl = process.env.DATABASE_URL || 'file:../../prisma/dev.db';
+
+// Resolve relative file paths to ensure consistent database access across package working directories
+if (dbUrl.startsWith('file:')) {
+  const filePath = dbUrl.replace('file:', '');
+  if (!path.isAbsolute(filePath)) {
+    // If it points to ./prisma/dev.db (set in monorepo root .env), resolve it relative to monorepo root
+    if (filePath.startsWith('./prisma/') || filePath.startsWith('prisma/')) {
+      // From apps/portal-admin, the prisma directory is at ../../prisma
+      dbUrl = `file:${path.resolve(process.cwd(), '../../prisma/dev.db')}`;
+    } else {
+      dbUrl = `file:${path.resolve(process.cwd(), filePath)}`;
+    }
+  }
+}
+
 const adapter = new PrismaBetterSqlite3({
   url: dbUrl,
 });

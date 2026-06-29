@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { delay } from '@/lib/delay';
+import { getSessionFromCookies } from '@precision/auth';
 
 // Helper para obter a data local no formato YYYY-MM-DD
 const getTodayDateString = (): string => {
@@ -20,11 +22,18 @@ const timeToMinutes = (timeStr: string): number => {
 // GET: Retorna o funcionário e seus registros do dia atual
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const session = await getSessionFromCookies(cookieStore);
+
+    if (!session) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     // Simular latência de rede conforme diretrizes
     await delay(600);
 
-    const employee = await prisma.employee.findFirst({
-      where: { email: 'thalysson@example.com' },
+    const employee = await prisma.employee.findUnique({
+      where: { id: session.userId },
     });
 
     if (!employee) {
@@ -121,14 +130,21 @@ export async function GET() {
 // POST: Confirma/bate pontos de forma inteligente baseado no horário atual e no contrato
 export async function POST(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const session = await getSessionFromCookies(cookieStore);
+
+    if (!session) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     // Simular latência de rede conforme diretrizes
     await delay(1000);
 
     const body = await req.json().catch(() => ({}));
     const { date } = body;
 
-    const employee = await prisma.employee.findFirst({
-      where: { email: 'thalysson@example.com' },
+    const employee = await prisma.employee.findUnique({
+      where: { id: session.userId },
     });
 
     if (!employee) {
@@ -165,8 +181,6 @@ export async function POST(req: NextRequest) {
     const existingTypes = new Set(existingRecords.map(r => r.type));
 
     // Filtrar contratos elegíveis.
-    // Se for hoje, o horário contratual deve ser <= ao horário atual.
-    // Se for um dia no passado, todos os horários contratuais são elegíveis.
     const toRegister = contracts.filter(c => {
       if (isToday) {
         const contractMinutesVal = timeToMinutes(c.time);
@@ -184,7 +198,7 @@ export async function POST(req: NextRequest) {
             employeeId: employee.id,
             date: targetDate,
             type: item.type,
-            time: item.time, // Salva o horário contratual como solicitado
+            time: item.time, // Salva o horário contratual
             confirmed: true,
           },
         });
@@ -211,6 +225,13 @@ export async function POST(req: NextRequest) {
 // PUT: Edita ou insere manualmente o horário de uma marcação específica (Modal)
 export async function PUT(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const session = await getSessionFromCookies(cookieStore);
+
+    if (!session) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     // Simular latência de rede conforme diretrizes
     await delay(1000);
 
@@ -221,8 +242,8 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'Dados insuficientes para edição' }, { status: 400 });
     }
 
-    const employee = await prisma.employee.findFirst({
-      where: { email: 'thalysson@example.com' },
+    const employee = await prisma.employee.findUnique({
+      where: { id: session.userId },
     });
 
     if (!employee) {
@@ -253,7 +274,7 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    // Buscar todos os registros hoje ou do dia alvo
+    // Buscar todos os registros do dia alvo
     const updatedRecords = await prisma.timeRecord.findMany({
       where: {
         employeeId: employee.id,

@@ -10,12 +10,16 @@ model Employee {
   id          String           @id @default(uuid())
   name        String
   email       String           @unique
-  role        String
+  password    String           @default("123456")
+  userRole    String           @default("EMPLOYEE") // "SUPERADMIN", "OWNER", "ADMIN", "EMPLOYEE"
+  role        String           // Job title
   workStart   String           @default("08:00")
   lunchStart  String           @default("12:00")
   lunchEnd    String           @default("13:00")
   workEnd     String           @default("18:00")
   createdAt   DateTime         @default(now())
+  companyId   String?
+  company     Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   adjustments TimeAdjustment[]
   records     TimeRecord[]
 }
@@ -47,22 +51,35 @@ model TimeAdjustment {
 
 model Team {
   id        String   @id @default(uuid())
-  name      String   @unique
+  name      String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@unique([name, companyId])
 }
 
 model Company {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  address   String
-  number    String
-  contact   String
-  createdAt DateTime @default(now())
+  id                 String     @id @default(uuid())
+  name               String     @unique
+  address            String
+  number             String
+  contact            String
+  subscriptionPlan   String     @default("TRIAL") // "TRIAL", "THREE_MONTHS", "SIX_MONTHS"
+  subscriptionStatus String     @default("ACTIVE") // "ACTIVE", "EXPIRED"
+  subscriptionEndsAt DateTime?
+  createdAt          DateTime   @default(now())
+  employees          Employee[]
+  teams              Team[]
+  jobRoles           JobRole[]
 }
 
 model JobRole {
   id        String   @id @default(uuid())
-  name      String   @unique
+  name      String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-}
 
+  @@unique([name, companyId])
+}

@@ -1,6 +1,8 @@
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { delay } from '@/lib/delay';
+import { getSessionFromCookies } from '@precision/auth';
 
 const PORTUGUESE_MONTHS = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -43,11 +45,18 @@ const getExpectedMinutesForMonth = (year: number, monthZeroIndexed: number): num
 
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const session = await getSessionFromCookies(cookieStore);
+
+    if (!session) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
     // Simular latência de rede para exibir o skeleton loader de forma bonita
     await delay(800);
 
-    const employee = await prisma.employee.findFirst({
-      where: { email: 'thalysson@example.com' },
+    const employee = await prisma.employee.findUnique({
+      where: { id: session.userId },
     });
 
     if (!employee) {
