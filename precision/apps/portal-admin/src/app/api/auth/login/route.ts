@@ -19,6 +19,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'E-mail ou senha incorretos.' }, { status: 401 });
     }
 
+    if (!employee.isActive) {
+      return NextResponse.json({ 
+        error: 'Sua conta está inativa. Entre em contato com o administrador da sua empresa.' 
+      }, { status: 403 });
+    }
+
     // Role-based Access Control for Portal-Admin
     // Only SUPERADMIN, OWNER, and ADMIN can access portal-admin
     const allowedRoles = ['SUPERADMIN', 'OWNER', 'ADMIN'];

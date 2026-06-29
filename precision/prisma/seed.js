@@ -119,6 +119,10 @@ async function main() {
       userRole: 'OWNER',
       role: 'Presidente',
       companyId: companyTech.id,
+      isTeamLeader: true,
+      contractNumber: 'CT-9080-X',
+      phone: '(11) 98888-7777',
+      address: 'Av. Paulista, 1000 - São Paulo, SP',
     },
   });
 
@@ -130,6 +134,12 @@ async function main() {
       userRole: 'ADMIN',
       role: 'Gerente de RH',
       companyId: companyTech.id,
+      isTeamLeader: true,
+      teamId: techHRTeam.id,
+      contractNumber: 'CT-2041-A',
+      phone: '(11) 97777-6666',
+      address: 'Rua Bela Cintra, 200 - São Paulo, SP',
+      managerId: techOwner.id,
     },
   });
 
@@ -145,18 +155,24 @@ async function main() {
       lunchEnd: '13:00',
       workEnd: '18:00',
       companyId: companyTech.id,
+      isTeamLeader: false,
+      teamId: techDevTeam.id,
+      contractNumber: 'CT-8041-F',
+      phone: '(11) 98888-8888',
+      address: 'Rua Augusta, 400 - São Paulo, SP',
+      managerId: techOwner.id,
     },
   });
 
   const employees = [
-    { name: 'Carlos Souza', email: 'carlos@example.com', role: 'Analista de Operacoes' },
-    { name: 'Ana Lima', email: 'ana@example.com', role: 'Executiva de Vendas' },
-    { name: 'Fernando Costa', email: 'fernando@example.com', role: 'Suporte de TI' },
-    { name: 'Mariana Silva', email: 'mariana@example.com', role: 'Analista de RH' },
-    { name: 'Joao Pedro', email: 'joao@example.com', role: 'Analista Financeiro' },
-    { name: 'Roberto Mendes', email: 'roberto@example.com', role: 'Assistente Operacional' },
-    { name: 'Luciana Tavares', email: 'luciana@example.com', role: 'Coordenadora de RH' },
-    { name: 'Paulo Roberto', email: 'paulo@example.com', role: 'Administrador de Redes' },
+    { name: 'Carlos Souza', email: 'carlos@example.com', role: 'Analista de Operacoes', teamId: techDevTeam.id, contractNumber: 'CT-7011-B', phone: '(11) 91111-2222', address: 'Rua Consolação, 500', isTeamLeader: false, isActive: true },
+    { name: 'Ana Lima', email: 'ana@example.com', role: 'Executiva de Vendas', teamId: techSalesTeam.id, contractNumber: 'CT-3042-C', phone: '(11) 92222-3333', address: 'Alameda Santos, 800', isTeamLeader: true, isActive: true },
+    { name: 'Fernando Costa', email: 'fernando@example.com', role: 'Suporte de TI', teamId: techDevTeam.id, contractNumber: 'CT-1025-D', phone: '(11) 93333-4444', address: 'Rua Pamplona, 900', isTeamLeader: false, isActive: true },
+    { name: 'Mariana Silva', email: 'mariana@example.com', role: 'Analista de RH', teamId: techHRTeam.id, contractNumber: 'CT-6033-E', phone: '(11) 94444-5555', address: 'Rua Oscar Freire, 1200', isTeamLeader: false, isActive: true },
+    { name: 'Joao Pedro', email: 'joao@example.com', role: 'Analista Financeiro', teamId: techSalesTeam.id, contractNumber: 'CT-5022-G', phone: '(11) 95555-6666', address: 'Rua Haddock Lobo, 600', isTeamLeader: false, isActive: true },
+    { name: 'Roberto Mendes', email: 'roberto@example.com', role: 'Assistente Operacional', teamId: techHRTeam.id, contractNumber: 'CT-4099-H', phone: '(11) 96666-7777', address: 'Rua Augusta, 1500', isTeamLeader: false, isActive: true },
+    { name: 'Luciana Tavares', email: 'luciana@example.com', role: 'Coordenadora de RH', teamId: techHRTeam.id, contractNumber: 'CT-6088-I', phone: '(11) 97777-8888', address: 'Rua Bela Cintra, 800', isTeamLeader: false, isActive: true },
+    { name: 'Paulo Roberto', email: 'paulo@example.com', role: 'Administrador de Redes', teamId: techDevTeam.id, contractNumber: 'CT-1090-J', phone: '(11) 98888-9999', address: 'Rua Itapeva, 100', isTeamLeader: false, isActive: false },
   ];
 
   const dbEmployees = {};
@@ -173,6 +189,13 @@ async function main() {
         lunchEnd: '13:00',
         workEnd: '18:00',
         companyId: companyTech.id,
+        isActive: emp.isActive,
+        contractNumber: emp.contractNumber,
+        phone: emp.phone,
+        address: emp.address,
+        isTeamLeader: emp.isTeamLeader,
+        teamId: emp.teamId,
+        managerId: techAdmin.id, // Tech Admin handles general employees
       },
     });
     dbEmployees[emp.email] = created;

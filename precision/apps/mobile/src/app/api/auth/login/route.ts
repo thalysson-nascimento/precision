@@ -19,6 +19,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'E-mail ou senha incorretos.' }, { status: 401 });
     }
 
+    if (!employee.isActive) {
+      return NextResponse.json({ 
+        error: 'Sua conta está inativa. Por favor, entre em contato com o administrador da sua empresa.' 
+      }, { status: 403 });
+    }
+
     // Tenant / Company Subscription Check
     if (employee.company) {
       if (employee.company.subscriptionStatus !== 'ACTIVE') {

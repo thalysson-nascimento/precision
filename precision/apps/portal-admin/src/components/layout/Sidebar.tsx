@@ -64,10 +64,10 @@ export const Sidebar: React.FC = () => {
         </li>
         {/* Colaboradores */}
         <li>
-          <a className="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant hover:text-primary font-body-lg text-body-lg hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:opacity-80" href="#">
-            <span className="material-symbols-outlined">group</span>
+          <Link href="/employees" className={getLinkClass('/employees')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/employees')}>group</span>
             <span>Colaboradores</span>
-          </a>
+          </Link>
         </li>
         {/* Relatórios */}
         <li>

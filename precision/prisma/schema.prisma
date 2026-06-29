@@ -7,21 +7,31 @@ datasource db {
 }
 
 model Employee {
-  id          String           @id @default(uuid())
-  name        String
-  email       String           @unique
-  password    String           @default("123456")
-  userRole    String           @default("EMPLOYEE") // "SUPERADMIN", "OWNER", "ADMIN", "EMPLOYEE"
-  role        String           // Job title
-  workStart   String           @default("08:00")
-  lunchStart  String           @default("12:00")
-  lunchEnd    String           @default("13:00")
-  workEnd     String           @default("18:00")
-  createdAt   DateTime         @default(now())
-  companyId   String?
-  company     Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  adjustments TimeAdjustment[]
-  records     TimeRecord[]
+  id             String           @id @default(uuid())
+  name           String
+  email          String           @unique
+  password       String           @default("123456")
+  userRole       String           @default("EMPLOYEE") // "SUPERADMIN", "OWNER", "ADMIN", "EMPLOYEE"
+  role           String           // Job title
+  workStart      String           @default("08:00")
+  lunchStart     String           @default("12:00")
+  lunchEnd       String           @default("13:00")
+  workEnd        String           @default("18:00")
+  createdAt      DateTime         @default(now())
+  isActive       Boolean          @default(true)
+  contractNumber String?
+  phone          String?
+  address        String?
+  isTeamLeader   Boolean          @default(false)
+  teamId         String?
+  team           Team?            @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  managerId      String?
+  manager        Employee?        @relation("EmployeeManager", fields: [managerId], references: [id])
+  subordinates   Employee[]       @relation("EmployeeManager")
+  companyId      String?
+  company        Company?         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  adjustments    TimeAdjustment[]
+  records        TimeRecord[]
 }
 
 model TimeRecord {
@@ -50,11 +60,12 @@ model TimeAdjustment {
 }
 
 model Team {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
   companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employees Employee[]
+  createdAt DateTime   @default(now())
 
   @@unique([name, companyId])
 }
