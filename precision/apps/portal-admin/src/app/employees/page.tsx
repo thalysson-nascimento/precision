@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
+import { useI18n } from '@/locales/useI18n';
 
 interface Employee {
   id: string;
@@ -24,6 +25,7 @@ interface Employee {
 }
 
 export default function EmployeesListPage() {
+  const { t } = useI18n();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,12 +45,12 @@ export default function EmployeesListPage() {
 
       // 2. Fetch employees list
       const res = await fetch('/api/admin/employees');
-      if (!res.ok) throw new Error('Falha ao carregar colaboradores');
+      if (!res.ok) throw new Error(t('employees.editError'));
       const data = await res.json();
       setEmployees(data);
     } catch (err) {
       console.error(err);
-      showToast('Erro ao carregar lista de colaboradores.', 'error');
+      showToast(t('employees.editError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -77,8 +79,8 @@ export default function EmployeesListPage() {
   };
 
   const handleToggleStatus = async (employee: Employee) => {
-    const actionText = employee.isActive ? 'desativar' : 'ativar';
-    if (!confirm(`Deseja realmente ${actionText} o colaborador ${employee.name}?`)) return;
+    const actionText = employee.isActive ? t('common.inactive').toLowerCase() : t('common.active').toLowerCase();
+    if (!confirm(`${t('common.confirm')} ${actionText} ${employee.name}?`)) return;
 
     try {
       const res = await fetch(`/api/admin/employees/${employee.id}`, {
@@ -92,10 +94,10 @@ export default function EmployeesListPage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || `Erro ao ${actionText} colaborador`);
+        throw new Error(errData.error || t('employees.editError'));
       }
 
-      showToast(`Colaborador ${employee.isActive ? 'desativado' : 'ativado'} com sucesso!`, 'success');
+      showToast(t('employees.editSuccess'), 'success');
       
       // Update local state
       setEmployees(prev =>
@@ -103,7 +105,7 @@ export default function EmployeesListPage() {
       );
     } catch (err: any) {
       console.error(err);
-      showToast(err.message || `Erro ao alterar status do colaborador.`, 'error');
+      showToast(err.message || t('employees.editError'), 'error');
     }
   };
 
@@ -154,15 +156,15 @@ export default function EmployeesListPage() {
               {/* Content Header */}
               <section className="flex flex-col md:flex-row md:items-end justify-between gap-md">
                 <div>
-                  <h1 className="font-headline-lg text-headline-lg text-on-surface">Colaboradores</h1>
-                  <p className="font-body-lg text-body-lg text-on-surface-variant mt-xs">Gerencie os funcionários, equipes e jornadas de trabalho da empresa.</p>
+                  <h1 className="font-headline-lg text-headline-lg text-on-surface">{t('employees.title')}</h1>
+                  <p className="font-body-lg text-body-lg text-on-surface-variant mt-xs">{t('employees.subtitle')}</p>
                 </div>
                 <Link 
                   href="/employees/new" 
                   className="bg-primary text-on-primary font-bold px-md py-sm rounded-lg flex items-center gap-xs hover:opacity-90 active:opacity-80 transition-all cursor-pointer font-label-caps text-label-caps"
                 >
                   <span className="material-symbols-outlined text-[18px]">person_add</span>
-                  ADICIONAR COLABORADOR
+                  {t('employees.addEmployee')}
                 </Link>
               </section>
 
@@ -172,7 +174,7 @@ export default function EmployeesListPage() {
                   onClick={() => setActiveTab('active')}
                   className={`py-sm px-md font-bold text-body-lg relative cursor-pointer transition-colors duration-200 ${activeTab === 'active' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
                 >
-                  Ativados
+                  {t('employees.activeTab')}
                   {activeTab === 'active' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary rounded-t-full" />
                   )}
@@ -181,7 +183,7 @@ export default function EmployeesListPage() {
                   onClick={() => setActiveTab('inactive')}
                   className={`py-sm px-md font-bold text-body-lg relative cursor-pointer transition-colors duration-200 ${activeTab === 'inactive' ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
                 >
-                  Desativados
+                  {t('employees.inactiveTab')}
                   {activeTab === 'inactive' && (
                     <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary rounded-t-full" />
                   )}
@@ -197,18 +199,18 @@ export default function EmployeesListPage() {
                 ) : filteredEmployees.length === 0 ? (
                   <div className="p-xl text-center text-on-surface-variant h-64 flex flex-col justify-center items-center gap-sm">
                     <span className="material-symbols-outlined text-[48px] text-outline">group</span>
-                    <p className="font-body-lg text-body-lg">Nenhum colaborador encontrado nesta categoria.</p>
+                    <p className="font-body-lg text-body-lg">Nenhum colaborador encontrado.</p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="border-b border-outline-variant bg-surface-container-low text-on-surface-variant font-label-caps text-label-caps">
-                          <th className="py-md px-lg font-bold">Colaborador</th>
-                          <th className="py-md px-lg font-bold">E-mail / Contato</th>
-                          <th className="py-md px-lg font-bold">Nº Contrato</th>
-                          <th className="py-md px-lg font-bold">Equipe / Gestor</th>
-                          <th className="py-md px-lg font-bold text-right">Ações</th>
+                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderEmployee')}</th>
+                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderEmail')}</th>
+                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderContract')}</th>
+                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderTeam')}</th>
+                          <th className="py-md px-lg font-bold text-right">{t('employees.tableHeaderActions')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-outline-variant">
@@ -231,7 +233,7 @@ export default function EmployeesListPage() {
                                     {emp.name}
                                     {emp.isTeamLeader && (
                                       <span className="ml-xs bg-secondary/10 text-secondary text-[11px] font-bold px-xs py-[2px] rounded-full uppercase tracking-wider">
-                                        Líder
+                                        {t('employees.isLeader')}
                                       </span>
                                     )}
                                   </span>
@@ -254,9 +256,9 @@ export default function EmployeesListPage() {
 
                               {/* Team & Manager */}
                               <td className="py-md px-lg text-body-sm">
-                                <span className="block font-medium text-on-surface">{emp.team?.name || 'Sem Equipe'}</span>
+                                <span className="block font-medium text-on-surface">{emp.team?.name || t('employees.semEquipe')}</span>
                                 <span className="block text-on-surface-variant/70 mt-[2px] text-xs">
-                                  {emp.manager ? `Resp: ${emp.manager.name}` : 'Sem Responsável'}
+                                  {emp.manager ? `Resp: ${emp.manager.name}` : t('employees.semGestor')}
                                 </span>
                               </td>
 
@@ -268,14 +270,14 @@ export default function EmployeesListPage() {
                                       <Link 
                                         href={`/employees/edit/${emp.id}`}
                                         className="text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full p-2 transition-all flex items-center justify-center"
-                                        title="Editar"
+                                        title={t('common.edit')}
                                       >
                                         <span className="material-symbols-outlined text-[20px]">edit</span>
                                       </Link>
                                       <button 
                                         onClick={() => handleToggleStatus(emp)}
                                         className="text-on-surface-variant hover:text-error hover:bg-error/10 rounded-full p-2 transition-all flex items-center justify-center cursor-pointer"
-                                        title="Desativar Colaborador"
+                                        title={t('common.inactive')}
                                       >
                                         <span className="material-symbols-outlined text-[20px]">person_off</span>
                                       </button>
@@ -284,9 +286,9 @@ export default function EmployeesListPage() {
                                     <button 
                                       onClick={() => handleToggleStatus(emp)}
                                       className="bg-primary/10 text-primary hover:bg-primary hover:text-on-primary font-bold px-md py-xs rounded-lg text-xs tracking-wider uppercase transition-all cursor-pointer font-label-caps"
-                                      title="Reativar Colaborador"
+                                      title={t('common.active')}
                                     >
-                                      Reativar
+                                      {t('common.active')}
                                     </button>
                                   )}
                                 </div>

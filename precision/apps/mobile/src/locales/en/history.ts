@@ -1,0 +1,17 @@
+export const history = {
+  title: 'Punches History',
+  subtitle: 'Check your punch records made in the last few days.',
+  date: 'Date',
+  punches: 'Punches',
+  totalHours: 'Total Hours',
+  listEmpty: 'No punch records found for this month.',
+  registeredPunches: 'Registered Punches',
+  pendingRegister: 'Pending Records',
+  yourRegisteredPunches: 'Your registered punches',
+  viewCompleteHistory: 'VIEW COMPLETE HISTORY',
+  noPendingPunches: 'No pending records found',
+  noPendingPunchesDesc: 'All your punch records are up to date!',
+  pendingCountLabel: '{count} {word}',
+  pendingWordSingular: 'pending record',
+  pendingWordPlural: 'pending records',
+};

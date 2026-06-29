@@ -1,9 +1,13 @@
+import { BottomNav } from "@/components/layout/BottomNav";
+import { Header } from "@/components/layout/Header";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { BottomNav } from "@/components/layout/BottomNav";
 import { Suspense } from 'react';
+import "./globals.css";
+
+import { Locale } from '@/locales';
+import { I18nProvider } from '@/locales/useI18n';
+import { cookies } from 'next/headers';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -11,17 +15,20 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Chronos - Registro de Horas",
+  title: "Precision - Registro de Horas",
   description: "Sistema moderno para registro e controle de ponto de funcionários",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get('precision_locale')?.value || 'pt') as Locale;
+
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    <html lang={locale} className={inter.variable}>
       <head>
         <link 
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" 
@@ -29,13 +36,15 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-background text-on-surface min-h-screen pb-24">
-        <Suspense fallback={null}>
-          <Header />
-        </Suspense>
-        {children}
-        <Suspense fallback={null}>
-          <BottomNav />
-        </Suspense>
+        <I18nProvider initialLocale={locale}>
+          <Suspense fallback={null}>
+            <Header />
+          </Suspense>
+          {children}
+          <Suspense fallback={null}>
+            <BottomNav />
+          </Suspense>
+        </I18nProvider>
       </body>
     </html>
   );

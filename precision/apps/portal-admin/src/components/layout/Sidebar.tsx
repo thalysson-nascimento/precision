@@ -5,9 +5,11 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import logoImg from '../../../../../public/images/precision.png';
+import { useI18n } from '@/locales/useI18n';
 
 export const Sidebar: React.FC = () => {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   const getLinkClass = (path: string) => {
     const isActive = pathname === path || (path !== '/' && pathname.startsWith(path));
@@ -38,50 +40,50 @@ export const Sidebar: React.FC = () => {
         <li>
           <Link href="/" className={getLinkClass('/')}>
             <span className="material-symbols-outlined" style={getIconStyle('/')}>dashboard</span>
-            <span>Dashboard</span>
+            <span>{t('dashboard.title')}</span>
           </Link>
         </li>
         {/* Equipes */}
         <li>
           <Link href="/teams" className={getLinkClass('/teams')}>
             <span className="material-symbols-outlined" style={getIconStyle('/teams')}>groups</span>
-            <span>Equipes</span>
+            <span>{t('common.teams')}</span>
           </Link>
         </li>
         {/* Empresas */}
         <li>
           <Link href="/companies" className={getLinkClass('/companies')}>
             <span className="material-symbols-outlined" style={getIconStyle('/companies')}>domain</span>
-            <span>Empresas</span>
+            <span>{t('common.companies')}</span>
           </Link>
         </li>
         {/* Cargos */}
         <li>
           <Link href="/roles" className={getLinkClass('/roles')}>
             <span className="material-symbols-outlined" style={getIconStyle('/roles')}>badge</span>
-            <span>Cargos</span>
+            <span>{t('common.roles')}</span>
           </Link>
         </li>
         {/* Colaboradores */}
         <li>
           <Link href="/employees" className={getLinkClass('/employees')}>
             <span className="material-symbols-outlined" style={getIconStyle('/employees')}>group</span>
-            <span>Colaboradores</span>
+            <span>{t('employees.title')}</span>
           </Link>
         </li>
         {/* Relatórios */}
         <li>
-          <a className="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant hover:text-primary font-body-lg text-body-lg hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:opacity-80" href="#">
-            <span className="material-symbols-outlined">assessment</span>
-            <span>Relatórios</span>
-          </a>
+          <Link href="/reports" className={getLinkClass('/reports')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/reports')}>assessment</span>
+            <span>{t('common.reports')}</span>
+          </Link>
         </li>
         {/* Configurações */}
         <li>
-          <a className="flex items-center gap-md py-sm px-md rounded-lg text-on-surface-variant hover:text-primary font-body-lg text-body-lg hover:bg-surface-container-high transition-colors duration-200 cursor-pointer active:opacity-80" href="#">
-            <span className="material-symbols-outlined">settings</span>
-            <span>Configurações</span>
-          </a>
+          <Link href="/settings" className={getLinkClass('/settings')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/settings')}>settings</span>
+            <span>{t('common.settings')}</span>
+          </Link>
         </li>
       </ul>
 

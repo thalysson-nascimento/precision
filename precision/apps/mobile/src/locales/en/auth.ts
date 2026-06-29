@@ -1,0 +1,18 @@
+export const auth = {
+  title: 'Precision',
+  subtitle: 'Register your shift point with ease and security.',
+  email: 'Corporate Email',
+  password: 'Password',
+  loginButton: 'SIGN IN',
+  requiredFields: 'Email and password are required.',
+  errorCredentials: 'Incorrect email or password.',
+  errorInactive: 'Your account is inactive. Please contact your company administrator.',
+  errorExpired: 'This company\'s subscription is expired or inactive. Please contact the administrator.',
+  loginError: 'Authentication failed',
+  expiredTitle: 'Subscription Expired',
+  expiredMsg1: 'Your company\'s Precision subscription is inactive or expired.',
+  expiredMsg2: 'To resume logging your time, please contact the HR manager or company administrator to regularize the subscription.',
+  expiredLogout: 'Logout and Login',
+  passwordPlaceholder: 'Your password',
+  tempPasswordDesc: 'Temporary default password: {password}',
+};

@@ -1,0 +1,18 @@
+export const settings = {
+  companySettings: 'Configurações da Empresa',
+  companySettingsDesc: 'Edite os dados cadastrais da empresa e informações de contato.',
+  companyName: 'Nome da Empresa',
+  companyAddress: 'Endereço',
+  companyNumber: 'Número',
+  companyContact: 'Contato (E-mail / Telefone)',
+  subscriptionInfo: 'Informações da Assinatura',
+  subscriptionPlan: 'Plano Atual',
+  subscriptionStatus: 'Status do Plano',
+  subscriptionEnds: 'Vencimento',
+  saveSettings: 'Salvar Configurações',
+  saveSuccess: 'Configurações salvas com sucesso!',
+  saveError: 'Erro ao salvar configurações.',
+  languageDesc: 'Selecione o idioma padrão da interface do portal administrativo.',
+  defaultSchedule: 'Jornada de Trabalho Padrão',
+  defaultScheduleDesc: 'Defina o horário padrão contratual para novos colaboradores.',
+};

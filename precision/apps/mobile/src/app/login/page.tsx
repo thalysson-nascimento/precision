@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/locales/useI18n';
 
 export default function MobileLoginPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +15,7 @@ export default function MobileLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Por favor, preencha todos os campos.');
+      setError(t('auth.requiredFields'));
       return;
     }
 
@@ -32,14 +34,14 @@ export default function MobileLoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Falha na autenticação');
+        throw new Error(data.error || t('auth.loginError'));
       }
 
       router.replace('/');
       router.refresh();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'E-mail ou senha incorretos.');
+      setError(err.message || t('auth.errorCredentials'));
     } finally {
       setLoading(false);
     }
@@ -55,8 +57,8 @@ export default function MobileLoginPage() {
               schedule
             </span>
           </div>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">Chronos</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">Portal do Colaborador</p>
+          <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">{t('auth.title')}</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">{t('auth.subtitle')}</p>
         </div>
 
         {/* Error Alert */}
@@ -70,7 +72,7 @@ export default function MobileLoginPage() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-md">
           <div className="space-y-xs">
-            <label className="font-label-caps text-label-caps text-on-surface-variant block">E-mail</label>
+            <label className="font-label-caps text-label-caps text-on-surface-variant block">{t('auth.email')}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">
                 mail
@@ -87,7 +89,7 @@ export default function MobileLoginPage() {
           </div>
 
           <div className="space-y-xs">
-            <label className="font-label-caps text-label-caps text-on-surface-variant block">Senha</label>
+            <label className="font-label-caps text-label-caps text-on-surface-variant block">{t('auth.password')}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">
                 lock
@@ -96,7 +98,7 @@ export default function MobileLoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Sua senha"
+                placeholder={t('auth.passwordPlaceholder')}
                 className="w-full h-12 pl-10 pr-md border border-outline rounded-xl bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-body-md"
                 required
               />
@@ -111,12 +113,12 @@ export default function MobileLoginPage() {
             {loading ? (
               <>
                 <span className="animate-spin material-symbols-outlined">progress_activity</span>
-                <span>Entrando...</span>
+                <span>{t('common.loading')}</span>
               </>
             ) : (
               <>
                 <span className="material-symbols-outlined">login</span>
-                <span>Entrar</span>
+                <span>{t('auth.loginButton')}</span>
               </>
             )}
           </button>
@@ -124,7 +126,7 @@ export default function MobileLoginPage() {
 
         <div className="text-center pt-xs">
           <span className="text-body-xs font-body-xs text-on-surface-variant">
-            Senha padrão temporária: <strong>123456</strong>
+            {t('auth.tempPasswordDesc', { password: '123456' })}
           </span>
         </div>
       </div>

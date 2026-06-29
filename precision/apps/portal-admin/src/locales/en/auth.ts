@@ -1,0 +1,17 @@
+export const auth = {
+  loginTitle: 'Precision',
+  loginSubtitle: 'Admin Portal',
+  email: 'Email',
+  password: 'Password',
+  loginButton: 'SIGN IN',
+  requiredFields: 'Email and password are required.',
+  errorCredentials: 'Incorrect email or password.',
+  errorInactive: 'Your account is inactive. Please contact your company administrator.',
+  errorExpired: 'This company\'s subscription is expired or inactive. Please contact the administrator.',
+  loginError: 'Internal server error',
+  expiredTitle: 'Subscription Expired',
+  expiredMsg1: 'Your company\'s Precision subscription is inactive or expired.',
+  expiredMsg2: 'To reactivate the account and allow your employees to register their time again, please make the subscription payment or contact our support team.',
+  expiredLogout: 'Back to Login',
+  accessDenied: 'Access denied. This portal is for the exclusive use of administrators and managers.',
+};

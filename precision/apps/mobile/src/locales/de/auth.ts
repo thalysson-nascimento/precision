@@ -1,0 +1,18 @@
+export const auth = {
+  title: 'Precision',
+  subtitle: 'Erfassen Sie Ihre Arbeitszeit einfach und sicher.',
+  email: 'Unternehmens-E-Mail',
+  password: 'Passwort',
+  loginButton: 'EINLOGGEN',
+  requiredFields: 'E-Mail und Passwort sind erforderlich.',
+  errorCredentials: 'E-Mail oder Passwort falsch.',
+  errorInactive: 'Ihr Konto ist inaktiv. Bitte wenden Sie sich an Ihren Administrator.',
+  errorExpired: 'Das Abonnement dieses Unternehmens ist abgelaufen oder inaktiv. Bitte wenden Sie sich an den Administrator.',
+  loginError: 'Authentifizierung fehlgeschlagen',
+  expiredTitle: 'Abonnement abgelaufen',
+  expiredMsg1: 'Das Precision-Abonnement Ihres Unternehmens ist inaktiv oder abgelaufen.',
+  expiredMsg2: 'Um die Zeiterfassung wieder aufzunehmen, wenden Sie sich bitte an den HR-Manager oder Unternehmensadministrator.',
+  expiredLogout: 'Abmelden und Einloggen',
+  passwordPlaceholder: 'Ihr Passwort',
+  tempPasswordDesc: 'Temporäres Standardpasswort: {password}',
+};

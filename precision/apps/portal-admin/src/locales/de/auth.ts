@@ -1,0 +1,17 @@
+export const auth = {
+  loginTitle: 'Precision',
+  loginSubtitle: 'Verwaltungsportal',
+  email: 'E-Mail',
+  password: 'Passwort',
+  loginButton: 'EINLOGGEN',
+  requiredFields: 'E-Mail und Passwort sind erforderlich.',
+  errorCredentials: 'E-Mail oder Passwort falsch.',
+  errorInactive: 'Ihr Konto ist inaktiv. Bitte wenden Sie sich an Ihren Administrator.',
+  errorExpired: 'Das Abonnement dieses Unternehmens ist abgelaufen oder inaktiv. Bitte wenden Sie sich an den Administrator.',
+  loginError: 'Interner Serverfehler',
+  expiredTitle: 'Abonnement abgelaufen',
+  expiredMsg1: 'Das Precision-Abonnement Ihres Unternehmens ist inaktiv oder abgelaufen.',
+  expiredMsg2: 'Um das Konto zu reaktivieren und Ihren Mitarbeitern die erneute Zeiterfassung zu ermöglichen, führen Sie bitte die Abonnementszahlung durch oder wenden Sie sich an unser Support-Team.',
+  expiredLogout: 'Zurück zum Login',
+  accessDenied: 'Zugriff verweigert. Dieses Portal ist für die ausschließliche Nutzung durch Administratoren und Manager bestimmt.',
+};

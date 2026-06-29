@@ -1,0 +1,18 @@
+export const settings = {
+  companySettings: 'Unternehmenseinstellungen',
+  companySettingsDesc: 'Bearbeiten Sie Unternehmensdaten und Kontaktinformationen.',
+  companyName: 'Unternehmensname',
+  companyAddress: 'Adresse',
+  companyNumber: 'Hausnummer',
+  companyContact: 'Kontakt (E-Mail / Telefon)',
+  subscriptionInfo: 'Abonnementinformationen',
+  subscriptionPlan: 'Aktueller Plan',
+  subscriptionStatus: 'Planstatus',
+  subscriptionEnds: 'Ablaufdatum',
+  saveSettings: 'Einstellungen speichern',
+  saveSuccess: 'Einstellungen erfolgreich gespeichert!',
+  saveError: 'Fehler beim Speichern der Einstellungen.',
+  languageDesc: 'Wählen Sie die Standard-Sprache der Benutzeroberfläche für das Admin-Portal.',
+  defaultSchedule: 'Standardarbeitszeit',
+  defaultScheduleDesc: 'Definieren Sie die vertragliche Standardarbeitszeit für neue Mitarbeiter.',
+};

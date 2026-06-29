@@ -3,8 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { employeeService, Employee, HistoryDay } from '@precision/api-client';
 import { DayAdjustModal } from '../ui/DayAdjustModal';
+import { useI18n } from '@/locales/useI18n';
 
 export const HistoryScreen: React.FC = () => {
+  const { t, locale } = useI18n();
   // Dados e Estado Principal
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [history, setHistory] = useState<HistoryDay[]>([]);
@@ -48,17 +50,15 @@ export const HistoryScreen: React.FC = () => {
     }, 0);
   }, []);
 
-  // Agrupamento de registros por mês
-  const MONTH_NAMES = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ];
-
   const getMonthYearKey = (dateStr: string) => {
     const [year, month] = dateStr.split('-');
     const monthIndex = parseInt(month, 10) - 1;
+    const tempDate = new Date(parseInt(year, 10), monthIndex, 1);
+    const bcpLocale = locale === 'pt' ? 'pt-BR' : locale === 'en' ? 'en-US' : 'de-DE';
+    const monthName = tempDate.toLocaleDateString(bcpLocale, { month: 'long' });
+    const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
     return {
-      monthName: MONTH_NAMES[monthIndex],
+      monthName: capitalizedMonthName,
       year,
       monthIndex
     };
@@ -132,15 +132,27 @@ export const HistoryScreen: React.FC = () => {
     const [year, month, day] = dateStr.split('-').map(Number);
     const date = new Date(year, month - 1, day);
     
-    const weekday = date.toLocaleDateString('pt-BR', { weekday: 'short' });
-    const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1).replace('.', '');
+    const bcpLocale = locale === 'pt' ? 'pt-BR' : locale === 'en' ? 'en-US' : 'de-DE';
+    
+    const weekday = date.toLocaleDateString(bcpLocale, { weekday: 'short' });
+    let capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    if (locale === 'pt') {
+      capitalizedWeekday = capitalizedWeekday.replace('.', '');
+    }
     
     const dayNum = date.getDate();
     
-    const monthShort = date.toLocaleDateString('pt-BR', { month: 'short' });
-    const capitalizedMonth = monthShort.charAt(0).toUpperCase() + monthShort.slice(1).replace('.', '');
+    const monthShort = date.toLocaleDateString(bcpLocale, { month: 'short' });
+    let capitalizedMonth = monthShort.charAt(0).toUpperCase() + monthShort.slice(1);
+    if (locale === 'pt') {
+      capitalizedMonth = capitalizedMonth.replace('.', '');
+    }
     
-    return `${capitalizedWeekday}. ${dayNum} ${capitalizedMonth}`;
+    return locale === 'pt' 
+      ? `${capitalizedWeekday}. ${dayNum} ${capitalizedMonth}`
+      : locale === 'en'
+      ? `${capitalizedWeekday}, ${capitalizedMonth} ${dayNum}`
+      : `${capitalizedWeekday}., ${dayNum}. ${capitalizedMonth}`;
   };
 
   // Processa as listas agrupadas
@@ -165,7 +177,7 @@ export const HistoryScreen: React.FC = () => {
               : 'border-transparent text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          Pontos Registrados
+          {t('history.registeredPunches')}
         </button>
         <button 
           onClick={() => setActiveTab('pendencias')}
@@ -175,7 +187,7 @@ export const HistoryScreen: React.FC = () => {
               : 'border-transparent text-on-surface-variant hover:text-on-surface'
           }`}
         >
-          <span>Pendência de Registro</span>
+          <span>{t('history.pendingRegister')}</span>
           {!isLoading && pendingCount > 0 && (
             <span className="bg-tertiary text-on-tertiary text-[10px] font-bold px-sm py-[2px] rounded-full">
               {pendingCount}
@@ -213,8 +225,8 @@ export const HistoryScreen: React.FC = () => {
         /* CONTEÚDO TAB: PONTOS REGISTRADOS */
         <section className="space-y-md">
           <div className="flex justify-between items-end mb-xs">
-            <h3 className="text-headline-md font-headline-md text-on-background">Seus pontos registrados</h3>
-            <span className="text-body-sm text-on-surface-variant font-semibold">2026</span>
+            <h3 className="text-headline-md font-headline-md text-on-background">{t('history.yourRegisteredPunches')}</h3>
+            <span className="text-body-sm text-on-surface-variant font-semibold">{new Date().getFullYear()}</span>
           </div>
 
           <div className="space-y-md">
@@ -275,8 +287,8 @@ export const HistoryScreen: React.FC = () => {
         /* CONTEÚDO TAB: PENDÊNCIAS DE REGISTRO */
         <section className="space-y-md">
           <div className="flex justify-between items-end mb-xs">
-            <h3 className="text-headline-md font-headline-md text-on-background">Pendências de Registro</h3>
-            <span className="text-body-sm text-on-surface-variant font-semibold">2026</span>
+            <h3 className="text-headline-md font-headline-md text-on-background">{t('history.pendingRegister')}</h3>
+            <span className="text-body-sm text-on-surface-variant font-semibold">{new Date().getFullYear()}</span>
           </div>
 
           {groupedPending.length === 0 ? (
@@ -284,8 +296,8 @@ export const HistoryScreen: React.FC = () => {
               <span className="material-symbols-outlined text-secondary text-4xl mb-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                 check_circle
               </span>
-              <p className="text-body-lg font-bold text-on-background">Nenhuma pendência encontrada</p>
-              <p className="text-body-sm text-on-surface-variant mt-xs">Você está com todos os seus registros de ponto em dia!</p>
+              <p className="text-body-lg font-bold text-on-background">{t('history.noPendingPunches')}</p>
+              <p className="text-body-sm text-on-surface-variant mt-xs">{t('history.noPendingPunchesDesc')}</p>
             </div>
           ) : (
             <div className="space-y-md">
@@ -306,7 +318,10 @@ export const HistoryScreen: React.FC = () => {
                       <span className="flex items-center gap-sm">
                         <span>{monthGroup.monthName}</span>
                         <span className="bg-tertiary-fixed text-on-tertiary-fixed text-xs font-bold px-sm py-[2px] rounded-full">
-                          {monthGroup.days.length} {monthGroup.days.length === 1 ? 'pendência' : 'pendências'}
+                          {t('history.pendingCountLabel', {
+                            count: String(monthGroup.days.length),
+                            word: monthGroup.days.length === 1 ? t('history.pendingWordSingular') : t('history.pendingWordPlural')
+                          })}
                         </span>
                       </span>
                       <span className="material-symbols-outlined text-outline">

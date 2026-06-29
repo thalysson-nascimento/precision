@@ -3,11 +3,13 @@
 import React from 'react';
 import { useSearchParams, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useI18n } from '@/locales/useI18n';
 
 export const BottomNav: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'inicio';
+  const { t } = useI18n();
 
   // Hide BottomNav completely on login or expired views
   if (pathname === '/login' || pathname === '/expired') {
@@ -34,7 +36,7 @@ export const BottomNav: React.FC = () => {
         <span className="material-symbols-outlined" style={getIconStyle('inicio')}>
           home
         </span>
-        <span className="text-label-caps font-label-caps">Início</span>
+        <span className="text-label-caps font-label-caps">{t('common.home')}</span>
       </Link>
       
       <Link 
@@ -44,7 +46,7 @@ export const BottomNav: React.FC = () => {
         <span className="material-symbols-outlined" style={getIconStyle('historico')}>
           history
         </span>
-        <span className="text-label-caps font-label-caps">Histórico</span>
+        <span className="text-label-caps font-label-caps">{t('common.history')}</span>
       </Link>
       
       <Link 
@@ -54,7 +56,7 @@ export const BottomNav: React.FC = () => {
         <span className="material-symbols-outlined" style={getIconStyle('relatorios')}>
           assessment
         </span>
-        <span className="text-label-caps font-label-caps">Relatórios</span>
+        <span className="text-label-caps font-label-caps">{t('common.reports')}</span>
       </Link>
       
       <Link 
@@ -64,7 +66,7 @@ export const BottomNav: React.FC = () => {
         <span className="material-symbols-outlined" style={getIconStyle('perfil')}>
           person
         </span>
-        <span className="text-label-caps font-label-caps">Perfil</span>
+        <span className="text-label-caps font-label-caps">{t('common.profile')}</span>
       </Link>
     </nav>
   );

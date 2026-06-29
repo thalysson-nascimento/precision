@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 
 export default function AdminSubscriptionExpiredPage() {
   const handleLogout = async () => {
@@ -20,7 +19,7 @@ export default function AdminSubscriptionExpiredPage() {
         <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">Assinatura Expirada</h1>
         
         <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
-          A assinatura do <strong>Chronos</strong> da sua empresa está inativa ou expirou.
+          A assinatura do <strong>Precision</strong> da sua empresa está inativa ou expirou.
         </p>
         
         <p className="font-body-md text-body-md text-on-surface-variant/80">

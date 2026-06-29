@@ -1,0 +1,17 @@
+export const auth = {
+  loginTitle: 'Precision',
+  loginSubtitle: 'Portal Administrativo',
+  email: 'E-mail',
+  password: 'Senha',
+  loginButton: 'ENTRAR',
+  requiredFields: 'E-mail e senha são obrigatórios.',
+  errorCredentials: 'E-mail ou senha incorretos.',
+  errorInactive: 'Sua conta está inativa. Entre em contato com o administrador da sua empresa.',
+  errorExpired: 'A assinatura desta empresa está expirada ou inativa. Por favor, entre em contato com o administrador.',
+  loginError: 'Erro interno do servidor',
+  expiredTitle: 'Assinatura Expirada',
+  expiredMsg1: 'A assinatura do Precision da sua empresa está inativa ou expirou.',
+  expiredMsg2: 'Para reativar a conta e permitir que seus colaboradores registrem o ponto novamente, realize o pagamento da assinatura ou entre em contato com nosso suporte técnico.',
+  expiredLogout: 'Voltar para Login',
+  accessDenied: 'Acesso negado. Este portal é de uso exclusivo de administradores e gestores.',
+};

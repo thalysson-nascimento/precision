@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { employeeService, Employee } from '@precision/api-client';
+import { useI18n } from '@/locales/useI18n';
 
 interface DayAdjustModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
   onClose,
   onSaveSuccess,
 }) => {
+  const { t, locale } = useI18n();
   // Animação de slide
   const [isAnimate, setIsAnimate] = useState<boolean>(false);
   
@@ -87,10 +89,10 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
   };
 
   const getSlotLabel = (type: string) => {
-    if (type === 'IN') return 'Entrada';
-    if (type === 'LUNCH_OUT') return 'Saída Almoço';
-    if (type === 'LUNCH_IN') return 'Retorno Almoço';
-    return 'Saída Final';
+    if (type === 'IN') return t('common.entry');
+    if (type === 'LUNCH_OUT') return t('dashboard.lunchStart');
+    if (type === 'LUNCH_IN') return t('dashboard.lunchEnd');
+    return t('common.exit');
   };
 
   // Calcula horas trabalhadas
@@ -137,7 +139,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
     const m = parseInt(modalMinutes, 10);
 
     if (isNaN(h) || h < 0 || h > 23 || isNaN(m) || m < 0 || m > 59) {
-      alert('Por favor, informe um horário válido (HH de 00-23, MM de 00-59).');
+      alert(t('adjustModal.invalidTimeAlert'));
       return;
     }
 
@@ -158,7 +160,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
       }
     } catch (e) {
       console.error(e);
-      alert('Erro ao salvar alteração.');
+      alert(t('adjustModal.saveErrorAlert'));
     } finally {
       setIsSaving(false);
     }
@@ -174,7 +176,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
       }
     } catch (e) {
       console.error(e);
-      alert('Erro ao confirmar registros.');
+      alert(t('adjustModal.confirmErrorAlert'));
     } finally {
       setIsConfirming(false);
     }
@@ -184,7 +186,8 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
   const formatDateLabel = (dateStr: string): string => {
     const [year, month, day] = dateStr.split('-').map(Number);
     const d = new Date(year, month - 1, day);
-    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const bcpLocale = locale === 'pt' ? 'pt-BR' : locale === 'en' ? 'en-US' : 'de-DE';
+    return d.toLocaleDateString(bcpLocale, { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   // Verifica se há marcações elegíveis pendentes para aquele dia
@@ -226,7 +229,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
             {/* Cabeçalho */}
             <div className="text-center">
               <h3 className="text-headline-md font-bold text-on-background">
-                Registro de {formatDateLabel(date)}
+                {t('adjustModal.recordOfDate', { date: formatDateLabel(date) })}
               </h3>
               <div className="flex items-center justify-center gap-xs text-primary mt-xs">
                 <span className="material-symbols-outlined text-sm">location_on</span>
@@ -239,7 +242,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
               <h2 className="text-display-time font-display-time text-on-background tracking-tighter">
                 {calculateWorkedTime()}
               </h2>
-              <p className="text-body-sm text-on-surface-variant">Horas registradas para este dia</p>
+              <p className="text-body-sm text-on-surface-variant">{t('adjustModal.registeredHoursForDay')}</p>
             </div>
 
             {/* Grade 2x2 */}
@@ -274,7 +277,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
                           onClick={() => openTimeInput(type)}
                           className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
                         >
-                          EDITAR
+                          {t('common.edit')}
                         </button>
                       )}
                     </div>
@@ -307,7 +310,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
                   <span className="material-symbols-outlined">
                     check_circle
                   </span>
-                  <span>Confirmar pendências</span>
+                  <span>{t('adjustModal.confirmPending')}</span>
                 </>
               )}
             </button>
@@ -332,9 +335,9 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
             </div>
 
             {/* Título */}
-            <h3 className="text-headline-md font-bold text-on-background">Ajustar Horário</h3>
+            <h3 className="text-headline-md font-bold text-on-background">{t('adjustModal.adjustTimeTitle')}</h3>
             <p className="text-body-sm text-on-surface-variant mt-xs mb-lg">
-              Insira as novas horas e minutos para a marcação de <strong>{getSlotLabel(editingType)}</strong> em {formatDateLabel(date)}.
+              {t('adjustModal.adjustTimeDesc', { slot: getSlotLabel(editingType), date: formatDateLabel(date) })}
             </p>
 
             {/* Inputs HH:MM */}
@@ -388,7 +391,7 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
               ) : (
-                <span>Confirmar alteração</span>
+                <span>{t('adjustModal.confirmChange')}</span>
               )}
             </button>
 

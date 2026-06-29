@@ -1,0 +1,18 @@
+export const settings = {
+  companySettings: 'Company Settings',
+  companySettingsDesc: 'Edit company details and contact information.',
+  companyName: 'Company Name',
+  companyAddress: 'Address',
+  companyNumber: 'Number',
+  companyContact: 'Contact (Email / Phone)',
+  subscriptionInfo: 'Subscription Information',
+  subscriptionPlan: 'Current Plan',
+  subscriptionStatus: 'Plan Status',
+  subscriptionEnds: 'Expires At',
+  saveSettings: 'Save Settings',
+  saveSuccess: 'Settings saved successfully!',
+  saveError: 'Error saving settings.',
+  languageDesc: 'Select the default interface language for the admin portal.',
+  defaultSchedule: 'Default Work Schedule',
+  defaultScheduleDesc: 'Define the default contractual schedule for new employees.',
+};

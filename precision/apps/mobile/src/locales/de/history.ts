@@ -1,0 +1,17 @@
+export const history = {
+  title: 'Zeiterfassungsverlauf',
+  subtitle: 'Überprüfen Sie Ihre Zeiterfassungseinträge der letzten Tage.',
+  date: 'Datum',
+  punches: 'Einträge',
+  totalHours: 'Gesamtstunden',
+  listEmpty: 'Keine Zeiterfassungseinträge für diesen Monat gefunden.',
+  registeredPunches: 'Erfasste Zeiten',
+  pendingRegister: 'Ausstehende Einträge',
+  yourRegisteredPunches: 'Ihre erfassten Zeiten',
+  viewCompleteHistory: 'VOLLSTÄNDIGEN VERLAUF ANZEIGEN',
+  noPendingPunches: 'Keine ausstehenden Einträge gefunden',
+  noPendingPunchesDesc: 'Alle Ihre Zeiteinträge sind auf dem neuesten Stand!',
+  pendingCountLabel: '{count} {word}',
+  pendingWordSingular: 'ausstehender Eintrag',
+  pendingWordPlural: 'ausstehende Einträge',
+};

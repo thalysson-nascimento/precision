@@ -1,0 +1,18 @@
+export const auth = {
+  title: 'Precision',
+  subtitle: 'Registre seu ponto com facilidade e segurança.',
+  email: 'E-mail Corporativo',
+  password: 'Senha',
+  loginButton: 'ENTRAR',
+  requiredFields: 'E-mail e senha são obrigatórios.',
+  errorCredentials: 'E-mail ou senha incorretos.',
+  errorInactive: 'Sua conta está inativa. Por favor, entre em contato com o administrador da sua empresa.',
+  errorExpired: 'A assinatura desta empresa está expirada ou inativa. Por favor, entre em contato com o administrador.',
+  loginError: 'Falha na autenticação',
+  expiredTitle: 'Assinatura Expirada',
+  expiredMsg1: 'A assinatura do Precision da sua empresa está inativa ou expirou.',
+  expiredMsg2: 'Para voltar a registrar seu ponto, entre em contato com o gestor de RH ou administrador da empresa para regularizar a assinatura.',
+  expiredLogout: 'Sair e Fazer Login',
+  passwordPlaceholder: 'Sua senha',
+  tempPasswordDesc: 'Senha padrão temporária: {password}',
+};

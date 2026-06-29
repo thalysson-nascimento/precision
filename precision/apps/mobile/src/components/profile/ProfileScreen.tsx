@@ -2,8 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { employeeService, Employee } from '@precision/api-client';
+import { useI18n } from '@/locales/useI18n';
+import { Locale } from '@/locales';
 
 export const ProfileScreen: React.FC = () => {
+  const { t, locale, setLocale } = useI18n();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,16 +19,24 @@ export const ProfileScreen: React.FC = () => {
         setEmployee(data.employee);
       } catch (err) {
         console.error('Erro ao carregar perfil:', err);
-        setError('Não foi possível carregar os dados do perfil.');
+        setError(t('common.error') + ': ' + t('common.loading'));
       } finally {
         setIsLoading(false);
       }
     };
 
-    setTimeout(() => {
-      loadProfile();
-    }, 0);
-  }, []);
+    loadProfile();
+  }, [t]);
+
+  const handleLogout = async () => {
+    if (!confirm(t('common.logout') + '?')) return;
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/login';
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   if (isLoading) {
     return <ProfileSkeleton />;
@@ -37,28 +48,32 @@ export const ProfileScreen: React.FC = () => {
         <span className="material-symbols-outlined text-error text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
           error
         </span>
-        <p className="text-body-lg font-bold text-on-background">{error || 'Funcionário não encontrado'}</p>
+        <p className="text-body-lg font-bold text-on-background">{error || t('common.employeeNotFound')}</p>
         <button
           onClick={() => window.location.reload()}
           className="bg-primary text-on-primary px-lg py-sm rounded-xl font-bold hover:bg-primary-container transition-colors cursor-pointer"
         >
-          Tentar Novamente
+          {t('common.tryAgain')}
         </button>
       </div>
     );
   }
 
-  const formattedId = `#${employee.id.substring(0, 5).toUpperCase()}`;
+  const emp = employee as any;
+  const formattedId = emp.contractNumber || `#${emp.id?.substring(0, 5).toUpperCase()}`;
+  const teamName = emp.team?.name || '---';
+  const managerName = emp.manager?.name || '---';
+  const admissionDate = emp.createdAt ? new Date(emp.createdAt).toLocaleDateString(
+    locale === 'pt' ? 'pt-BR' : locale === 'en' ? 'en-US' : 'de-DE'
+  ) : '---';
 
   return (
     <div className="w-full space-y-md">
-      {/* TopAppBar customizada para o Perfil (Sem botão de voltar e sem o cabeçalho padrão) */}
+      {/* TopAppBar customizada para o Perfil */}
       <header className="w-full bg-surface flex items-center justify-between h-16 border-b border-outline-variant/10">
-        <div className="w-10"></div> {/* Espaçador para centralizar título */}
-        <h1 className="font-headline-md text-headline-md text-on-surface font-bold">Perfil</h1>
-        <button className="w-10 h-10 flex items-center justify-center rounded-full text-primary hover:bg-surface-container-low active:scale-95 duration-100 cursor-pointer">
-          <span className="material-symbols-outlined">settings</span>
-        </button>
+        <div className="w-10"></div>
+        <h1 className="font-headline-md text-headline-md text-on-surface font-bold">{t('common.profile')}</h1>
+        <div className="w-10"></div>
       </header>
 
       {/* Seção do Avatar e Nome */}
@@ -81,8 +96,9 @@ export const ProfileScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* Cartão de Informações Profissionais */}
-      <section className="space-y-sm">
+      {/* Informações Profissionais */}
+      <section className="space-y-xs">
+        <h3 className="font-headline-sm text-headline-sm text-on-surface px-xs font-bold">{t('profile.professionalInfo')}</h3>
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
           <ul className="space-y-md">
             <li className="flex items-center gap-md">
@@ -90,8 +106,8 @@ export const ProfileScreen: React.FC = () => {
                 <span className="material-symbols-outlined">group</span>
               </div>
               <div>
-                <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px] tracking-wide">EQUIPE</p>
-                <p className="font-body-lg text-body-lg text-on-surface font-semibold">Tecnologia</p>
+                <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px] tracking-wide">{t('profile.team')}</p>
+                <p className="font-body-lg text-body-lg text-on-surface font-semibold">{teamName}</p>
               </div>
             </li>
             <div className="border-t border-outline-variant/30"></div>
@@ -100,8 +116,8 @@ export const ProfileScreen: React.FC = () => {
                 <span className="material-symbols-outlined">person_pin</span>
               </div>
               <div>
-                <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px] tracking-wide">GESTOR</p>
-                <p className="font-body-lg text-body-lg text-on-surface font-semibold">Maria Silva</p>
+                <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px] tracking-wide">{t('profile.manager')}</p>
+                <p className="font-body-lg text-body-lg text-on-surface font-semibold">{managerName}</p>
               </div>
             </li>
             <div className="border-t border-outline-variant/30"></div>
@@ -110,7 +126,7 @@ export const ProfileScreen: React.FC = () => {
                 <span className="material-symbols-outlined">badge</span>
               </div>
               <div>
-                <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px] tracking-wide">ID</p>
+                <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px] tracking-wide">{t('profile.id')}</p>
                 <p className="font-body-lg text-body-lg text-on-surface font-semibold">{formattedId}</p>
               </div>
             </li>
@@ -119,55 +135,81 @@ export const ProfileScreen: React.FC = () => {
       </section>
 
       {/* Seção de Dados Pessoais */}
-      <section className="space-y-md">
-        <h3 className="font-headline-md text-headline-md text-on-surface px-xs">Dados Pessoais</h3>
+      <section className="space-y-xs pt-xs">
+        <h3 className="font-headline-sm text-headline-sm text-on-surface px-xs font-bold">{t('profile.personalData')}</h3>
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
           <ul className="space-y-md">
             <li className="flex flex-col">
-              <p className="font-label-caps text-label-caps text-on-surface-variant mb-xs text-[10px] tracking-wide">E-MAIL</p>
+              <p className="font-label-caps text-label-caps text-on-surface-variant mb-xs text-[10px] tracking-wide">{t('profile.email')}</p>
               <p className="font-body-lg text-body-lg text-on-surface font-semibold">{employee.email}</p>
             </li>
             <div className="border-t border-outline-variant/30"></div>
             <li className="flex flex-col">
-              <p className="font-label-caps text-label-caps text-on-surface-variant mb-xs text-[10px] tracking-wide">TELEFONE</p>
-              <p className="font-body-lg text-body-lg text-on-surface font-semibold">(11) 98888-8888</p>
+              <p className="font-label-caps text-label-caps text-on-surface-variant mb-xs text-[10px] tracking-wide">{t('profile.phone')}</p>
+              <p className="font-body-lg text-body-lg text-on-surface font-semibold">{emp.phone || '---'}</p>
             </li>
             <div className="border-t border-outline-variant/30"></div>
             <li className="flex flex-col">
-              <p className="font-label-caps text-label-caps text-on-surface-variant mb-xs text-[10px] tracking-wide">DATA DE ADMISSÃO</p>
-              <p className="font-body-lg text-body-lg text-on-surface font-semibold">15/03/2022</p>
+              <p className="font-label-caps text-label-caps text-on-surface-variant mb-xs text-[10px] tracking-wide">{t('profile.admissionDate')}</p>
+              <p className="font-body-lg text-body-lg text-on-surface font-semibold">{admissionDate}</p>
             </li>
           </ul>
         </div>
       </section>
 
+      {/* Preferências de Idioma */}
+      <section className="space-y-xs pt-xs">
+        <h3 className="font-headline-sm text-headline-sm text-on-surface px-xs font-bold">{t('common.preferences')}</h3>
+        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-md">
+              <div className="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center text-primary flex-shrink-0">
+                <span className="material-symbols-outlined">translate</span>
+              </div>
+              <div>
+                <p className="font-label-caps text-label-caps text-on-surface-variant text-[10px] tracking-wide">{t('common.language')}</p>
+                <p className="font-body-lg text-body-lg text-on-surface font-semibold">
+                  {locale === 'pt' ? 'Português' : locale === 'en' ? 'English' : 'Deutsch'}
+                </p>
+              </div>
+            </div>
+            
+            <select
+              value={locale}
+              onChange={(e) => setLocale(e.target.value as Locale)}
+              className="bg-surface border border-outline-variant rounded-lg p-sm text-body-md font-bold focus:outline-none focus:ring-2 focus:ring-primary text-on-surface cursor-pointer"
+            >
+              <option value="pt">Português</option>
+              <option value="en">English</option>
+              <option value="de">Deutsch</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
       {/* Ações */}
       <section className="flex flex-col gap-md pt-md">
-        <button className="w-full h-14 border-2 border-primary text-primary hover:bg-primary/5 rounded-xl font-headline-md flex items-center justify-center gap-sm active:scale-[0.98] transition-all duration-100 cursor-pointer font-bold">
-          <span className="material-symbols-outlined">edit</span>
-          Editar Perfil
-        </button>
-        <button className="w-full h-14 text-error hover:bg-error/5 rounded-xl font-headline-md flex items-center justify-center gap-sm active:scale-[0.98] transition-all duration-100 cursor-pointer font-bold">
+        <button 
+          onClick={handleLogout}
+          className="w-full h-14 text-error hover:bg-error/5 rounded-xl font-headline-md flex items-center justify-center gap-sm active:scale-[0.98] transition-all duration-100 cursor-pointer font-bold border border-error/25"
+        >
           <span className="material-symbols-outlined">logout</span>
-          Sair
+          {t('common.logout')}
         </button>
       </section>
     </div>
   );
 };
 
-// Componente Local de Skeleton Loader para Perfil
 const ProfileSkeleton: React.FC = () => {
   return (
     <div className="w-full space-y-md">
-      {/* Header Skeleton */}
       <header className="w-full bg-surface flex items-center justify-between h-16 border-b border-outline-variant/10">
         <div className="w-10"></div>
         <div className="h-6 w-16 shimmer rounded"></div>
-        <div className="w-10 h-10 rounded-full shimmer"></div>
+        <div className="w-10"></div>
       </header>
 
-      {/* Avatar and Name Skeleton */}
       <section className="flex flex-col items-center py-md space-y-md">
         <div className="w-32 h-32 rounded-full border-4 border-surface-container-lowest shadow-md shimmer"></div>
         <div className="space-y-sm text-center">
@@ -176,7 +218,6 @@ const ProfileSkeleton: React.FC = () => {
         </div>
       </section>
 
-      {/* Professional Info Card Skeleton */}
       <section className="space-y-sm">
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm space-y-md">
           {[1, 2, 3].map(i => (
@@ -189,25 +230,6 @@ const ProfileSkeleton: React.FC = () => {
             </div>
           ))}
         </div>
-      </section>
-
-      {/* Personal Info Card Skeleton */}
-      <section className="space-y-md">
-        <div className="h-6 w-32 shimmer rounded px-xs"></div>
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm space-y-md">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="space-y-xs">
-              <div className="h-3 w-20 shimmer rounded"></div>
-              <div className="h-5 w-48 shimmer rounded"></div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Action Buttons Skeleton */}
-      <section className="flex flex-col gap-md pt-md">
-        <div className="w-full h-14 shimmer rounded-xl"></div>
-        <div className="w-full h-14 shimmer rounded-xl"></div>
       </section>
     </div>
   );

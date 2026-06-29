@@ -4,10 +4,12 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { employeeService, Employee, HistoryDay } from '@precision/api-client';
 import { DayAdjustModal } from '../ui/DayAdjustModal';
+import { useI18n } from '@/locales/useI18n';
 
 export const PunchCard: React.FC = () => {
+  const { t, locale } = useI18n();
   // Estado para localização
-  const [location, setLocation] = useState<string>('Carregando...');
+  const [location, setLocation] = useState<string>('...');
 
   // Dados do Funcionário e Histórico
   const [employee, setEmployee] = useState<Employee | null>(null);
@@ -89,6 +91,7 @@ export const PunchCard: React.FC = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
+        setLocation(t('common.loading'));
         const data = await employeeService.getLocationInfo();
         if (data.city && data.region) {
           setLocation(`${data.city}/${data.region}`);
@@ -102,7 +105,7 @@ export const PunchCard: React.FC = () => {
     };
 
     fetchLocation();
-  }, []);
+  }, [t]);
 
   // Calcular a quantidade de horas trabalhadas em tempo real (Apenas HH:MM)
   useEffect(() => {
@@ -205,16 +208,16 @@ export const PunchCard: React.FC = () => {
         if (outRec && !saidaFinalConfirmed) { setSaidaFinalConfirmed(true); setSaidaFinal(outRec.time); count++; }
 
         if (count > 0) {
-          showToast('Registro de ponto confirmado com sucesso!');
+          showToast(t('dashboard.punchSuccess'));
           // Recarregar os registros (incluindo o histórico atualizado)
           await loadRecords();
         } else {
-          showToast('Nenhum novo ponto pendente no horário atual.');
+          showToast(t('dashboard.noPendingPunches'));
         }
       }
     } catch (e) {
       console.error(e);
-      showToast('Erro ao confirmar o registro.');
+      showToast(t('dashboard.punchError'));
     } finally {
       setIsPunching(false);
     }
@@ -258,18 +261,40 @@ export const PunchCard: React.FC = () => {
     const [year, month, day] = dateStr.split('-').map(Number);
     const date = new Date(year, month - 1, day);
     
+    const bcpLocale = locale === 'pt' ? 'pt-BR' : locale === 'en' ? 'en-US' : 'de-DE';
+    
     // Obter dia da semana curto
-    const weekday = date.toLocaleDateString('pt-BR', { weekday: 'short' });
-    const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1).replace('.', '');
+    const weekday = date.toLocaleDateString(bcpLocale, { weekday: 'short' });
+    let capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    if (locale === 'pt') {
+      capitalizedWeekday = capitalizedWeekday.replace('.', '');
+    }
     
     // Dia do mês
     const dayNum = date.getDate();
     
     // Mês curto
-    const monthShort = date.toLocaleDateString('pt-BR', { month: 'short' });
-    const capitalizedMonth = monthShort.charAt(0).toUpperCase() + monthShort.slice(1).replace('.', '');
+    const monthShort = date.toLocaleDateString(bcpLocale, { month: 'short' });
+    let capitalizedMonth = monthShort.charAt(0).toUpperCase() + monthShort.slice(1);
+    if (locale === 'pt') {
+      capitalizedMonth = capitalizedMonth.replace('.', '');
+    }
     
-    return `${capitalizedWeekday}. ${dayNum} ${capitalizedMonth}`;
+    return locale === 'pt' 
+      ? `${capitalizedWeekday}. ${dayNum} ${capitalizedMonth}`
+      : locale === 'en'
+      ? `${capitalizedWeekday}, ${capitalizedMonth} ${dayNum}`
+      : `${capitalizedWeekday}., ${dayNum}. ${capitalizedMonth}`;
+  };
+
+  // Format current month dynamically
+  const getLocalizedCurrentMonth = () => {
+    const d = history.length > 0 ? new Date(history[0].date) : new Date();
+    const bcpLocale = locale === 'pt' ? 'pt-BR' : locale === 'en' ? 'en-US' : 'de-DE';
+    const monthName = d.toLocaleDateString(bcpLocale, { month: 'long' });
+    const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    const year = d.getFullYear();
+    return locale === 'pt' ? `${capitalizedMonthName}/${year}` : `${capitalizedMonthName} ${year}`;
   };
 
   return (
@@ -282,9 +307,12 @@ export const PunchCard: React.FC = () => {
             <div className="flex items-center gap-md">
               <span className="material-symbols-outlined text-tertiary text-2xl">warning</span>
               <div>
-                <h2 className="text-body-lg font-bold">Pendência de Registro</h2>
+                <h2 className="text-body-lg font-bold">{t('dashboard.pendingAlertTitle')}</h2>
                 <p className="text-body-sm text-on-tertiary-fixed/80">
-                  Você possui {incompleteDays} {incompleteDays === 1 ? 'dia' : 'dias'} com marcações incompletas.
+                  {t('dashboard.pendingAlertDesc', { 
+                    count: String(incompleteDays), 
+                    daysWord: incompleteDays === 1 ? t('dashboard.daysWordSingular') : t('dashboard.daysWordPlural')
+                  })}
                 </p>
               </div>
             </div>
@@ -294,7 +322,7 @@ export const PunchCard: React.FC = () => {
                 href="/?tab=historico"
                 className="bg-tertiary text-on-tertiary px-md py-xs rounded-lg text-label-caps font-label-caps hover:bg-tertiary-container transition-colors active:scale-95 duration-200 cursor-pointer block text-center"
               >
-                AJUSTAR HORÁRIO
+                {t('dashboard.adjustTime')}
               </Link>
             </div>
           </div>
@@ -305,7 +333,7 @@ export const PunchCard: React.FC = () => {
       <section className="glass-card rounded-xl p-lg space-y-lg">
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-label-caps font-label-caps text-on-surface-variant">REGISTRO DE HOJE</h3>
+            <h3 className="text-label-caps font-label-caps text-on-surface-variant">{t('dashboard.todayRegister')}</h3>
             <div className="flex items-center gap-xs text-primary mt-xs">
               <span className="material-symbols-outlined text-sm">location_on</span>
               <span className="text-body-sm font-semibold">{location}</span>
@@ -326,7 +354,7 @@ export const PunchCard: React.FC = () => {
               <h2 className="text-display-time-mobile md:text-display-time font-display-time text-on-background tracking-tighter">
                 {workedTime}
               </h2>
-              <p className="text-body-sm text-on-surface-variant">Total de horas trabalhadas hoje</p>
+              <p className="text-body-sm text-on-surface-variant">{t('dashboard.totalWorkedHoursToday')}</p>
             </>
           )}
         </div>
@@ -358,7 +386,7 @@ export const PunchCard: React.FC = () => {
                 }`}
               >
                 <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">Entrada</span>
+                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.entry')}</span>
                   {entradaConfirmed ? (
                     <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                       check_circle
@@ -369,7 +397,7 @@ export const PunchCard: React.FC = () => {
                         onClick={() => openEditModal('IN')}
                         className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
                       >
-                        EDITAR
+                        {t('common.edit')}
                       </button>
                     )
                   )}
@@ -393,7 +421,7 @@ export const PunchCard: React.FC = () => {
                 }`}
               >
                 <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">Saída</span>
+                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.exit')}</span>
                   {saidaAlmocoConfirmed ? (
                     <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                       check_circle
@@ -404,7 +432,7 @@ export const PunchCard: React.FC = () => {
                         onClick={() => openEditModal('LUNCH_OUT')}
                         className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
                       >
-                        EDITAR
+                        {t('common.edit')}
                       </button>
                     )
                   )}
@@ -428,7 +456,7 @@ export const PunchCard: React.FC = () => {
                 }`}
               >
                 <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">Retorno</span>
+                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.return')}</span>
                   {retornoAlmocoConfirmed ? (
                     <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                       check_circle
@@ -439,7 +467,7 @@ export const PunchCard: React.FC = () => {
                         onClick={() => openEditModal('LUNCH_IN')}
                         className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
                       >
-                        EDITAR
+                        {t('common.edit')}
                       </button>
                     )
                   )}
@@ -463,7 +491,7 @@ export const PunchCard: React.FC = () => {
                 }`}
               >
                 <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">Saída</span>
+                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.exit')}</span>
                   {saidaFinalConfirmed ? (
                     <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                       check_circle
@@ -474,7 +502,7 @@ export const PunchCard: React.FC = () => {
                         onClick={() => openEditModal('OUT')}
                         className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
                       >
-                        EDITAR
+                        {t('common.edit')}
                       </button>
                     )
                   )}
@@ -509,7 +537,7 @@ export const PunchCard: React.FC = () => {
               <span className="material-symbols-outlined">
                 check_circle
               </span>
-              <span>Confirmar registro</span>
+              <span>{t('dashboard.confirmPunch')}</span>
             </>
           )}
         </button>
@@ -518,12 +546,12 @@ export const PunchCard: React.FC = () => {
       {/* Tabela de Histórico "Seus pontos registrados" dinâmico */}
       <section className="space-y-md">
         <div className="flex justify-between items-end">
-          <h3 className="text-headline-md font-headline-md text-on-background">Seus pontos registrados</h3>
+          <h3 className="text-headline-md font-headline-md text-on-background">{t('history.yourRegisteredPunches')}</h3>
           {isLoading ? (
             /* Shimmer loader no mês/ano */
             <div className="h-5 w-24 shimmer rounded"></div>
           ) : (
-            <span className="text-body-sm text-on-surface-variant font-semibold">{currentMonth}</span>
+            <span className="text-body-sm text-on-surface-variant font-semibold">{getLocalizedCurrentMonth()}</span>
           )}
         </div>
         
@@ -572,7 +600,7 @@ export const PunchCard: React.FC = () => {
 
         {!isLoading && (
           <button className="w-full text-primary font-bold py-md text-body-sm hover:bg-surface-container-high rounded-xl transition-colors cursor-pointer">
-            VER HISTÓRICO COMPLETO
+            {t('history.viewCompleteHistory')}
           </button>
         )}
       </section>

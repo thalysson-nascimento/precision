@@ -2,8 +2,10 @@
 
 import { reportService, ReportMonth, MonthlyReportsResponse } from '@precision/api-client';
 import React, { useEffect, useState } from 'react';
+import { useI18n } from '@/locales/useI18n';
 
 export const ReportsScreen: React.FC = () => {
+  const { t, locale } = useI18n();
   const [data, setData] = useState<MonthlyReportsResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +18,7 @@ export const ReportsScreen: React.FC = () => {
         setData(res);
       } catch (err) {
         console.error(err);
-        setError('Erro ao carregar os relatórios de horas extras.');
+        setError(t('reports.loadError'));
       } finally {
         setIsLoading(false);
       }
@@ -59,7 +61,7 @@ export const ReportsScreen: React.FC = () => {
           onClick={() => window.location.reload()}
           className="bg-primary text-on-primary px-lg py-sm rounded-xl font-bold hover:bg-primary-container transition-colors cursor-pointer"
         >
-          Tentar Novamente
+          {t('common.tryAgain')}
         </button>
       </div>
     );
@@ -68,6 +70,18 @@ export const ReportsScreen: React.FC = () => {
   const { employee, reports, summary } = data;
   const maxHours = getMaxHoursValue(reports);
   
+  // Localize and format month key
+  const formatMonthKey = (monthKey: string): string => {
+    if (!monthKey) return '';
+    const [year, month] = monthKey.split('-');
+    const monthIndex = parseInt(month, 10) - 1;
+    const tempDate = new Date(parseInt(year, 10), monthIndex, 1);
+    const bcpLocale = locale === 'pt' ? 'pt-BR' : locale === 'en' ? 'en-US' : 'de-DE';
+    const monthName = tempDate.toLocaleDateString(bcpLocale, { month: 'long' });
+    const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+    return locale === 'pt' ? `${capitalizedMonthName}/${year}` : `${capitalizedMonthName} ${year}`;
+  };
+
   // Encontrar relatório do mês atual (ou do último mês se não houver dados no banco para o corrente)
   const currentMonthKey = new Date().toISOString().slice(0, 7);
   const currentMonthReport = reports.find(r => r.monthKey === currentMonthKey) || reports[reports.length - 1];
@@ -83,7 +97,7 @@ export const ReportsScreen: React.FC = () => {
         </div>
         <div className="bg-surface-container p-sm px-md rounded-xl border border-outline-variant/30 text-body-sm text-on-surface font-semibold flex items-center gap-xs">
           <span className="material-symbols-outlined text-outline">calendar_month</span>
-          Período Trabalhado Completo
+          {t('reports.fullWorkedPeriod')}
         </div>
       </section>
 
@@ -96,9 +110,9 @@ export const ReportsScreen: React.FC = () => {
               <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
             </div>
             <div>
-              <h4 className="text-label-caps font-label-caps text-on-surface-variant text-[10px]">Horas Total Trabalhadas</h4>
+              <h4 className="text-label-caps font-label-caps text-on-surface-variant text-[10px]">{t('reports.totalHoursWorked')}</h4>
               <h2 className="text-headline-md md:text-headline-lg font-bold text-on-background mt-xs">{currentMonthReport.total}h</h2>
-              <p className="text-body-sm text-outline mt-1 font-semibold text-[11px]">{currentMonthReport.monthLabel}</p>
+              <p className="text-body-sm text-outline mt-1 font-semibold text-[11px]">{formatMonthKey(currentMonthReport.monthKey)}</p>
             </div>
           </div>
 
@@ -108,9 +122,9 @@ export const ReportsScreen: React.FC = () => {
               <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
             </div>
             <div>
-              <h4 className="text-label-caps font-label-caps text-on-surface-variant text-[10px]">Horas Extra Trabalhadas</h4>
+              <h4 className="text-label-caps font-label-caps text-on-surface-variant text-[10px]">{t('reports.overtimeHoursWorked')}</h4>
               <h2 className="text-headline-md md:text-headline-lg font-bold text-secondary mt-xs">{currentMonthReport.totalOvertime}h</h2>
-              <p className="text-body-sm text-outline mt-1 font-semibold text-[11px]">{currentMonthReport.monthLabel}</p>
+              <p className="text-body-sm text-outline mt-1 font-semibold text-[11px]">{formatMonthKey(currentMonthReport.monthKey)}</p>
             </div>
           </div>
         </section>
@@ -119,8 +133,8 @@ export const ReportsScreen: React.FC = () => {
       {/* Gráfico de Barras Horizontais (Horas Trabalhadas vs. Previstas) */}
       <section className="glass-card rounded-xl p-lg space-y-lg">
         <div>
-          <h3 className="text-headline-md font-headline-md text-on-background">Carga Horária Mensal</h3>
-          <p className="text-body-sm text-on-surface-variant">Comparativo entre horas previstas do contrato e horas efetivamente trabalhadas por mês.</p>
+          <h3 className="text-headline-md font-headline-md text-on-background">{t('reports.monthlyWorkload')}</h3>
+          <p className="text-body-sm text-on-surface-variant">{t('reports.workloadDescription')}</p>
         </div>
 
         {/* Gráfico Horizontal */}
@@ -138,10 +152,10 @@ export const ReportsScreen: React.FC = () => {
                 {/* Título da Linha */}
                 <div className="flex flex-col gap-[2px]">
                   <span className="text-body-lg font-bold text-on-background">
-                    {r.monthLabel}
+                    {formatMonthKey(r.monthKey)}
                   </span>
                   <span className="text-body-sm text-on-surface-variant font-medium">
-                    Trabalhado: <strong className="text-on-background">{r.total}h</strong> / Previsto: {r.expected}h
+                    {t('reports.worked')}: <strong className="text-on-background">{r.total}h</strong> / {t('reports.expected')}: {r.expected}h
                   </span>
                 </div>
 
@@ -180,18 +194,18 @@ export const ReportsScreen: React.FC = () => {
         <div className="flex flex-wrap gap-md justify-center text-body-sm mt-sm pt-sm border-t border-outline-variant/10">
           <div className="flex items-center gap-xs">
             <span className="w-3 h-3 rounded bg-primary inline-block"></span>
-            <span className="text-on-surface-variant font-medium">Horas Efetivas Trabalhadas</span>
+            <span className="text-on-surface-variant font-medium">{t('reports.actualHours')}</span>
           </div>
           <div className="flex items-center gap-xs">
             <span className="w-3 h-3 rounded bg-surface-container-high border border-outline-variant inline-block"></span>
-            <span className="text-on-surface-variant font-medium">Carga Horária Prevista</span>
+            <span className="text-on-surface-variant font-medium">{t('reports.expectedHours')}</span>
           </div>
         </div>
       </section>
 
       {/* Tabela de Dados Agregados por Mês */}
       <section className="space-y-md">
-        <h3 className="text-headline-md font-headline-md text-on-background">Detalhamento dos Saldos por Mês</h3>
+        <h3 className="text-headline-md font-headline-md text-on-background">{t('reports.monthlyBalanceDetails')}</h3>
         
         {/* Tabela Responsiva */}
         <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
@@ -199,17 +213,17 @@ export const ReportsScreen: React.FC = () => {
             <table className="w-full text-left border-collapse min-w-[900px]">
               <thead>
                 <tr className="bg-surface-container-low border-b border-outline-variant text-label-caps font-label-caps text-on-surface-variant">
-                  <th className="p-md font-bold whitespace-nowrap">Mês / Ano</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Total</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Hora Prevista</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Total Hora Extras</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Hora extra em NRO</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Máximo Diário</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Padrão</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Até 2 horas (50%)</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Após 2 horas (100%)</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Sábado</th>
-                  <th className="p-md font-bold whitespace-nowrap text-right">Feriado / Domingo</th>
+                  <th className="p-md font-bold whitespace-nowrap">{t('reports.monthYear')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.total')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.expectedHoursHeader')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.totalOvertime')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.overtimeNro')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.maxDaily')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.standard')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.overtimeUpTo2')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.overtimeAfter2')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.saturday')}</th>
+                  <th className="p-md font-bold whitespace-nowrap text-right">{t('reports.holidaySunday')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/30 text-body-sm text-on-surface">
@@ -217,7 +231,7 @@ export const ReportsScreen: React.FC = () => {
                   <tr key={row.monthKey} className="hover:bg-surface-container-low/40 transition-colors">
                     <td className="p-md font-bold flex items-center gap-xs whitespace-nowrap">
                       <span className="material-symbols-outlined text-primary text-lg">calendar_month</span>
-                      {row.monthLabel}
+                      {formatMonthKey(row.monthKey)}
                     </td>
                     <td className="p-md font-semibold text-right">{row.total}</td>
                     <td className="p-md text-right text-on-surface-variant">{row.expected || '--:--'}</td>
@@ -237,7 +251,7 @@ export const ReportsScreen: React.FC = () => {
                 <tr className="bg-surface-container-low font-bold border-t border-outline-variant text-body-sm text-on-background">
                   <td className="p-md flex items-center gap-xs whitespace-nowrap">
                     <span className="material-symbols-outlined text-on-background text-lg">analytics</span>
-                    Total Acumulado
+                    {t('reports.accumulatedTotal')}
                   </td>
                   <td className="p-md text-right font-bold">{summary.totalWorked}</td>
                   <td className="p-md text-right font-bold text-on-surface-variant">{summary.totalExpected}</td>

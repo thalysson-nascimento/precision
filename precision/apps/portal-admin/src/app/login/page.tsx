@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useI18n } from '@/locales/useI18n';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +15,7 @@ export default function AdminLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('Por favor, preencha todos os campos.');
+      setError(t('auth.requiredFields'));
       return;
     }
 
@@ -32,14 +34,14 @@ export default function AdminLoginPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Falha na autenticação');
+        throw new Error(data.error || t('auth.loginError'));
       }
 
       router.replace('/');
       router.refresh();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'E-mail ou senha incorretos.');
+      setError(err.message || t('auth.errorCredentials'));
     } finally {
       setLoading(false);
     }
@@ -55,8 +57,8 @@ export default function AdminLoginPage() {
               domain
             </span>
           </div>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">Precision</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">Portal Administrativo</p>
+          <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">{t('auth.loginTitle')}</h1>
+          <p className="font-body-md text-body-md text-on-surface-variant">{t('auth.loginSubtitle')}</p>
         </div>
 
         {/* Error Alert */}
@@ -70,7 +72,7 @@ export default function AdminLoginPage() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-md">
           <div className="space-y-xs">
-            <label className="font-label-caps text-label-caps text-on-surface-variant block">E-mail</label>
+            <label className="font-label-caps text-label-caps text-on-surface-variant block">{t('auth.email')}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">
                 mail
@@ -87,7 +89,7 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="space-y-xs">
-            <label className="font-label-caps text-label-caps text-on-surface-variant block">Senha</label>
+            <label className="font-label-caps text-label-caps text-on-surface-variant block">{t('auth.password')}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant">
                 lock
@@ -111,12 +113,12 @@ export default function AdminLoginPage() {
             {loading ? (
               <>
                 <span className="animate-spin material-symbols-outlined text-[20px]">progress_activity</span>
-                <span>Entrando...</span>
+                <span>{t('common.loading')}</span>
               </>
             ) : (
               <>
                 <span className="material-symbols-outlined">login</span>
-                <span>Entrar no Painel</span>
+                <span>{t('auth.loginButton')}</span>
               </>
             )}
           </button>

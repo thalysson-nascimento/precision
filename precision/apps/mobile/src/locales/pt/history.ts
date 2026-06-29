@@ -1,0 +1,17 @@
+export const history = {
+  title: 'Histórico de Pontos',
+  subtitle: 'Confira seus registros de ponto realizados nos últimos dias.',
+  date: 'Data',
+  punches: 'Registros',
+  totalHours: 'Total de Horas',
+  listEmpty: 'Nenhum registro de ponto encontrado para este mês.',
+  registeredPunches: 'Pontos Registrados',
+  pendingRegister: 'Pendência de Registro',
+  yourRegisteredPunches: 'Seus pontos registrados',
+  viewCompleteHistory: 'VER HISTÓRICO COMPLETO',
+  noPendingPunches: 'Nenhuma pendência encontrada',
+  noPendingPunchesDesc: 'Você está com todos os seus registros de ponto em dia!',
+  pendingCountLabel: '{count} {word}',
+  pendingWordSingular: 'pendência',
+  pendingWordPlural: 'pendências',
+};

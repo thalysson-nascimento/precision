@@ -1,8 +1,9 @@
-'use client';
-
 import React from 'react';
+import { useI18n } from '@/locales/useI18n';
 
 export default function MobileSubscriptionExpiredPage() {
+  const { t } = useI18n();
+
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     window.location.href = '/login';
@@ -17,14 +18,14 @@ export default function MobileSubscriptionExpiredPage() {
           </span>
         </div>
         
-        <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">Assinatura Expirada</h1>
+        <h1 className="font-headline-lg text-headline-lg text-on-surface font-bold">{t('auth.expiredTitle')}</h1>
         
         <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-          A assinatura dos serviços da sua empresa com o <strong>Chronos</strong> está inativa ou expirou.
+          {t('auth.expiredMsg1')}
         </p>
         
         <p className="font-body-sm text-body-sm text-on-surface-variant/80">
-          Entre em contato com o responsável financeiro da sua empresa para reativar os serviços.
+          {t('auth.expiredMsg2')}
         </p>
 
         <button
@@ -32,7 +33,7 @@ export default function MobileSubscriptionExpiredPage() {
           className="w-full h-12 border-2 border-outline text-on-surface hover:bg-surface-container-high active:scale-[0.98] rounded-xl font-bold flex items-center justify-center gap-xs transition-all cursor-pointer mt-lg"
         >
           <span className="material-symbols-outlined">logout</span>
-          <span>Voltar para Login</span>
+          <span>{t('auth.expiredLogout')}</span>
         </button>
       </div>
     </div>

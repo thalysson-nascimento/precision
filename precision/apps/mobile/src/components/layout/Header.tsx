@@ -1,13 +1,15 @@
 'use client';
 
+import { useI18n } from '@/locales/useI18n';
+import { usePathname, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, usePathname } from 'next/navigation';
 import { CurrentDate } from '../ui/CurrentDate';
 
 export const Header: React.FC = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get('tab') || 'inicio';
+  const { t } = useI18n();
   
   const [employee, setEmployee] = useState<{ name: string; role: string } | null>(null);
 
@@ -39,16 +41,16 @@ export const Header: React.FC = () => {
     return null;
   }
 
-  const displayName = employee?.name || 'Colaborador';
+  const displayName = employee?.name || t('common.employee');
 
   return (
     <header className="bg-background sticky top-0 z-50 border-b border-outline-variant/30 backdrop-blur-md">
-      {/* Top micro-bar for the Chronos branding */}
+      {/* Top micro-bar for the Precision branding */}
       <div className="max-w-7xl mx-auto px-container-margin py-[6px] flex justify-between items-center text-[10px] tracking-wider uppercase text-on-surface-variant font-bold border-b border-outline-variant/10">
-        <span className="text-primary font-bold">Chronos</span>
+        <span className="text-primary font-bold">Precision</span>
         <div className="flex items-center gap-1">
           <span className="w-[6px] h-[6px] rounded-full bg-secondary shadow-sm animate-pulse"></span>
-          <span>Sistema Ativo</span>
+          <span>{t('dashboard.activeSystem')}</span>
         </div>
       </div>
       
@@ -56,7 +58,7 @@ export const Header: React.FC = () => {
       <div className="flex justify-between items-center w-full px-container-margin py-md max-w-7xl mx-auto">
         <div className="flex flex-col">
           <h1 className="text-headline-lg font-headline-lg font-semibold text-on-background">
-            Olá, {displayName}
+            {t('dashboard.greeting', { name: displayName })}
           </h1>
           <p className="text-body-sm font-body-sm text-on-surface-variant">
             <CurrentDate />
