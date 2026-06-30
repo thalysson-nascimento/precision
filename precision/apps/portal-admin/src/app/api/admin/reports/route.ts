@@ -327,12 +327,12 @@ export async function GET(request: Request) {
 
         const balanceMin = workedMin - expectedDailyMinutes;
 
-        // format record punches text
-        const punchesText = dayRecords.map(r => `${r.type === 'IN' ? 'Entrada' : r.type === 'LUNCH_OUT' ? 'Saída Almoço' : r.type === 'LUNCH_IN' ? 'Retorno Almoço' : 'Saída Final'}: ${r.time}`).join(' | ');
+        // Return raw punches array to format on client side based on locale
+        const punches = dayRecords.map(r => ({ type: r.type, time: r.time }));
 
         return {
           date: dateStr,
-          punches: punchesText,
+          punches: punches,
           worked: formatMinutesToTime(workedMin),
           expected: formatMinutesToTime(expectedDailyMinutes),
           balance: formatMinutesToTime(balanceMin),

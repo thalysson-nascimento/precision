@@ -26,4 +26,8 @@ export const common = {
   companies: 'Unternehmen',
   teams: 'Teams',
   roles: 'Rollen',
+  close: 'Schließen',
+  name: 'Name',
+  role: 'Position',
+  email: 'E-Mail',
 };

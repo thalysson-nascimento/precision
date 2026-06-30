@@ -62,7 +62,7 @@ interface ReportData {
   totalOvertime?: string;
   records?: {
     date: string;
-    punches: string;
+    punches: { type: string; time: string }[];
     worked: string;
     expected: string;
     balance: string;
@@ -103,11 +103,23 @@ function PrintReportContent() {
     }
   }, [type, id]);
 
+  const getSlotLabel = (slotType: string) => {
+    if (slotType === 'IN') return t('reports.entry');
+    if (slotType === 'LUNCH_OUT') return t('reports.lunchStart');
+    if (slotType === 'LUNCH_IN') return t('reports.lunchEnd');
+    return t('reports.exit');
+  };
+
+  const formatPunchesText = (punches: { type: string; time: string }[] | undefined) => {
+    if (!punches || !Array.isArray(punches)) return '-';
+    return punches.map(p => `${getSlotLabel(p.type)}: ${p.time}`).join(' | ');
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white text-black p-xl">
         <span className="animate-spin material-symbols-outlined text-[32px] text-primary">progress_activity</span>
-        <p className="mt-md font-semibold text-body-lg">Carregando relatório...</p>
+        <p className="mt-md font-semibold text-body-lg">{t('common.loading')}</p>
       </div>
     );
   }
@@ -116,7 +128,7 @@ function PrintReportContent() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white text-black p-xl">
         <span className="material-symbols-outlined text-[48px] text-error">error</span>
-        <p className="mt-md font-semibold text-body-lg">Erro ao carregar dados do relatório.</p>
+        <p className="mt-md font-semibold text-body-lg">{t('reports.loadError')}</p>
       </div>
     );
   }
@@ -144,20 +156,20 @@ function PrintReportContent() {
       <div className="no-print bg-slate-100 border border-slate-200 rounded-xl p-md flex items-center justify-between mb-xl max-w-4xl mx-auto shadow-sm">
         <div className="flex items-center gap-xs">
           <span className="material-symbols-outlined text-primary">print</span>
-          <span className="font-semibold text-slate-800 text-body-md">Visualização de Impressão PDF</span>
+          <span className="font-semibold text-slate-800 text-body-md">{t('reports.printPreview')}</span>
         </div>
         <div className="flex items-center gap-md">
           <button 
             onClick={() => window.close()}
             className="px-md py-sm bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-bold text-body-sm transition-colors cursor-pointer"
           >
-            Fechar
+            {t('common.close')}
           </button>
           <button 
             onClick={() => window.print()}
             className="px-md py-sm bg-primary text-white rounded-lg font-bold text-body-sm hover:bg-primary-container transition-colors cursor-pointer shadow-sm"
           >
-            Imprimir / Salvar PDF
+            {t('reports.printSave')}
           </button>
         </div>
       </div>
@@ -169,7 +181,7 @@ function PrintReportContent() {
         <header className="flex justify-between items-start border-b border-black pb-md">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-primary">Precision</h1>
-            <p className="text-xs text-slate-500 uppercase font-semibold mt-1">Controle de Frequência & Ponto</p>
+            <p className="text-xs text-slate-500 uppercase font-semibold mt-1">{t('reports.frequencyControl')}</p>
           </div>
           <div className="text-right text-xs">
             <h3 className="font-bold text-slate-800">{t('reports.printTitle')}</h3>
@@ -182,14 +194,14 @@ function PrintReportContent() {
           <div>
             <h4 className="font-bold text-slate-800 border-b border-slate-200 pb-[4px] mb-xs uppercase">{t('reports.company')}</h4>
             <p className="font-semibold text-sm text-slate-900">{data.company?.name || data.employee?.name}</p>
-            <p className="text-slate-600 mt-[2px]">{data.company?.address || 'Endereço Corporativo'}</p>
+            <p className="text-slate-600 mt-[2px]">{data.company?.address || t('settings.companyAddress')}</p>
             <p className="text-slate-600">{data.company?.contact}</p>
           </div>
           <div>
-            <h4 className="font-bold text-slate-800 border-b border-slate-200 pb-[4px] mb-xs uppercase">Detalhes da Emissão</h4>
+            <h4 className="font-bold text-slate-800 border-b border-slate-200 pb-[4px] mb-xs uppercase">{t('reports.emissionDetails')}</h4>
             {type === 'company' && (
               <>
-                <p><span className="font-semibold">{t('reports.status')}:</span> Consolidado de Empresa</p>
+                <p><span className="font-semibold">{t('reports.status')}:</span> {t('reports.companyConsolidated')}</p>
                 <p className="mt-[2px]"><span className="font-semibold">{t('reports.activeEmployees')}:</span> {data.activeCount}</p>
                 <p><span className="font-semibold">{t('reports.inactiveEmployees')}:</span> {data.inactiveCount}</p>
               </>
@@ -204,9 +216,9 @@ function PrintReportContent() {
             {type === 'employee' && data.employee && (
               <>
                 <p><span className="font-semibold">{t('reports.employee')}:</span> {data.employee.name}</p>
-                <p className="mt-[2px]"><span className="font-semibold">{t('reports.role')}:</span> {data.employee.role}</p>
+                <p className="mt-[2px]"><span className="font-semibold">{t('common.role')}:</span> {data.employee.role}</p>
                 <p><span className="font-semibold">{t('reports.contract')}:</span> {data.employee.contractNumber}</p>
-                <p><span className="font-semibold">Escala:</span> {data.employee.workStart}h - {data.employee.workEnd}h (Almoço: {data.employee.lunchStart}h - {data.employee.lunchEnd}h)</p>
+                <p><span className="font-semibold">{t('reports.schedule')}:</span> {data.employee.workStart}h - {data.employee.workEnd}h ({t('reports.lunch')}: {data.employee.lunchStart}h - {data.employee.lunchEnd}h)</p>
               </>
             )}
           </div>
@@ -286,7 +298,7 @@ function PrintReportContent() {
                 <div className="flex justify-center text-[10px] text-slate-600 mt-sm">
                   <div className="flex items-center gap-[4px]">
                     <span className="w-2.5 h-2.5 bg-secondary rounded-sm inline-block"></span>
-                    <span>{t('reports.overtime')} (horas extras acumuladas)</span>
+                    <span>{t('reports.overtime')} ({t('reports.accumulatedOvertime')})</span>
                   </div>
                 </div>
               </div>
@@ -345,11 +357,11 @@ function PrintReportContent() {
             <table className="w-full text-left border-collapse text-[10px]">
               <thead>
                 <tr className="bg-slate-100 border-b border-slate-300 font-bold text-slate-700">
-                  <th className="p-sm">Nome</th>
-                  <th className="p-sm">Cargo</th>
-                  <th className="p-sm">E-mail</th>
-                  {type === 'company' && <th className="p-sm">Equipe / Grupo</th>}
-                  <th className="p-sm">Status</th>
+                  <th className="p-sm">{t('common.name')}</th>
+                  <th className="p-sm">{t('common.role')}</th>
+                  <th className="p-sm">{t('common.email')}</th>
+                  {type === 'company' && <th className="p-sm">{t('reports.group')}</th>}
+                  <th className="p-sm">{t('reports.status')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -383,21 +395,21 @@ function PrintReportContent() {
                   <th className="p-sm">{t('reports.punches')}</th>
                   <th className="p-sm text-right">{t('reports.hoursWorked')}</th>
                   <th className="p-sm text-right">{t('reports.hoursExpected')}</th>
-                  <th className="p-sm text-right">Saldo</th>
+                  <th className="p-sm text-right">{t('reports.balance')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {data.records.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-md text-center text-slate-500">
-                      Nenhum registro de ponto registrado para este colaborador.
+                      {t('reports.noPunchesFound')}
                     </td>
                   </tr>
                 ) : (
                   data.records.map((row, idx) => (
                     <tr key={idx} className="hover:bg-slate-50">
                       <td className="p-sm font-semibold">{row.date}</td>
-                      <td className="p-sm text-slate-600">{row.punches || '-'}</td>
+                      <td className="p-sm text-slate-600">{formatPunchesText(row.punches) || '-'}</td>
                       <td className="p-sm text-right font-medium">{row.worked}</td>
                       <td className="p-sm text-right text-slate-600">{row.expected}</td>
                       <td className={`p-sm text-right font-bold ${row.balanceRaw >= 0 ? 'text-secondary' : 'text-error'}`}>
@@ -416,14 +428,14 @@ function PrintReportContent() {
           <div className="space-y-xs">
             <div className="border-t border-slate-400 mx-lg pt-sm"></div>
             <p className="font-bold text-slate-800">{t('reports.signatureSupervisor')}</p>
-            <p className="text-[10px] text-slate-500">Precision - Recursos Humanos</p>
+            <p className="text-[10px] text-slate-500">{t('reports.hrDepartment')}</p>
           </div>
           <div className="space-y-xs">
             <div className="border-t border-slate-400 mx-lg pt-sm"></div>
             <p className="font-bold text-slate-800">
-              {type === 'employee' ? t('reports.signatureEmployee') : 'Representante da Empresa / Gestor'}
+              {type === 'employee' ? t('reports.signatureEmployee') : t('reports.companyRepresentative')}
             </p>
-            <p className="text-[10px] text-slate-500">Assinatura Física ou Eletrônica</p>
+            <p className="text-[10px] text-slate-500">{t('reports.signatureDesc')}</p>
           </div>
         </section>
 

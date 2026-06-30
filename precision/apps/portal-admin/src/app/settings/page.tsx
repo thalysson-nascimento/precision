@@ -249,25 +249,27 @@ export default function SettingsPage() {
                       {t('common.language')}
                     </h2>
 
-                    <div className="flex flex-col md:flex-row md:items-center justify-between bg-surface-container-low p-md rounded-xl border border-outline-variant/60 gap-md">
-                      <div className="space-y-[2px] max-w-md">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between bg-surface-container-low p-md rounded-xl border border-outline-variant/60 gap-lg">
+                      <div className="space-y-[4px] flex-1">
                         <p className="font-semibold text-body-lg text-on-surface">
-                          {t('common.language')} / Language / Sprache
+                          {t('common.language')}
                         </p>
                         <p className="text-body-sm text-on-surface-variant/80">
                           {t('settings.languageDesc')}
                         </p>
                       </div>
 
-                      <select
-                        value={locale}
-                        onChange={(e) => setLocale(e.target.value as Locale)}
-                        className="h-12 px-md border border-outline rounded-xl bg-surface text-on-surface focus:border-primary outline-none transition-all text-body-lg font-semibold cursor-pointer min-w-[200px]"
-                      >
-                        <option value="pt">Português</option>
-                        <option value="en">English</option>
-                        <option value="de">Deutsch</option>
-                      </select>
+                      <div className="flex-shrink-0 w-full md:w-auto">
+                        <select
+                          value={locale}
+                          onChange={(e) => setLocale(e.target.value as Locale)}
+                          className="h-12 w-full md:w-56 px-md border border-outline rounded-xl bg-surface text-on-surface focus:border-primary outline-none transition-all text-body-lg font-semibold cursor-pointer"
+                        >
+                          <option value="pt">Português</option>
+                          <option value="en">English</option>
+                          <option value="de">Deutsch</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 
