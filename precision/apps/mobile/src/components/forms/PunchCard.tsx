@@ -37,6 +37,7 @@ export const PunchCard: React.FC = () => {
   const [isPunching, setIsPunching] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [incompleteDays, setIncompleteDays] = useState<number>(0);
+  const [blockage, setBlockage] = useState<{ isBlocked: boolean; reason: string | null } | null>(null);
 
   // Estados do Modal de Edição
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -57,6 +58,7 @@ export const PunchCard: React.FC = () => {
       setIncompleteDays(data.incompleteDays || 0);
       setHistory(data.history || []);
       setCurrentMonth(data.currentMonth || 'Junho/2026');
+      setBlockage(data.blockage || null);
 
       const inRec = data.records.find(r => r.type === 'IN');
       const lunchOutRec = data.records.find(r => r.type === 'LUNCH_OUT');
@@ -252,6 +254,7 @@ export const PunchCard: React.FC = () => {
 
   // Verificar quais boxes de horário devem ficar desabilitados
   const isInputDisabled = (type: 'IN' | 'LUNCH_OUT' | 'LUNCH_IN' | 'OUT', contractTime: string, isConfirmed: boolean): boolean => {
+    if (blockage?.isBlocked) return true;
     if (isConfirmed) return false;
     return !isSlotEligible(contractTime);
   };
@@ -324,6 +327,23 @@ export const PunchCard: React.FC = () => {
               >
                 {t('dashboard.adjustTime')}
               </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Alerta de Expediente Bloqueado */}
+      {!isLoading && blockage?.isBlocked && (
+        <section className="w-full">
+          <div className="bg-error-container text-on-error-container p-md rounded-xl flex items-center gap-md border border-error/20 shadow-sm animate-pulse">
+            <span className="material-symbols-outlined text-error text-[32px]">block</span>
+            <div className="space-y-[2px]">
+              <h2 className="text-body-lg font-bold text-error">{t('dashboard.punchLocked')}</h2>
+              <p className="text-body-sm text-on-error-container/80 font-medium">
+                {blockage.reason === 'WEEKDAY' 
+                  ? t('dashboard.weekendBlocked') 
+                  : t('dashboard.blockageReason', { reason: blockage.reason || '' })}
+              </p>
             </div>
           </div>
         </section>
@@ -523,7 +543,7 @@ export const PunchCard: React.FC = () => {
         
         {/* Action Button */}
         <button 
-          disabled={isLoading || isPunching || !hasEligiblePunchesPending()}
+          disabled={isLoading || isPunching || blockage?.isBlocked || !hasEligiblePunchesPending()}
           onClick={handlePunch}
           className="w-full bg-secondary text-on-secondary py-md rounded-xl text-headline-md font-headline-md shadow-lg shadow-secondary/20 hover:bg-on-secondary-fixed-variant transition-all active:scale-[0.97] hover:scale-[1.01] duration-150 cursor-pointer flex items-center justify-center gap-md disabled:opacity-50 disabled:cursor-not-allowed"
         >

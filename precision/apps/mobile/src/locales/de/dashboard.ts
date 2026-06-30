@@ -22,4 +22,8 @@ export const dashboard = {
   todayRegister: 'HEUTIGE BUCHUNG',
   totalWorkedHoursToday: 'Gesamte Arbeitszeit heute',
   confirmPunch: 'Buchung bestätigen',
+  punchLocked: 'Zeiterfassung gesperrt',
+  punchLockedDesc: 'Die Zeiterfassung ist heute für Ihr Unternehmen deaktiviert.',
+  blockageReason: 'Grund: {reason}',
+  weekendBlocked: 'Wochenend-Zeiterfassung gesperrt',
 };

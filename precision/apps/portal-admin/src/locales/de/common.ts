@@ -30,4 +30,5 @@ export const common = {
   name: 'Name',
   role: 'Position',
   email: 'E-Mail',
+  blockages: 'Sperren',
 };

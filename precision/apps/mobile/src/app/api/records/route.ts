@@ -45,6 +45,38 @@ export async function GET() {
     }
 
     const todayStr = getTodayDateString();
+    
+    // Check blockages
+    let isBlocked = false;
+    let blockageReason: string | null = null;
+    
+    if (employee.companyId) {
+      const [year, month, day] = todayStr.split('-').map(Number);
+      const dateObj = new Date(year, month - 1, day);
+      const dayOfWeek = dateObj.getDay();
+
+      const blockage = await prisma.workBlockage.findFirst({
+        where: {
+          companyId: employee.companyId,
+          OR: [
+            {
+              type: 'WEEKDAY',
+              dayOfWeek: dayOfWeek,
+            },
+            {
+              type: 'DATE',
+              date: todayStr,
+            }
+          ]
+        }
+      });
+
+      if (blockage) {
+        isBlocked = true;
+        blockageReason = blockage.type === 'DATE' ? blockage.reason : 'WEEKDAY';
+      }
+    }
+
     const records = await prisma.timeRecord.findMany({
       where: {
         employeeId: employee.id,
@@ -123,7 +155,11 @@ export async function GET() {
       records, 
       incompleteDays: incompleteDaysCount,
       history,
-      currentMonth: currentMonthStr
+      currentMonth: currentMonthStr,
+      blockage: {
+        isBlocked,
+        reason: blockageReason
+      }
     });
   } catch (error) {
     console.error('Erro ao buscar registros:', error);
@@ -158,6 +194,33 @@ export async function POST(req: NextRequest) {
     const todayStr = getTodayDateString();
     const targetDate = date || todayStr;
     const isToday = targetDate === todayStr;
+
+    // Check blockages
+    if (employee.companyId) {
+      const [year, month, day] = targetDate.split('-').map(Number);
+      const dateObj = new Date(year, month - 1, day);
+      const dayOfWeek = dateObj.getDay();
+
+      const blockage = await prisma.workBlockage.findFirst({
+        where: {
+          companyId: employee.companyId,
+          OR: [
+            {
+              type: 'WEEKDAY',
+              dayOfWeek: dayOfWeek,
+            },
+            {
+              type: 'DATE',
+              date: targetDate,
+            }
+          ]
+        }
+      });
+
+      if (blockage) {
+        return NextResponse.json({ error: 'A data informada está bloqueada para registros.' }, { status: 403 });
+      }
+    }
 
     // Horário local atual
     const now = new Date();
@@ -255,6 +318,33 @@ export async function PUT(req: NextRequest) {
     }
 
     const targetDate = date || getTodayDateString();
+
+    // Check blockages
+    if (employee.companyId) {
+      const [year, month, day] = targetDate.split('-').map(Number);
+      const dateObj = new Date(year, month - 1, day);
+      const dayOfWeek = dateObj.getDay();
+
+      const blockage = await prisma.workBlockage.findFirst({
+        where: {
+          companyId: employee.companyId,
+          OR: [
+            {
+              type: 'WEEKDAY',
+              dayOfWeek: dayOfWeek,
+            },
+            {
+              type: 'DATE',
+              date: targetDate,
+            }
+          ]
+        }
+      });
+
+      if (blockage) {
+        return NextResponse.json({ error: 'A data informada está bloqueada para registros.' }, { status: 403 });
+      }
+    }
 
     // Upsert da marcação
     const record = await prisma.timeRecord.upsert({

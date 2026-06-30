@@ -8,6 +8,10 @@ export interface TodayRecordsResponse {
   incompleteDays: number;
   history: HistoryDay[];
   currentMonth: string;
+  blockage?: {
+    isBlocked: boolean;
+    reason: string | null;
+  };
 }
 
 export interface MutationResponse {
@@ -25,6 +29,7 @@ export class EmployeeRepository {
       incompleteDays: raw.incompleteDays || 0,
       history: (raw.history || []).map(EmployeeMapper.toHistoryDay),
       currentMonth: raw.currentMonth || '',
+      blockage: raw.blockage,
     };
   }
 

@@ -22,4 +22,8 @@ export const dashboard = {
   todayRegister: 'TODAY\'S REGISTER',
   totalWorkedHoursToday: 'Total worked hours today',
   confirmPunch: 'Confirm punch',
+  punchLocked: 'Punch Blocked',
+  punchLockedDesc: 'Time recording is disabled for your company today.',
+  blockageReason: 'Reason: {reason}',
+  weekendBlocked: 'Weekend punching blocked',
 };

@@ -22,4 +22,8 @@ export const dashboard = {
   todayRegister: 'REGISTRO DE HOJE',
   totalWorkedHoursToday: 'Total de horas trabalhadas hoje',
   confirmPunch: 'Confirmar registro',
+  punchLocked: 'Registro Bloqueado',
+  punchLockedDesc: 'O registro de ponto está desabilitado para a sua empresa hoje.',
+  blockageReason: 'Motivo: {reason}',
+  weekendBlocked: 'Final de semana bloqueado',
 };

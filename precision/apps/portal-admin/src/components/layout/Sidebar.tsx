@@ -78,6 +78,13 @@ export const Sidebar: React.FC = () => {
             <span>{t('common.reports')}</span>
           </Link>
         </li>
+        {/* Bloqueios */}
+        <li>
+          <Link href="/blockages" className={getLinkClass('/blockages')}>
+            <span className="material-symbols-outlined" style={getIconStyle('/blockages')}>calendar_month</span>
+            <span>{t('common.blockages')}</span>
+          </Link>
+        </li>
         {/* Configurações */}
         <li>
           <Link href="/settings" className={getLinkClass('/settings')}>

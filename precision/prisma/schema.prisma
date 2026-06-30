@@ -83,6 +83,7 @@ model Company {
   employees          Employee[]
   teams              Team[]
   jobRoles           JobRole[]
+  blockages          WorkBlockage[]
 }
 
 model JobRole {
@@ -93,4 +94,17 @@ model JobRole {
   createdAt DateTime @default(now())
 
   @@unique([name, companyId])
+}
+
+model WorkBlockage {
+  id          String   @id @default(uuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type        String   // "WEEKDAY" or "DATE"
+  dayOfWeek   Int?     // 0 = Sunday, 1 = Monday, ..., 6 = Saturday (for type === "WEEKDAY")
+  date        String?  // "YYYY-MM-DD" (for type === "DATE")
+  reason      String?  // e.g. "Natal", "Sexta-feira da Paixão"
+  createdAt   DateTime @default(now())
+
+  @@unique([companyId, dayOfWeek, date])
 }
