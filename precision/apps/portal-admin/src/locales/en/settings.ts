@@ -15,4 +15,6 @@ export const settings = {
   languageDesc: 'Select the default interface language for the admin portal.',
   defaultSchedule: 'Default Work Schedule',
   defaultScheduleDesc: 'Define the default contractual schedule for new employees.',
+  logoutSectionTitle: 'Sign Out',
+  logoutSectionDesc: 'Safely disconnect your administrative account from this browser.',
 };

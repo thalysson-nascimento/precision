@@ -1,0 +1,67 @@
+export const landpage = {
+  features: 'Funktionen',
+  reports: 'Berichte',
+  support: 'Support',
+  enter: 'Einloggen',
+  register: 'Registrieren',
+  title: 'Intelligente Zeiterfassung, einfach und sicher.',
+  subtitle: 'Der beste Weg, Arbeitszeiten, Ausnahmen und Überstunden dynamisch und in voller Übereinstimmung mit Ihren Geschäftsregeln zu verwalten.',
+  totalEmployees: 'MITARBEITER INSGESAMT',
+  employeesDescription: '+3 in diesem Monat',
+  pendingNow: 'AKTUELL AUSSTEHEND',
+  pendingDescription: '77 % der Belegschaft',
+  unresolvedPunches: 'OFFENE BUCHUNGEN',
+  unresolvedDescription: 'Wartet auf HR-Prüfung',
+  overtimeMonth: 'ÜBERSTUNDEN (MONAT)',
+  overtimeDescription: '-15 % im Vergleich zum Vormonat',
+  
+  exploreTitle: 'Lernen Sie Precision kennen.',
+  exploreSubtitle: 'Fortschrittliche Technologie zur Optimierung von Anwesenheit, Teamverfolgung und Einhaltung von Vorschriften.',
+  
+  card1Title: 'IP- und Standortüberprüfung',
+  card1Desc: 'Absolute Sicherheit an der Quelle. Ihre Mitarbeiter erfassen ihre Zeit mit sofortigen Geolokalisierungsprüfungen und IP-Netzwerkfiltern.',
+  
+  card2Title: 'Intelligente Schichtausschlüsse',
+  card2Desc: 'Definieren Sie Unternehmensgrenzen. Verhindern Sie Buchungen an Wochenenden oder benutzerdefinierten Feiertagen über das Admin-Panel.',
+  
+  card3Title: 'A4 Vektor-Berichte',
+  card3Desc: 'Vorschau, Druck und Download von Vektor-Schichtprotokollen, Arbeitsnachweisen, Unterschriften und Vergleichsdiagrammen.',
+  
+  card4Title: 'Vollständiges Team-Management',
+  card4Desc: 'Klare Hierarchien. Verknüpfen Sie Teams mit Leitern, bearbeiten Sie Verlaufsprotokolle und verarbeiten Sie Anpassungen zentral.',
+
+  pricingTitle: 'Einfache und transparente Preispläne',
+  trialPlan: 'Kostenlose Testversion (Trial)',
+  trialPrice: 'Kostenlos',
+  trialPeriod: '15-tägige Testphase',
+  trialFeatures: 'Alle Verwaltungsfunktionen, Berichte sowie IP- und Standortfilterung enthalten.',
+
+  threeMonthsPlan: '3-Monats-Plan',
+  threeMonthsPrice: '299 €',
+  threeMonthsPeriod: 'Für 3 Monate Zugang',
+  threeMonthsFeatures: 'Premium-Support, vollständige gedruckte Vektorberichte und isolierte sichere Datenbanken.',
+
+  sixMonthsPlan: '6-Monats-Plan',
+  sixMonthsPrice: '499 €',
+  sixMonthsPeriod: 'Für 6 Monate Zugang',
+  sixMonthsFeatures: 'Alle Funktionen des 3-Monats-Plans mit zusätzlichem Rabatt und konsolidierten Unternehmensberichten.',
+
+  ctaButton: 'Jetzt kostenlos testen',
+  selectPortal: 'Zugangsportal auswählen',
+  portalAdmin: 'Verwaltungsportal (Manager)',
+  portalEmployee: 'Mitarbeiterportal (Mobile App)',
+  close: 'Schließen',
+  beginnerBadge: 'Einsteiger',
+  professionalBadge: 'Profi',
+  corporateBadge: 'Unternehmen',
+  bestValueBadge: 'Beste Preis-Leistung',
+  selectPlanButton: 'Plan Auswählen',
+  startTrialButton: 'Test Starten',
+  footerDesc: 'Intelligente Zeiterfassung, einfach und sicher. Der beste Weg, Arbeitszeiten, Ausnahmen und Überstunden in Übereinstimmung mit den gesetzlichen Vorgaben zu verwalten.',
+  footerNavTitle: 'Navigation',
+  footerNavHome: 'Startseite',
+  footerNavPlans: 'Pläne',
+  footerSupportTitle: 'Kontakt & Support',
+  footerCopyright: '© 2026 Precision Technologies. Alle Rechte vorbehalten.',
+  footerMadeWith: 'Mit Sorgfalt erstellt, um Ihre Verwaltung zu optimieren.'
+};

@@ -15,4 +15,6 @@ export const settings = {
   languageDesc: 'Selecione o idioma padrão da interface do portal administrativo.',
   defaultSchedule: 'Jornada de Trabalho Padrão',
   defaultScheduleDesc: 'Defina o horário padrão contratual para novos colaboradores.',
+  logoutSectionTitle: 'Encerrar Sessão',
+  logoutSectionDesc: 'Desconecte com segurança a sua conta administrativa deste navegador.',
 };

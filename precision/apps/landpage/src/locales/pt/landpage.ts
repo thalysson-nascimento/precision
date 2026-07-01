@@ -1,0 +1,67 @@
+export const landpage = {
+  features: 'Funcionalidades',
+  reports: 'Relatórios',
+  support: 'Suporte',
+  enter: 'Entrar',
+  register: 'Cadastrar',
+  title: 'Gestão de ponto inteligente, simples e segura.',
+  subtitle: 'A melhor forma de gerenciar horários, escalas e horas extras de forma automatizada e em conformidade com as regras do seu negócio.',
+  totalEmployees: 'TOTAL DE COLABORADORES',
+  employeesDescription: '+3 neste mês',
+  pendingNow: 'PENDENTES AGORA',
+  pendingDescription: '77% da força de trabalho',
+  unresolvedPunches: 'PENDÊNCIAS DE REGISTRO',
+  unresolvedDescription: 'Aguardando verificação RH',
+  overtimeMonth: 'HORAS EXTRAS (MÊS)',
+  overtimeDescription: '-15% em relação ao último mês',
+  
+  exploreTitle: 'Conheça o Precision de perto.',
+  exploreSubtitle: 'Tecnologia avançada focada em otimizar a experiência de gestão e conformidade de ponto.',
+  
+  card1Title: 'Registro via IP e Geolocalização',
+  card1Desc: 'Segurança absoluta na origem. Seus colaboradores registram o ponto com detecção instantânea de geolocalização e validadores de rede.',
+  
+  card2Title: 'Bloqueio Inteligente de Escalas',
+  card2Desc: 'Defina os limites corporativos. Impeça marcações em finais de semana ou feriados customizados configurados pelo portal administrador.',
+  
+  card3Title: 'Relatórios Vetoriais A4',
+  card3Desc: 'Visualização, impressão e exportação vetorial de dados de frequência, horas de trabalho e assinaturas com gráficos comparativos.',
+  
+  card4Title: 'Gestão Completa de Equipes',
+  card4Desc: 'Hierarquias claras. Vincule equipes a líderes, edite registros e avalie pendências de forma ágil e centralizada.',
+
+  pricingTitle: 'Planos simples e transparentes',
+  trialPlan: 'Plano Grátis (Trial)',
+  trialPrice: 'Grátis',
+  trialPeriod: '15 dias de avaliação',
+  trialFeatures: 'Todas as funcionalidades de gestão, relatórios e controle de geolocalização.',
+
+  threeMonthsPlan: 'Plano Trimestral',
+  threeMonthsPrice: 'R$ 299',
+  threeMonthsPeriod: 'Por 3 meses de uso',
+  threeMonthsFeatures: 'Suporte premium, relatórios vetoriais completos e banco de dados isolado.',
+
+  sixMonthsPlan: 'Plano Semestral',
+  sixMonthsPrice: 'R$ 499',
+  sixMonthsPeriod: 'Por 6 meses de uso',
+  sixMonthsFeatures: 'Todos os recursos do plano trimestral com desconto adicional e relatórios corporativos consolidados.',
+
+  ctaButton: 'Experimente Grátis Agora',
+  selectPortal: 'Selecione o Portal de Acesso',
+  portalAdmin: 'Portal Administrativo (Gestor)',
+  portalEmployee: 'Portal do Colaborador (Mobile)',
+  close: 'Fechar',
+  beginnerBadge: 'Iniciante',
+  professionalBadge: 'Profissional',
+  corporateBadge: 'Corporativo',
+  bestValueBadge: 'Melhor Custo-Benefício',
+  selectPlanButton: 'Selecionar Plano',
+  startTrialButton: 'Começar Teste',
+  footerDesc: 'Gestão de ponto inteligente, simples e segura. A melhor forma de gerenciar horários, escalas e horas extras de forma automatizada e em conformidade legal.',
+  footerNavTitle: 'Navegação',
+  footerNavHome: 'Início',
+  footerNavPlans: 'Planos',
+  footerSupportTitle: 'Contato & Suporte',
+  footerCopyright: '© 2026 Precision Technologies. Todos os direitos reservados.',
+  footerMadeWith: 'Feito com cuidado para otimizar a sua gestão.'
+};

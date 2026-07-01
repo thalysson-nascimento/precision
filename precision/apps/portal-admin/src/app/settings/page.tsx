@@ -102,6 +102,15 @@ export default function SettingsPage() {
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Erro ao fazer logout:', err);
+    }
+  };
+
   return (
     <div className="admin-theme bg-background text-on-surface font-body-sm min-h-screen">
       <div className="flex h-screen overflow-hidden">
@@ -297,6 +306,33 @@ export default function SettingsPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Logout section */}
+                  <div className="bg-surface-container-lowest border border-error/30 rounded-xl p-lg md:p-xl shadow-sm space-y-md">
+                    <h2 className="text-body-lg font-bold text-error border-b border-error/20 pb-xs flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-[20px]">logout</span>
+                      {t('settings.logoutSectionTitle')}
+                    </h2>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between bg-error/5 p-md rounded-xl border border-error/15 gap-lg">
+                      <div className="space-y-[4px] flex-1">
+                        <p className="font-semibold text-body-lg text-on-surface">
+                          {t('settings.logoutSectionTitle')}
+                        </p>
+                        <p className="text-body-sm text-on-surface-variant/80">
+                          {t('settings.logoutSectionDesc')}
+                        </p>
+                      </div>
+                      <div className="flex-shrink-0 w-full md:w-auto">
+                        <button
+                          onClick={handleLogout}
+                          className="h-12 w-full md:w-56 bg-error hover:bg-error/95 text-white font-bold rounded-xl text-body-md transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-xs shadow-sm shadow-error/10"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">logout</span>
+                          <span>{t('common.logout')}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
                 </div>
               )}

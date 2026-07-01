@@ -15,4 +15,6 @@ export const settings = {
   languageDesc: 'Wählen Sie die Standard-Sprache der Benutzeroberfläche für das Admin-Portal.',
   defaultSchedule: 'Standardarbeitszeit',
   defaultScheduleDesc: 'Definieren Sie die vertragliche Standardarbeitszeit für neue Mitarbeiter.',
+  logoutSectionTitle: 'Abmelden',
+  logoutSectionDesc: 'Trennen Sie Ihr Administratorkonto sicher von diesem Browser.',
 };

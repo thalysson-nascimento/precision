@@ -1,0 +1,67 @@
+export const landpage = {
+  features: 'Features',
+  reports: 'Reports',
+  support: 'Support',
+  enter: 'Login',
+  register: 'Register',
+  title: 'Intelligent shift tracking, simple and secure.',
+  subtitle: 'The best way to manage schedules, exclusions, and overtime work dynamically in full compliance with your custom business logic.',
+  totalEmployees: 'TOTAL EMPLOYEES',
+  employeesDescription: '+3 this month',
+  pendingNow: 'PENDING RIGHT NOW',
+  pendingDescription: '77% of the work force',
+  unresolvedPunches: 'UNRESOLVED PUNCHES',
+  unresolvedDescription: 'Awaiting HR verification',
+  overtimeMonth: 'OVERTIME (MONTH)',
+  overtimeDescription: '-15% compared to last month',
+  
+  exploreTitle: 'Get to know Precision.',
+  exploreSubtitle: 'Advanced technology designed to optimize attendance, team tracking, and legal compliance.',
+  
+  card1Title: 'IP and Location Validation',
+  card1Desc: 'Absolute security at source. Your employees clock in with instant geolocation checks and network address filters.',
+  
+  card2Title: 'Smart Shift Exclusions',
+  card2Desc: 'Define corporate boundaries. Prevent time punching on weekends or custom holidays configured through the admin panel.',
+  
+  card3Title: 'A4 Vector Reports',
+  card3Desc: 'Preview, print, and download vector shift records, work logs, signatures, and comparison charts.',
+  
+  card4Title: 'Complete Team Management',
+  card4Desc: 'Clear hierarchies. Link teams to leaders, edit historical logs, and process adjustments centrally and dynamically.',
+
+  pricingTitle: 'Simple and transparent pricing plans',
+  trialPlan: 'Free Evaluation (Trial)',
+  trialPrice: 'Free',
+  trialPeriod: '15-day trial period',
+  trialFeatures: 'All management capabilities, reports, and IP/location filtering features included.',
+
+  threeMonthsPlan: '3-Month Plan',
+  threeMonthsPrice: '$299',
+  threeMonthsPeriod: 'For 3 months of access',
+  threeMonthsFeatures: 'Premium support, complete vector print reports, and isolated secure databases.',
+
+  sixMonthsPlan: '6-Month Plan',
+  sixMonthsPrice: '$499',
+  sixMonthsPeriod: 'For 6 months of access',
+  sixMonthsFeatures: 'All features of the 3-month plan with additional discount and consolidated corporate tracking sheets.',
+
+  ctaButton: 'Start Free Trial Now',
+  selectPortal: 'Select Access Portal',
+  portalAdmin: 'Administrative Portal (Manager)',
+  portalEmployee: 'Employee Portal (Mobile App)',
+  close: 'Close',
+  beginnerBadge: 'Beginner',
+  professionalBadge: 'Professional',
+  corporateBadge: 'Corporate',
+  bestValueBadge: 'Best Value',
+  selectPlanButton: 'Select Plan',
+  startTrialButton: 'Start Trial',
+  footerDesc: 'Intelligent shift tracking, simple and secure. The best way to manage schedules, exclusions, and overtime work dynamically in full compliance with local labor laws.',
+  footerNavTitle: 'Navigation',
+  footerNavHome: 'Home',
+  footerNavPlans: 'Plans',
+  footerSupportTitle: 'Contact & Support',
+  footerCopyright: '© 2026 Precision Technologies. All rights reserved.',
+  footerMadeWith: 'Crafted with care to optimize your management.'
+};
