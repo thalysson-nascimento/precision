@@ -17,6 +17,8 @@ interface Employee {
   contractNumber: string | null;
   isTeamLeader: boolean;
   isActive: boolean;
+  isPasswordTemp: boolean;
+  tempPassword: string | null;
   teamId: string | null;
   team: { id: string; name: string } | null;
   managerId: string | null;
@@ -76,6 +78,31 @@ export default function EmployeesListPage() {
   const showToast = (message: string, type: 'success' | 'error') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 4000);
+  };
+
+  const handleResetTempPassword = async (employee: Employee) => {
+    if (!confirm(t('employees.confirmRegenerate'))) return;
+
+    try {
+      const res = await fetch(`/api/admin/employees/${employee.id}/reset-temp-password`, {
+        method: 'POST',
+      });
+
+      if (!res.ok) {
+        throw new Error(t('employees.regenerateError'));
+      }
+
+      const data = await res.json();
+      showToast(`${t('employees.regenerateSuccess')} ${t('employees.tempPasswordValue', { password: data.tempPassword })}`, 'success');
+
+      // Update local state
+      setEmployees(prev =>
+        prev.map(emp => (emp.id === employee.id ? { ...emp, isPasswordTemp: true, tempPassword: data.tempPassword } : emp))
+      );
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || t('employees.regenerateError'), 'error');
+    }
   };
 
   const handleToggleStatus = async (employee: Employee) => {
@@ -206,11 +233,12 @@ export default function EmployeesListPage() {
                     <table className="w-full text-left border-collapse">
                       <thead>
                         <tr className="border-b border-outline-variant bg-surface-container-low text-on-surface-variant font-label-caps text-label-caps">
-                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderEmployee')}</th>
-                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderEmail')}</th>
-                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderContract')}</th>
-                          <th className="py-md px-lg font-bold">{t('employees.tableHeaderTeam')}</th>
-                          <th className="py-md px-lg font-bold text-right">{t('employees.tableHeaderActions')}</th>
+                           <th className="py-md px-lg font-bold">{t('employees.tableHeaderEmployee')}</th>
+                           <th className="py-md px-lg font-bold">{t('employees.tableHeaderEmail')}</th>
+                           <th className="py-md px-lg font-bold">{t('employees.tempPasswordLabel')}</th>
+                           <th className="py-md px-lg font-bold">{t('employees.tableHeaderContract')}</th>
+                           <th className="py-md px-lg font-bold">{t('employees.tableHeaderTeam')}</th>
+                           <th className="py-md px-lg font-bold text-right">{t('employees.tableHeaderActions')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-outline-variant">
@@ -249,10 +277,23 @@ export default function EmployeesListPage() {
                                 <span className="block text-on-surface-variant/70 mt-[2px]">{emp.phone || 'Sem telefone'}</span>
                               </td>
 
-                              {/* Contract Number */}
-                              <td className="py-md px-lg text-body-sm font-mono text-on-surface-variant font-semibold">
-                                {emp.contractNumber || '---'}
-                              </td>
+                               {/* Temporary Password */}
+                               <td className="py-md px-lg text-body-sm">
+                                 {emp.isPasswordTemp ? (
+                                   <span className="inline-flex items-center gap-xs bg-amber-500/10 text-amber-700 font-bold px-sm py-[2px] rounded-full text-xs font-mono select-all">
+                                     {emp.tempPassword}
+                                   </span>
+                                 ) : (
+                                   <span className="text-on-surface-variant/60 text-xs italic">
+                                     {t('employees.passwordChanged')}
+                                   </span>
+                                 )}
+                               </td>
+
+                               {/* Contract Number */}
+                               <td className="py-md px-lg text-body-sm font-mono text-on-surface-variant font-semibold">
+                                 {emp.contractNumber || '---'}
+                               </td>
 
                               {/* Team & Manager */}
                               <td className="py-md px-lg text-body-sm">
@@ -265,15 +306,22 @@ export default function EmployeesListPage() {
                               {/* Actions */}
                               <td className="py-md px-lg text-right">
                                 <div className="flex justify-end gap-sm items-center">
-                                  {!isDeactivated ? (
-                                    <>
-                                      <Link 
-                                        href={`/employees/edit/${emp.id}`}
-                                        className="text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full p-2 transition-all flex items-center justify-center"
-                                        title={t('common.edit')}
-                                      >
-                                        <span className="material-symbols-outlined text-[20px]">edit</span>
-                                      </Link>
+                                   {!isDeactivated ? (
+                                     <>
+                                       <button
+                                         onClick={() => handleResetTempPassword(emp)}
+                                         className="text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full p-2 transition-all flex items-center justify-center cursor-pointer"
+                                         title={t('employees.regenerateTempPassword')}
+                                       >
+                                         <span className="material-symbols-outlined text-[20px]">vpn_key</span>
+                                       </button>
+                                       <Link 
+                                         href={`/employees/edit/${emp.id}`}
+                                         className="text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full p-2 transition-all flex items-center justify-center"
+                                         title={t('common.edit')}
+                                       >
+                                         <span className="material-symbols-outlined text-[20px]">edit</span>
+                                       </Link>
                                       <button 
                                         onClick={() => handleToggleStatus(emp)}
                                         className="text-on-surface-variant hover:text-error hover:bg-error/10 rounded-full p-2 transition-all flex items-center justify-center cursor-pointer"

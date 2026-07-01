@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import Link from 'next/link';
+import { useI18n } from '@/locales/useI18n';
 
 interface Company {
   id: string;
@@ -49,11 +50,31 @@ export default function EditEmployeePage() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [contractNumber, setContractNumber] = useState('');
+  const { t } = useI18n();
   const [isTeamLeader, setIsTeamLeader] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const [isPasswordTemp, setIsPasswordTemp] = useState(true);
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [selectedManagerId, setSelectedManagerId] = useState('');
+
+  const handleResetTempPassword = async () => {
+    if (!confirm(t('employees.confirmRegenerate'))) return;
+    try {
+      const res = await fetch(`/api/admin/employees/${id}/reset-temp-password`, {
+        method: 'POST',
+      });
+      if (!res.ok) throw new Error(t('employees.regenerateError'));
+      const data = await res.json();
+      setIsPasswordTemp(true);
+      setTempPassword(data.tempPassword);
+      showToast(t('employees.regenerateSuccess'), 'success');
+    } catch (err: any) {
+      console.error(err);
+      showToast(err.message || t('employees.regenerateError'), 'error');
+    }
+  };
 
   // Times
   const [workStart, setWorkStart] = useState('09:00');
@@ -93,6 +114,8 @@ export default function EditEmployeePage() {
       setContractNumber(employeeData.contractNumber || '');
       setIsTeamLeader(employeeData.isTeamLeader);
       setIsActive(employeeData.isActive);
+      setIsPasswordTemp(employeeData.isPasswordTemp);
+      setTempPassword(employeeData.tempPassword || null);
       setSelectedCompanyId(employeeData.companyId || '');
       setSelectedTeamId(employeeData.teamId || '');
       setSelectedManagerId(employeeData.managerId || '');
@@ -133,7 +156,7 @@ export default function EditEmployeePage() {
       }
     } catch (err: any) {
       console.error(err);
-      showToast(err.message || 'Erro ao carregar dados do colaborador.', 'error');
+      showToast(err.message || t('employees.loadError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -146,10 +169,10 @@ export default function EditEmployeePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) return showToast('O nome é obrigatório.', 'error');
-    if (!email.trim()) return showToast('O e-mail é obrigatório.', 'error');
-    if (!role.trim()) return showToast('O cargo é obrigatório.', 'error');
-    if (!selectedCompanyId) return showToast('Selecione uma empresa.', 'error');
+    if (!name.trim()) return showToast(t('employees.nameRequired'), 'error');
+    if (!email.trim()) return showToast(t('employees.emailRequired'), 'error');
+    if (!role.trim()) return showToast(t('employees.roleRequired'), 'error');
+    if (!selectedCompanyId) return showToast(t('employees.companyRequired'), 'error');
 
     setSaving(true);
     try {
@@ -178,16 +201,16 @@ export default function EditEmployeePage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || 'Erro ao atualizar colaborador');
+        throw new Error(errData.error || t('employees.editError'));
       }
 
-      showToast('Colaborador atualizado com sucesso!', 'success');
+      showToast(t('employees.editSuccess'), 'success');
       setTimeout(() => {
         router.push('/employees');
       }, 1500);
     } catch (err: any) {
       console.error(err);
-      showToast(err.message || 'Erro ao atualizar colaborador.', 'error');
+      showToast(err.message || t('employees.editError'), 'error');
     } finally {
       setSaving(false);
     }
@@ -330,7 +353,7 @@ export default function EditEmployeePage() {
                     </div>
 
                     {/* Endereço */}
-                    <div className="flex flex-col gap-xs">
+                    <div className="flex flex-col gap-xs mb-md">
                       <label className="text-on-surface-variant font-bold text-xs tracking-wider uppercase">Endereço Completo</label>
                       <input 
                         type="text" 
@@ -339,6 +362,32 @@ export default function EditEmployeePage() {
                         placeholder="Ex: Rua Augusta, 400 - São Paulo, SP"
                         className="h-12 px-md border border-outline rounded-xl bg-surface text-on-surface focus:border-primary outline-none transition-all text-body-lg font-medium"
                       />
+                    </div>
+
+                    {/* Temporary Credentials Actions */}
+                    <div className="bg-surface-container-low p-md rounded-xl border border-outline-variant/60 flex flex-col md:flex-row md:items-center justify-between gap-md mt-md">
+                      <div className="space-y-[2px]">
+                        <p className="font-semibold text-body-lg text-on-surface">{t('employees.tempPasswordLabel')}</p>
+                        <div className="flex items-center gap-xs mt-xs">
+                          {isPasswordTemp ? (
+                            <span className="bg-amber-500/10 text-amber-700 font-bold px-sm py-[2px] rounded-full text-xs font-mono select-all">
+                              {tempPassword}
+                            </span>
+                          ) : (
+                            <span className="text-on-surface-variant/60 text-xs italic font-medium">
+                              {t('employees.passwordChanged')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleResetTempPassword}
+                        className="bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-all px-md py-sm rounded-lg flex items-center justify-center gap-xs font-label-caps text-xs self-start md:self-center"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">vpn_key</span>
+                        {t('employees.regenerateTempPassword')}
+                      </button>
                     </div>
                   </div>
 

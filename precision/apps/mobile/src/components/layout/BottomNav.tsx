@@ -18,9 +18,9 @@ export const BottomNav: React.FC = () => {
 
   const getLinkClasses = (tab: string) => {
     if (currentTab === tab) {
-      return "flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-md py-xs scale-95 transition-transform";
+      return "w-10 h-10 flex items-center justify-center bg-[#003D9B] text-white rounded-full transition-all duration-300 shadow-md shadow-[#003D9B]/30";
     }
-    return "flex flex-col items-center justify-center text-on-surface-variant px-md py-xs hover:bg-surface-container-high rounded-lg transition-colors";
+    return "w-10 h-10 flex items-center justify-center text-[#4A4A4A] hover:bg-black/5 rounded-full transition-all duration-300";
   };
 
   const getIconStyle = (tab: string) => {
@@ -28,45 +28,41 @@ export const BottomNav: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center bg-surface-container py-sm px-gutter border-t border-outline-variant shadow-lg rounded-t-xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center bg-[#DCE9FF] p-[16px] shadow-lg rounded-[24px] mx-[16px] mb-[16px] border border-white/20">
       <Link 
         className={getLinkClasses('inicio')} 
         href="/?tab=inicio"
       >
-        <span className="material-symbols-outlined" style={getIconStyle('inicio')}>
+        <span className="material-symbols-outlined text-[28px]" style={getIconStyle('inicio')}>
           home
         </span>
-        <span className="text-label-caps font-label-caps">{t('common.home')}</span>
       </Link>
       
       <Link 
         className={getLinkClasses('historico')} 
         href="/?tab=historico"
       >
-        <span className="material-symbols-outlined" style={getIconStyle('historico')}>
+        <span className="material-symbols-outlined text-[28px]" style={getIconStyle('historico')}>
           history
         </span>
-        <span className="text-label-caps font-label-caps">{t('common.history')}</span>
       </Link>
       
       <Link 
         className={getLinkClasses('relatorios')} 
         href="/?tab=relatorios"
       >
-        <span className="material-symbols-outlined" style={getIconStyle('relatorios')}>
+        <span className="material-symbols-outlined text-[28px]" style={getIconStyle('relatorios')}>
           assessment
         </span>
-        <span className="text-label-caps font-label-caps">{t('common.reports')}</span>
       </Link>
       
       <Link 
         className={getLinkClasses('perfil')} 
         href="/?tab=perfil"
       >
-        <span className="material-symbols-outlined" style={getIconStyle('perfil')}>
+        <span className="material-symbols-outlined text-[28px]" style={getIconStyle('perfil')}>
           person
         </span>
-        <span className="text-label-caps font-label-caps">{t('common.profile')}</span>
       </Link>
     </nav>
   );

@@ -11,6 +11,8 @@ model Employee {
   name           String
   email          String           @unique
   password       String           @default("123456")
+  isPasswordTemp Boolean          @default(true)
+  tempPassword   String?
   userRole       String           @default("EMPLOYEE") // "SUPERADMIN", "OWNER", "ADMIN", "EMPLOYEE"
   role           String           // Job title
   workStart      String           @default("08:00")

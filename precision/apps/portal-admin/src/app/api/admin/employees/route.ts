@@ -34,6 +34,24 @@ export async function GET() {
   }
 }
 
+function generateTempPassword(): string {
+  const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const special = '$#%?';
+  const all = letters + numbers + special;
+  
+  let result = '';
+  result += letters.charAt(Math.floor(Math.random() * letters.length));
+  result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  result += special.charAt(Math.floor(Math.random() * special.length));
+  
+  for (let i = 0; i < 5; i++) {
+    result += all.charAt(Math.floor(Math.random() * all.length));
+  }
+  
+  return result.split('').sort(() => 0.5 - Math.random()).join('');
+}
+
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
@@ -103,11 +121,15 @@ export async function POST(request: Request) {
       }
     }
 
+    const generatedPassword = generateTempPassword();
+
     const newEmployee = await prisma.employee.create({
       data: {
         name: name.trim(),
         email: email.trim(),
-        password: '123456', // Senha padrão temporária
+        password: generatedPassword,
+        tempPassword: generatedPassword,
+        isPasswordTemp: true,
         userRole: userRole || 'EMPLOYEE',
         role: role.trim(),
         workStart: workStart || '09:00',

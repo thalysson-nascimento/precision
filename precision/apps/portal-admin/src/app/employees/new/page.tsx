@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 import Link from 'next/link';
+import { useI18n } from '@/locales/useI18n';
 
 interface Company {
   id: string;
@@ -26,9 +27,11 @@ interface Employee {
 
 export default function NewEmployeePage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [createdCredentials, setCreatedCredentials] = useState<{ email: string; tempPassword: string } | null>(null);
 
   // User session state
   const [currentUser, setCurrentUser] = useState<{ userRole: string; companyId: string | null } | null>(null);
@@ -108,7 +111,7 @@ export default function NewEmployeePage() {
       }
     } catch (err) {
       console.error(err);
-      showToast('Erro ao carregar dados iniciais.', 'error');
+      showToast(t('employees.loadError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -121,10 +124,10 @@ export default function NewEmployeePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) return showToast('O nome é obrigatório.', 'error');
-    if (!email.trim()) return showToast('O e-mail é obrigatório.', 'error');
-    if (!role.trim()) return showToast('O cargo é obrigatório.', 'error');
-    if (!selectedCompanyId) return showToast('Selecione uma empresa.', 'error');
+    if (!name.trim()) return showToast(t('employees.nameRequired'), 'error');
+    if (!email.trim()) return showToast(t('employees.emailRequired'), 'error');
+    if (!role.trim()) return showToast(t('employees.roleRequired'), 'error');
+    if (!selectedCompanyId) return showToast(t('employees.companyRequired'), 'error');
 
     setSaving(true);
     try {
@@ -152,16 +155,18 @@ export default function NewEmployeePage() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || 'Erro ao cadastrar colaborador');
+        throw new Error(errData.error || t('employees.createError'));
       }
 
-      showToast('Colaborador cadastrado com sucesso!', 'success');
-      setTimeout(() => {
-        router.push('/employees');
-      }, 1500);
+      const data = await res.json();
+      setCreatedCredentials({
+        email: data.email,
+        tempPassword: data.tempPassword || data.password
+      });
+      showToast(t('employees.createSuccess'), 'success');
     } catch (err: any) {
       console.error(err);
-      showToast(err.message || 'Erro ao salvar colaborador.', 'error');
+      showToast(err.message || t('employees.createError'), 'error');
     } finally {
       setSaving(false);
     }
@@ -501,6 +506,60 @@ export default function NewEmployeePage() {
           </div>
         </main>
       </div>
+      {createdCredentials && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-surface-container-lowest border border-outline-variant rounded-2xl p-xl shadow-2xl space-y-lg animate-in fade-in zoom-in-95 duration-200">
+            <div className="text-center space-y-xs">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary-container text-secondary mb-xs">
+                <span className="material-symbols-outlined text-[32px]">check_circle</span>
+              </div>
+              <h3 className="font-headline-md text-headline-md text-on-surface font-bold">
+                {t('employees.newEmployeeCreatedTitle')}
+              </h3>
+              <p className="text-body-md text-on-surface-variant">
+                {t('employees.newEmployeeCreatedDesc')}
+              </p>
+            </div>
+
+            <div className="bg-surface-container-low p-md rounded-xl space-y-xs border border-outline-variant/60 font-medium">
+              <div className="flex justify-between text-body-sm">
+                <span className="text-on-surface-variant">E-mail:</span>
+                <span className="text-on-surface font-semibold">{createdCredentials.email}</span>
+              </div>
+              <div className="flex justify-between text-body-sm items-center">
+                <span className="text-on-surface-variant">{t('employees.tempPasswordLabel')}:</span>
+                <span className="text-amber-700 font-mono font-bold select-all bg-amber-500/10 px-sm py-[2px] rounded-full">
+                  {createdCredentials.tempPassword}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(createdCredentials.tempPassword);
+                  showToast(t('employees.copySuccess'), 'success');
+                }}
+                className="flex-1 h-12 bg-primary/10 text-primary font-bold hover:bg-primary/20 rounded-xl flex items-center justify-center gap-xs transition-all cursor-pointer font-label-caps"
+              >
+                <span className="material-symbols-outlined text-[18px]">content_copy</span>
+                {t('employees.copyPassword')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedCredentials(null);
+                  router.push('/employees');
+                }}
+                className="flex-1 h-12 bg-primary text-on-primary font-bold hover:opacity-90 active:scale-[0.98] rounded-xl flex items-center justify-center transition-all cursor-pointer font-label-caps"
+              >
+                {t('common.close') || 'FECHAR'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

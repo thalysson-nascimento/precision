@@ -24,7 +24,28 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 2. Authenticated users trying to access login page should be redirected to home
+  // 2. Check if password is temporary
+  const isChangePasswordRoute = pathname === '/change-password';
+  const isApiRoute = pathname.startsWith('/api/');
+
+  if (session.isPasswordTemp) {
+    if (!isChangePasswordRoute && !isAuthRoute) {
+      if (isApiRoute) {
+        return NextResponse.json(
+          { error: 'Password change required' },
+          { status: 403 }
+        );
+      }
+      return NextResponse.redirect(new URL('/change-password', request.url));
+    }
+    return NextResponse.next();
+  } else {
+    if (isChangePasswordRoute) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  // 3. Authenticated users trying to access login page should be redirected to home
   if (pathname === '/login') {
     return NextResponse.redirect(new URL('/', request.url));
   }

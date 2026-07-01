@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
       userRole: employee.userRole,
       companyId: employee.companyId,
       role: employee.role, // Job Title
+      isPasswordTemp: employee.isPasswordTemp,
       subscriptionEndsAt: employee.company?.subscriptionEndsAt || null,
       subscriptionStatus: employee.company?.subscriptionStatus || 'ACTIVE',
     };

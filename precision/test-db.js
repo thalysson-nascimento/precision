@@ -1,10 +1,9 @@
 const { PrismaClient } = require('@prisma/client');
-const Database = require('better-sqlite3');
 const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
 
-const dbUrl = 'file:./prisma/dev.db';
-const db = new Database('./prisma/dev.db');
-const adapter = new PrismaBetterSqlite3(db);
+const adapter = new PrismaBetterSqlite3({
+  url: 'file:./prisma/dev.db',
+});
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
