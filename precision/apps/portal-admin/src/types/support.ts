@@ -1,5 +1,6 @@
 export interface Message {
   id: string;
+  companyId: string;
   senderId: string;
   senderName: string;
   senderRole: string;

@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { useI18n } from '@/locales/useI18n';
 import { useRouter } from 'next/navigation';
 import { Message, CompanyWithChat as Company } from '@/types/support';
+import { io } from 'socket.io-client';
 
 export default function SupportPage() {
   const { t } = useI18n();
@@ -94,29 +95,55 @@ export default function SupportPage() {
     };
 
     fetchCompanyMessages();
-    const interval = setInterval(fetchCompanyMessages, 4000); // Poll messages every 4s
-    return () => clearInterval(interval);
   }, [selectedCompanyId, currentUser]);
 
-  // Poll messages for regular company admin
+  // Connect to superadmin Socket.io room and listen for incoming messages in real-time
   useEffect(() => {
-    if (!currentUser || currentUser.userRole === 'SUPERADMIN') return;
+    if (!currentUser || currentUser.userRole !== 'SUPERADMIN') return;
 
-    const fetchMyMessages = async () => {
-      try {
-        const res = await fetch('/api/admin/support');
-        if (res.ok) {
-          const json = await res.json();
-          setMessages(json);
-        }
-      } catch (err) {
-        console.error('Error fetching messages:', err);
+    const socket = io();
+    socket.emit('join-superadmin');
+
+    socket.on('new-message', (message: Message) => {
+      // 1. If message belongs to active selected company, append it instantly
+      if (selectedCompanyId === message.companyId) {
+        setMessages(prev => {
+          if (prev.some(x => x.id === message.id)) return prev;
+          return [...prev, message];
+        });
       }
-    };
 
-    const interval = setInterval(fetchMyMessages, 4000); // Poll messages every 4s
-    return () => clearInterval(interval);
-  }, [currentUser]);
+      // 2. Update company list reactively (and move company with new message to top)
+      setCompanies(prevCompanies => {
+        const updated = prevCompanies.map(c => {
+          if (c.id === message.companyId) {
+            return {
+              ...c,
+              supportMessages: [message],
+            };
+          }
+          return c;
+        });
+
+        return updated.sort((a, b) => {
+          const aHasMsg = a.supportMessages.length > 0;
+          const bHasMsg = b.supportMessages.length > 0;
+          if (aHasMsg && !bHasMsg) return -1;
+          if (!aHasMsg && bHasMsg) return 1;
+          
+          const aTime = aHasMsg ? new Date(a.supportMessages[0].createdAt).getTime() : 0;
+          const bTime = bHasMsg ? new Date(b.supportMessages[0].createdAt).getTime() : 0;
+          if (aTime !== bTime) return bTime - aTime;
+
+          return a.name.localeCompare(b.name);
+        });
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [currentUser, selectedCompanyId]);
 
   // Scroll to bottom on new messages
   useEffect(() => {

@@ -105,9 +105,15 @@ export async function POST(request: Request) {
       },
     });
 
+    const io = (global as any).io;
+    if (io) {
+      io.to(targetCompanyId).emit('new-message', newMessage);
+      io.to('superadmin').emit('new-message', newMessage);
+    }
+
     if (!isSuperAdmin) {
       try {
-        await prisma.supportMessage.create({
+        const botReply = await prisma.supportMessage.create({
           data: {
             companyId: targetCompanyId,
             senderId: 'system-bot',
@@ -116,6 +122,10 @@ export async function POST(request: Request) {
             text: 'Em breve entraremos em contato.',
           },
         });
+        if (io) {
+          io.to(targetCompanyId).emit('new-message', botReply);
+          io.to('superadmin').emit('new-message', botReply);
+        }
       } catch (err) {
         console.error('Error creating auto-reply message:', err);
       }

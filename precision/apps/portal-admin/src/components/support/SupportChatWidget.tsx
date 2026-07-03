@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useI18n } from '@/locales/useI18n';
 import { Message } from '@/types/support';
+import { io } from 'socket.io-client';
 
 export function SupportChatWidget() {
   const { t } = useI18n();
@@ -59,12 +60,33 @@ export function SupportChatWidget() {
     }
   };
 
+  // Fetch chat history once when chat is expanded
   useEffect(() => {
     if (!visible || minimized || !currentUser || currentUser.userRole === 'SUPERADMIN') return;
-
     fetchMessages();
-    const interval = setInterval(fetchMessages, 4000); // Poll every 4s
-    return () => clearInterval(interval);
+  }, [visible, minimized, currentUser]);
+
+  // Connect to Socket.io and listen for real-time messages
+  useEffect(() => {
+    if (!visible || !currentUser || currentUser.userRole === 'SUPERADMIN' || !currentUser.companyId) return;
+
+    const socket = io();
+    socket.emit('join-company', currentUser.companyId);
+
+    // Set sessionStorage flag indicating the chat widget is active
+    sessionStorage.setItem('support-chat-active', minimized ? 'false' : 'true');
+
+    socket.on('new-message', (message: Message) => {
+      setMessages(prev => {
+        if (prev.some(x => x.id === message.id)) return prev;
+        return [...prev, message];
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+      sessionStorage.setItem('support-chat-active', 'false');
+    };
   }, [visible, minimized, currentUser]);
 
   // Scroll to bottom on new messages
@@ -84,6 +106,7 @@ export function SupportChatWidget() {
     // Optimistically add user's message locally so it appears in the chat immediately
     const tempMsg: Message = {
       id: `temp-${Date.now()}`,
+      companyId: currentUser.companyId,
       senderId: currentUser.userId,
       senderName: currentUser.name,
       senderRole: currentUser.userRole,

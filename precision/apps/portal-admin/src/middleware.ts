@@ -51,7 +51,7 @@ export async function middleware(request: NextRequest) {
 
     if (isSubscriptionExpired) {
       // Block POST/PUT/DELETE API requests to admin/companies/etc routes
-      if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && request.method !== 'GET') {
+      if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/admin/support') && request.method !== 'GET') {
         return NextResponse.json({ error: 'subscription_expired' }, { status: 403 });
       }
       // Allow navigation to page routes
