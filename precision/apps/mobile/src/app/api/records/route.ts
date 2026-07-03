@@ -37,11 +37,22 @@ export async function GET() {
       include: {
         team: true,
         manager: true,
+        company: true,
       },
     });
 
     if (!employee) {
       return NextResponse.json({ error: 'Funcionário não encontrado' }, { status: 404 });
+    }
+
+    if (employee.company) {
+      const isSubscriptionExpired = 
+        employee.company.subscriptionStatus === 'EXPIRED' || 
+        (employee.company.subscriptionEndsAt && new Date(employee.company.subscriptionEndsAt).getTime() < Date.now());
+
+      if (isSubscriptionExpired) {
+        return NextResponse.json({ error: 'subscription_expired' }, { status: 403 });
+      }
     }
 
     const todayStr = getTodayDateString();
@@ -185,10 +196,21 @@ export async function POST(req: NextRequest) {
 
     const employee = await prisma.employee.findUnique({
       where: { id: session.userId },
+      include: { company: true },
     });
 
     if (!employee) {
       return NextResponse.json({ error: 'Funcionário não encontrado' }, { status: 404 });
+    }
+
+    if (employee.company) {
+      const isSubscriptionExpired = 
+        employee.company.subscriptionStatus === 'EXPIRED' || 
+        (employee.company.subscriptionEndsAt && new Date(employee.company.subscriptionEndsAt).getTime() < Date.now());
+
+      if (isSubscriptionExpired) {
+        return NextResponse.json({ error: 'subscription_expired' }, { status: 403 });
+      }
     }
 
     const todayStr = getTodayDateString();
@@ -311,10 +333,21 @@ export async function PUT(req: NextRequest) {
 
     const employee = await prisma.employee.findUnique({
       where: { id: session.userId },
+      include: { company: true },
     });
 
     if (!employee) {
       return NextResponse.json({ error: 'Funcionário não encontrado' }, { status: 404 });
+    }
+
+    if (employee.company) {
+      const isSubscriptionExpired = 
+        employee.company.subscriptionStatus === 'EXPIRED' || 
+        (employee.company.subscriptionEndsAt && new Date(employee.company.subscriptionEndsAt).getTime() < Date.now());
+
+      if (isSubscriptionExpired) {
+        return NextResponse.json({ error: 'subscription_expired' }, { status: 403 });
+      }
     }
 
     const targetDate = date || getTodayDateString();

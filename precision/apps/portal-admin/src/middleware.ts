@@ -50,10 +50,11 @@ export async function middleware(request: NextRequest) {
       (subscriptionEndsAt && new Date(subscriptionEndsAt).getTime() < Date.now());
 
     if (isSubscriptionExpired) {
-      if (!isExpiredRoute && !pathname.startsWith('/api/auth')) {
-        return NextResponse.redirect(new URL('/expired', request.url));
+      // Block POST/PUT/DELETE API requests to admin/companies/etc routes
+      if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && request.method !== 'GET') {
+        return NextResponse.json({ error: 'subscription_expired' }, { status: 403 });
       }
-      return NextResponse.next();
+      // Allow navigation to page routes
     }
   }
 

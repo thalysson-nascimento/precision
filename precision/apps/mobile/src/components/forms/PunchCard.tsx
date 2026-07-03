@@ -76,8 +76,11 @@ export const PunchCard: React.FC = () => {
 
       setSaidaFinal(outRec?.time || data.employee.workEnd);
       setSaidaFinalConfirmed(!!outRec);
-    } catch (e) {
+    } catch (e: any) {
       console.error('Erro ao carregar registros:', e);
+      if (e.message === 'subscription_expired' || e.message?.includes('expired') || e.message?.includes('expirada')) {
+        window.location.href = '/expired';
+      }
     } finally {
       setIsLoading(false);
     }

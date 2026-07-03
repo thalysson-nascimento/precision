@@ -25,6 +25,14 @@ export const Header: React.FC = () => {
         throw new Error('Unauthorized');
       })
       .then(data => {
+        const isExpired = 
+          data.subscriptionStatus === 'EXPIRED' || 
+          (data.subscriptionEndsAt && new Date(data.subscriptionEndsAt).getTime() < Date.now());
+        
+        if (isExpired) {
+          window.location.href = '/expired';
+          return;
+        }
         setEmployee({ name: data.name, role: data.role });
       })
       .catch(() => {

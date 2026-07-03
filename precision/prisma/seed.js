@@ -52,6 +52,18 @@ async function main() {
     },
   });
 
+  const companyExpiredTrial = await prisma.company.create({
+    data: {
+      name: 'Trial Expired Corp',
+      address: 'Rua do Teste',
+      number: '123',
+      contact: 'contato@trialexpired.com',
+      subscriptionPlan: 'TRIAL',
+      subscriptionStatus: 'EXPIRED',
+      subscriptionEndsAt: expiredDate,
+    },
+  });
+
   // 2. Criar Cargos e Equipes por Empresa
   const techDevRole = await prisma.jobRole.create({
     data: { name: 'Desenvolvedor Senior', companyId: companyTech.id }
@@ -225,6 +237,48 @@ async function main() {
       lunchEnd: '13:00',
       workEnd: '18:00',
       companyId: companyAlpha.id,
+    },
+  });
+
+  // 5b. Criar Colaboradores Trial Expired Corp
+  const trialExpiredOwner = await prisma.employee.create({
+    data: {
+      name: 'Trial Expired Owner',
+      email: 'owner@trialexpired.com',
+      password: '123456',
+      userRole: 'OWNER',
+      role: 'Diretor de Operações',
+      companyId: companyExpiredTrial.id,
+    },
+  });
+
+  const trialExpiredEmployee = await prisma.employee.create({
+    data: {
+      name: 'Trial Expired Employee',
+      email: 'employee@trialexpired.com',
+      password: '123456',
+      userRole: 'EMPLOYEE',
+      role: 'Analista Financeiro',
+      workStart: '08:00',
+      lunchStart: '12:00',
+      lunchEnd: '13:00',
+      workEnd: '18:00',
+      companyId: companyExpiredTrial.id,
+    },
+  });
+
+  const trialExpiredEmployee2 = await prisma.employee.create({
+    data: {
+      name: 'Trial Expired Assistente',
+      email: 'employee2@trialexpired.com',
+      password: '123456',
+      userRole: 'EMPLOYEE',
+      role: 'Assistente Administrativo',
+      workStart: '08:00',
+      lunchStart: '12:00',
+      lunchEnd: '13:00',
+      workEnd: '18:00',
+      companyId: companyExpiredTrial.id,
     },
   });
 
