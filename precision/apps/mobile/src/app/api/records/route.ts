@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { delay } from '@/lib/delay';
 import { getSessionFromCookies } from '@precision/auth';
+import type { TimeRecord } from '@prisma/client';
 
 // Helper para obter a data local no formato YYYY-MM-DD
 const getTodayDateString = (): string => {
@@ -260,14 +261,13 @@ export async function POST(req: NextRequest) {
     ];
 
     // Buscar registros existentes hoje
-    const existingRecords = await prisma.timeRecord.findMany({
+    const existingRecords: TimeRecord[] = await prisma.timeRecord.findMany({
       where: {
         employeeId: employee.id,
         date: targetDate,
       },
     });
-
-    const existingTypes = new Set(existingRecords.map(r => r.type));
+    const existingTypes = new Set(existingRecords.map((r) => r.type));
 
     // Filtrar contratos elegíveis.
     const toRegister = contracts.filter(c => {
