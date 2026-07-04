@@ -1,4 +1,4 @@
-import { PrismaClient } from '../generated/sqlite';
+import { PrismaClient } from '../generated/sqlite/index';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { getSqliteDbPath } from '../utils/path';
 import path from 'path';

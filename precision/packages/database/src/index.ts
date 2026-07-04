@@ -1,4 +1,4 @@
-let prisma: any;
+let _prisma: any;
 
 const isPostgres =
   process.env.NODE_ENV === 'production' ||
@@ -6,32 +6,53 @@ const isPostgres =
     (process.env.DATABASE_URL.startsWith('postgres') ||
       process.env.DATABASE_URL.startsWith('postgresql')));
 
-if (isPostgres) {
-  const mod = require('./adapters/postgres');
-  prisma = mod.default || mod.prismaPostgres;
-} else {
-  try {
-    const mod = require('./adapters/sqlite');
-    prisma = mod.default || mod.prismaSqlite;
-  } catch (err) {
-    console.warn('Failed to load SQLite adapter in dev mode:', err);
+const prisma = new Proxy({} as any, {
+  get(target, prop) {
+    if (!_prisma) {
+      console.log('[Prisma Debug] Initializing lazy Prisma client...');
+      console.log('[Prisma Debug] NODE_ENV:', process.env.NODE_ENV);
+      console.log('[Prisma Debug] DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      console.log('[Prisma Debug] Selected isPostgres:', isPostgres);
+
+      if (isPostgres) {
+        try {
+          const mod = require('./adapters/postgres');
+          _prisma = mod.default || mod.prismaPostgres;
+          console.log('[Prisma Debug] Loaded Postgres adapter, client exists:', !!_prisma);
+        } catch (err) {
+          console.error('[Prisma Debug] Failed to load Postgres adapter:', err);
+        }
+      } else {
+        try {
+          const mod = require('./adapters/sqlite');
+          _prisma = mod.default || mod.prismaSqlite;
+          console.log('[Prisma Debug] Loaded SQLite adapter, client exists:', !!_prisma);
+        } catch (err) {
+          console.warn('[Prisma Debug] Failed to load SQLite adapter in dev mode:', err);
+        }
+      }
+
+      // Cache for hot-reload in development mode
+      if (process.env.NODE_ENV !== 'production') {
+        const globalForPrisma = globalThis as unknown as { prisma: any };
+        if (!globalForPrisma.prisma) {
+          globalForPrisma.prisma = _prisma;
+        }
+        _prisma = globalForPrisma.prisma;
+      }
+    }
+
+    // Proxy other operations to the actual PrismaClient instance
+    if (prop === 'then') {
+      return undefined;
+    }
+    return Reflect.get(_prisma, prop);
   }
-}
+}) as unknown as import('./generated/sqlite/index').PrismaClient;
 
-// Global caching for Next.js hot reload in development
-const globalForPrisma = globalThis as unknown as { prisma: any };
-
-if (process.env.NODE_ENV !== 'production') {
-  if (!globalForPrisma.prisma) {
-    globalForPrisma.prisma = prisma;
-  }
-  prisma = globalForPrisma.prisma;
-}
-
-const exportedPrisma = prisma as import('./generated/sqlite').PrismaClient;
-export { exportedPrisma as prisma };
-export * from './generated/sqlite';
-export type { PrismaClient } from './generated/sqlite';
-export type PrismaClientSqlite = import('./generated/sqlite').PrismaClient;
-export type PrismaClientPostgres = import('./generated/postgres').PrismaClient;
+export { prisma };
+export * from './generated/sqlite/index';
+export type { PrismaClient } from './generated/sqlite/index';
+export type PrismaClientSqlite = import('./generated/sqlite/index').PrismaClient;
+export type PrismaClientPostgres = import('./generated/postgres/index').PrismaClient;
 export type PrismaClientType = PrismaClientSqlite | PrismaClientPostgres;

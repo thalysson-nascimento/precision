@@ -8,6 +8,7 @@ out/
 # Production/Compiled builds
 dist/
 build/
+packages/database/src/generated/
 
 # IDE/System files
 .idea/
