@@ -25,8 +25,12 @@ export const MetricsSummary: React.FC<MetricsSummaryProps> = ({
             <div className="font-display-time-mobile text-display-time-mobile text-on-surface mt-sm">
               {metrics?.totalEmployees}
             </div>
-            <div className="flex items-center gap-xs text-secondary mt-xs">
-              <span className="material-symbols-outlined text-[16px]">arrow_upward</span>
+            <div className={`flex items-center gap-xs mt-xs ${
+              metrics?.totalEmployeesGrowth?.startsWith('+0') ? 'text-on-surface-variant/70' : 'text-secondary'
+            }`}>
+              <span className="material-symbols-outlined text-[16px]">
+                {metrics?.totalEmployeesGrowth?.startsWith('+0') ? 'trending_flat' : 'arrow_upward'}
+              </span>
               <span className="font-body-sm text-body-sm font-semibold">{metrics?.totalEmployeesGrowth}</span>
             </div>
           </>
@@ -98,8 +102,14 @@ export const MetricsSummary: React.FC<MetricsSummaryProps> = ({
             <div className="font-display-time-mobile text-display-time-mobile text-on-surface mt-sm">
               {metrics?.overtimeHours}
             </div>
-            <div className="flex items-center gap-xs text-error mt-xs">
-              <span className="material-symbols-outlined text-[16px]">trending_up</span>
+            <div className={`flex items-center gap-xs mt-xs ${
+              metrics?.overtimeGrowth?.startsWith('-') ? 'text-success' : 
+              metrics?.overtimeGrowth?.startsWith('0') ? 'text-secondary' : 'text-error'
+            }`}>
+              <span className="material-symbols-outlined text-[16px]">
+                {metrics?.overtimeGrowth?.startsWith('-') ? 'trending_down' : 
+                 metrics?.overtimeGrowth?.startsWith('0') ? 'trending_flat' : 'trending_up'}
+              </span>
               <span className="font-body-sm text-body-sm font-semibold">{metrics?.overtimeGrowth}</span>
             </div>
           </>

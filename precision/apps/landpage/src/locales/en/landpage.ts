@@ -63,5 +63,21 @@ export const landpage = {
   footerNavPlans: 'Plans',
   footerSupportTitle: 'Contact & Support',
   footerCopyright: '© 2026 Precision Technologies. All rights reserved.',
-  footerMadeWith: 'Crafted with care to optimize your management.'
+  footerMadeWith: 'Crafted with care to optimize your management.',
+  pricingMonthly: 'Monthly',
+  pricingAnnual: 'Annual',
+  pricingDiscountLabel: '30% discount included',
+  pricingCurrencyLabelBRL: 'Displaying prices in Brazilian Real (BRL) based on your location.',
+  pricingCurrencyLabelEUR: 'Displaying prices in Euro (EUR) based on your location.',
+  pricingTrialPeriod: '30 days free trial included in all plans',
+  pricingBestValue: 'Most Popular',
+  plan15Title: 'Up to 15 employees',
+  plan15Desc: 'Perfect for small businesses and early-stage startups.',
+  plan30Title: 'Up to 30 employees',
+  plan30Desc: 'Ideal for rapidly growing companies that need robust time control.',
+  plan50Title: 'Up to 50 employees',
+  plan50Desc: 'Complete for medium-sized enterprises with distributed team management.',
+  pricingFeatEmployees: 'Up to {limit} active employees',
+  pricingFeatTrial: '30 days validity after activation',
+  pricingFeatReports: 'Time tracking & geolocation reports'
 };

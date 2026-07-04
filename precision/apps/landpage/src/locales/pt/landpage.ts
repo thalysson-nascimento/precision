@@ -63,5 +63,21 @@ export const landpage = {
   footerNavPlans: 'Planos',
   footerSupportTitle: 'Contato & Suporte',
   footerCopyright: '© 2026 Precision Technologies. Todos os direitos reservados.',
-  footerMadeWith: 'Feito com cuidado para otimizar a sua gestão.'
+  footerMadeWith: 'Feito com cuidado para otimizar a sua gestão.',
+  pricingMonthly: 'Mensal',
+  pricingAnnual: 'Anual',
+  pricingDiscountLabel: 'Economia de 30% inclusa',
+  pricingCurrencyLabelBRL: 'Exibindo valores em Real (BRL) com base na sua localização.',
+  pricingCurrencyLabelEUR: 'Exibindo valores em Euro (EUR) com base na sua localização.',
+  pricingTrialPeriod: '30 dias de teste gratuito inclusos em todos os planos',
+  pricingBestValue: 'Mais Popular',
+  plan15Title: 'Até 15 funcionários',
+  plan15Desc: 'Perfeito para pequenos comércios e startups iniciando suas operações.',
+  plan30Title: 'Até 30 funcionários',
+  plan30Desc: 'Ideal para empresas em crescimento acelerado que precisam de controle robusto.',
+  plan50Title: 'Até 50 funcionários',
+  plan50Desc: 'Completo para médias empresas com gestão de equipes distribuídas.',
+  pricingFeatEmployees: 'Até {limit} colaboradores ativos',
+  pricingFeatTrial: 'Validade de 30 dias após ativação',
+  pricingFeatReports: 'Relatórios de ponto e geolocalização'
 };

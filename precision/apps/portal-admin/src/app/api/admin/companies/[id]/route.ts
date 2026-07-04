@@ -25,7 +25,22 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, address, number, contact, subscriptionPlan, subscriptionStatus } = body;
+    const { 
+      name, 
+      address, 
+      number, 
+      contact, 
+      subscriptionPlan, 
+      subscriptionStatus,
+      email,
+      document,
+      corporateName,
+      country,
+      zip,
+      street,
+      city,
+      state
+    } = body;
 
     if (!name || name.trim() === '') {
       return NextResponse.json({ error: 'O nome da empresa é obrigatório' }, { status: 400 });
@@ -46,22 +61,32 @@ export async function PUT(
       address: address.trim(),
       number: number.trim(),
       contact: contact.trim(),
+      email: email ? email.trim() : null,
+      document: document ? document.trim() : null,
+      corporateName: corporateName ? corporateName.trim() : null,
+      country: country ? country.trim() : null,
+      zip: zip ? zip.trim() : null,
+      street: street ? street.trim() : null,
+      city: city ? city.trim() : null,
+      state: state ? state.trim() : null,
     };
 
-    if (isSuperAdmin) {
+    if (isSuperAdmin || isOwner) {
       if (subscriptionPlan) {
         updateData.subscriptionPlan = subscriptionPlan;
+        updateData.subscriptionStatus = 'ACTIVE';
         const endsAt = new Date();
         if (subscriptionPlan === 'THREE_MONTHS') {
           endsAt.setMonth(endsAt.getMonth() + 3);
         } else if (subscriptionPlan === 'SIX_MONTHS') {
           endsAt.setMonth(endsAt.getMonth() + 6);
         } else {
-          endsAt.setDate(endsAt.getDate() + 15);
+          // Todos os planos iniciam com validade de 30 dias
+          endsAt.setDate(endsAt.getDate() + 30);
         }
         updateData.subscriptionEndsAt = endsAt;
       }
-      if (subscriptionStatus) {
+      if (isSuperAdmin && subscriptionStatus) {
         updateData.subscriptionStatus = subscriptionStatus;
       }
     }

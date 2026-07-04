@@ -78,6 +78,14 @@ model Company {
   address            String
   number             String
   contact            String
+  country            String?
+  document           String?
+  corporateName      String?
+  zip                String?
+  street             String?
+  city               String?
+  state              String?
+  email              String?
   subscriptionPlan   String     @default("TRIAL") // "TRIAL", "THREE_MONTHS", "SIX_MONTHS"
   subscriptionStatus String     @default("ACTIVE") // "ACTIVE", "EXPIRED"
   subscriptionEndsAt DateTime?

@@ -26,6 +26,26 @@ export async function GET() {
     const totalEmployees = await prisma.employee.count({
       where: isSuperAdmin ? {} : { companyId },
     });
+
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonthNum = now.getMonth() + 1; // 1-12
+    const currentMonthStr = String(currentMonthNum).padStart(2, '0'); // "01"-"12"
+
+    const prevMonthNum = currentMonthNum === 1 ? 12 : currentMonthNum - 1;
+    const prevMonthStr = String(prevMonthNum).padStart(2, '0');
+
+    // 1b. Crescimento de funcionários no mês atual
+    const startOfCurrentMonth = new Date(currentYear, now.getMonth(), 1);
+    const newEmployeesThisMonth = await prisma.employee.count({
+      where: {
+        ...(isSuperAdmin ? {} : { companyId }),
+        createdAt: {
+          gte: startOfCurrentMonth,
+        },
+      },
+    });
+    const totalEmployeesGrowth = `+${newEmployeesThisMonth} esse mês`;
     
     // Como hoje no seed é sábado (2026-06-27), usamos a última data útil com registros (26/06)
     // para preencher os dados do painel principal (Presentes Agora) de forma realista.
@@ -61,8 +81,8 @@ export async function GET() {
 
     const pendingRequestsCount = pendingRequests.length;
 
-    // 4. Calcular as horas extras de todos os funcionários no ano atual (2026)
-    const currentYearStr = '2026';
+    // 4. Calcular as horas extras de todos os funcionários no ano atual (dinâmico)
+    const currentYearStr = String(currentYear);
     const yearRecords = await prisma.timeRecord.findMany({
       where: {
         date: {
@@ -131,10 +151,25 @@ export async function GET() {
       }
     });
 
-    // Horas extras do mês atual (Junho - "06") para o card de métrica
-    const currentMonthOvertimeMinutes = overtimeByMonth['06'] || 0;
+    // Horas extras do mês atual para o card de métrica
+    const currentMonthOvertimeMinutes = overtimeByMonth[currentMonthStr] || 0;
     const overtimeHoursNum = Math.floor(currentMonthOvertimeMinutes / 60);
     const overtimeHoursStr = `${overtimeHoursNum}h`;
+
+    // Crescimento em relação ao mês anterior
+    const prevMonthOvertimeMinutes = overtimeByMonth[prevMonthStr] || 0;
+    let overtimeGrowth = '';
+    if (prevMonthOvertimeMinutes === 0) {
+      if (currentMonthOvertimeMinutes > 0) {
+        overtimeGrowth = '+100% em relação ao último mês';
+      } else {
+        overtimeGrowth = '0% em relação ao último mês';
+      }
+    } else {
+      const growthPercent = ((currentMonthOvertimeMinutes - prevMonthOvertimeMinutes) / prevMonthOvertimeMinutes) * 100;
+      const sign = growthPercent >= 0 ? '+' : '';
+      overtimeGrowth = `${sign}${Math.round(growthPercent)}% em relação ao último mês`;
+    }
 
     // Mapeamento de meses para labels
     const monthLabelsMap: { [key: string]: { label: string; shortLabel: string } } = {
@@ -231,12 +266,12 @@ export async function GET() {
     return NextResponse.json({
       metrics: {
         totalEmployees,
-        totalEmployeesGrowth: '+3 esse mês',
+        totalEmployeesGrowth,
         presentNow,
         presentNowPercentage: `${presentNowPercentage}% da força de trabalho`,
         pendingRequestsCount,
         overtimeHours: overtimeHoursStr,
-        overtimeGrowth: '+15% em relação ao último mês',
+        overtimeGrowth,
       },
       monthlyOvertime,
       recentActivities,
