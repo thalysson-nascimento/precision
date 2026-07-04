@@ -1,0 +1,23 @@
+{
+  "name": "@precision/database",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "db:generate:sqlite": "prisma generate --schema=schema.sqlite.prisma",
+    "db:generate:postgres": "prisma generate --schema=schema.postgres.prisma",
+    "db:push:sqlite": "prisma db push --schema=schema.sqlite.prisma",
+    "db:migrate:postgres": "prisma migrate dev --schema=schema.postgres.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.8.0"
+  },
+  "devDependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/adapter-pg": "^7.8.0",
+    "better-sqlite3": "^12.11.1",
+    "pg": "^8.22.0",
+    "prisma": "^7.8.0"
+  }
+}

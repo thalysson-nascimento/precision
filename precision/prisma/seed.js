@@ -1,25 +1,15 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../packages/database/src/generated/sqlite');
 const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-const { PrismaPg } = require('@prisma/adapter-pg');
-const pg = require('pg');
+const Database = require('better-sqlite3');
+const path = require('path');
 
-require('dotenv').config();
+const dbPath = path.resolve(__dirname, 'dev.db');
+const adapter = new PrismaBetterSqlite3({
+  url: `file:${dbPath}`,
+});
 
-const dbUrl = process.env.DATABASE_URL || 'file:./prisma/dev.db';
-const isPostgres = dbUrl.startsWith('postgres') || dbUrl.startsWith('postgresql');
-
-let adapter;
-if (isPostgres) {
-  const pool = new pg.Pool({ connectionString: dbUrl });
-  adapter = new PrismaPg(pool);
-} else {
-  adapter = new PrismaBetterSqlite3({
-    url: dbUrl,
-  });
-}
-
-const prisma = new PrismaClient({ adapter: adapter });
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   // Limpar dados antigos
