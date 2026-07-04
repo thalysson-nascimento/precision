@@ -18,4 +18,5 @@ const adapter = new PrismaBetterSqlite3({
 });
 
 export const prismaSqlite = new PrismaClient({ adapter });
+export default prismaSqlite;
 export type { PrismaClient as PrismaClientSqlite } from '../generated/sqlite';

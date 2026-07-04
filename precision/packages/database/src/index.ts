@@ -7,12 +7,12 @@ const isPostgres =
       process.env.DATABASE_URL.startsWith('postgresql')));
 
 if (isPostgres) {
-  const { prismaPostgres } = require('./adapters/postgres');
-  prisma = prismaPostgres;
+  const mod = require('./adapters/postgres');
+  prisma = mod.default || mod.prismaPostgres;
 } else {
   try {
-    const { prismaSqlite } = require('./adapters/sqlite');
-    prisma = prismaSqlite;
+    const mod = require('./adapters/sqlite');
+    prisma = mod.default || mod.prismaSqlite;
   } catch (err) {
     console.warn('Failed to load SQLite adapter in dev mode:', err);
   }
