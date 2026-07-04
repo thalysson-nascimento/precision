@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { prisma } from '@/lib/db';
 import { delay } from '@/lib/delay';
 import { getSessionFromCookies } from '@precision/auth';
-import type { TimeRecord } from '@prisma/client';
+import type { TimeRecord } from '@precision/database';
 
 // Helper para obter a data local no formato YYYY-MM-DD
 const getTodayDateString = (): string => {
