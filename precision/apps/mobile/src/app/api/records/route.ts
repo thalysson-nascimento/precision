@@ -116,9 +116,9 @@ export async function GET() {
     });
 
     // Filtrar registros do passado (excluindo hoje)
-    const allPastRecords = allRecords.filter(r => r.date !== todayStr);
+    const allPastRecords = allRecords.filter((r: any) => r.date !== todayStr);
     const pastRecordsMap: { [date: string]: number } = {};
-    allPastRecords.forEach(r => {
+    allPastRecords.forEach((r: any) => {
       pastRecordsMap[r.date] = (pastRecordsMap[r.date] || 0) + 1;
     });
 
@@ -132,10 +132,10 @@ export async function GET() {
       .filter(date => date !== todayStr) // Excluir o dia de hoje
       .map(date => {
         const dayRecords = recordsMap[date];
-        const inRec = dayRecords.find(r => r.type === 'IN');
-        const lunchOutRec = dayRecords.find(r => r.type === 'LUNCH_OUT');
-        const lunchInRec = dayRecords.find(r => r.type === 'LUNCH_IN');
-        const outRec = dayRecords.find(r => r.type === 'OUT');
+        const inRec = dayRecords.find((r: any) => r.type === 'IN');
+        const lunchOutRec = dayRecords.find((r: any) => r.type === 'LUNCH_OUT');
+        const lunchInRec = dayRecords.find((r: any) => r.type === 'LUNCH_IN');
+        const outRec = dayRecords.find((r: any) => r.type === 'OUT');
 
         const times = [
           inRec?.time || '--:--',
