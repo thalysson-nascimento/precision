@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
+    "build": "npm run db:generate:postgres",
     "db:generate:sqlite": "prisma generate --schema=schema.sqlite.prisma",
     "db:generate:postgres": "prisma generate --schema=schema.postgres.prisma",
     "db:push:sqlite": "prisma db push --schema=schema.sqlite.prisma",
