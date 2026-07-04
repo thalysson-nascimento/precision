@@ -107,8 +107,8 @@ export async function GET() {
     });
 
     // Agrupar registros por data
-    const recordsMap: { [date: string]: typeof allRecords } = {};
-    allRecords.forEach(r => {
+    const recordsMap: Record<string, any[]> = {};
+    allRecords.forEach((r: any) => {
       if (!recordsMap[r.date]) {
         recordsMap[r.date] = [];
       }
