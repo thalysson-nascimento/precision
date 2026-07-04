@@ -69,6 +69,17 @@ export class HttpClient {
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
+    if (response.status === 401) {
+      // Avoid redirect loops if we are already on the login screen or attempting to log in
+      if (
+        typeof window !== 'undefined' &&
+        !window.location.pathname.includes('/login') &&
+        !response.url.includes('/api/auth/login')
+      ) {
+        window.location.href = '/login';
+      }
+    }
+
     if (!response.ok) {
       let errorMessage = 'Falha na requisição HTTP';
       try {
