@@ -1,4 +1,8 @@
-import "dotenv/config";
+try {
+  require("dotenv/config");
+} catch (e) {
+  // Ignore missing dotenv in production
+}
 import { defineConfig } from "prisma/config";
 import path from "path";
 
