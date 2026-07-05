@@ -195,7 +195,7 @@ export default function Landpage() {
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'http://localhost:3002/login';
     }
-    return '/admin/login';
+    return process.env.NEXT_PUBLIC_PORTAL_ADMIN_URL ? `${process.env.NEXT_PUBLIC_PORTAL_ADMIN_URL}/login` : 'https://precision-portal-admin.vercel.app/login';
   };
 
   const getEmployeeUrl = () => {
@@ -204,7 +204,7 @@ export default function Landpage() {
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return 'http://localhost:3001/login';
     }
-    return '/login';
+    return process.env.NEXT_PUBLIC_MOBILE_URL ? `${process.env.NEXT_PUBLIC_MOBILE_URL}/login` : 'https://precision-mobile.vercel.app/login';
   };
 
   // Mock states for interactive weekly switches inside Card 2

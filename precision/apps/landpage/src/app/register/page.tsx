@@ -379,7 +379,11 @@ export default function Register() {
             </p>
             <div className="pt-md">
               <a
-                href="http://localhost:3002/login"
+                href={
+                  typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                    ? 'http://localhost:3002/login'
+                    : `${process.env.NEXT_PUBLIC_PORTAL_ADMIN_URL || 'https://precision-portal-admin.vercel.app'}/login`
+                }
                 className="inline-flex bg-primary hover:bg-primary-dark text-white px-xl py-md rounded-full text-body-md font-bold transition-all hover:scale-105 active:scale-95 duration-200 shadow-md shadow-primary/20 cursor-pointer"
               >
                 {tLocal.successRedirect}

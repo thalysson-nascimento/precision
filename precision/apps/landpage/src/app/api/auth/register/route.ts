@@ -4,7 +4,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const response = await fetch('http://localhost:3002/api/auth/register', {
+    const portalAdminUrl = process.env.NEXT_PUBLIC_PORTAL_ADMIN_URL || 'http://localhost:3002';
+    const response = await fetch(`${portalAdminUrl}/api/auth/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
