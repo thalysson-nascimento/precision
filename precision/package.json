@@ -15,8 +15,7 @@
     "db:generate:postgres": "npm run --workspace=@precision/database db:generate:postgres",
     "db:push:sqlite": "npm run --workspace=@precision/database db:push:sqlite",
     "db:migrate:postgres": "npm run --workspace=@precision/database db:migrate:postgres",
-    "db:seed": "node prisma/seed.js",
-    "postinstall": "npm run db:generate:sqlite && npm run db:generate:postgres"
+    "db:seed": "node prisma/seed.js"
   },
   "devDependencies": {
     "prisma": "^7.8.0",
