@@ -12,7 +12,8 @@
     "db:migrate:postgres": "npx prisma migrate dev --schema=schema.postgres.prisma"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0"
+    "@prisma/client": "^7.8.0",
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "@prisma/adapter-better-sqlite3": "^7.8.0",
