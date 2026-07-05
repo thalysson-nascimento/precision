@@ -1,3 +1,5 @@
+import prismaPostgres from './adapters/postgres';
+
 let _prisma: any;
 
 const isPostgres =
@@ -9,24 +11,11 @@ const isPostgres =
 const prisma = new Proxy({} as any, {
   get(target, prop) {
     if (!_prisma) {
-      console.log('[Prisma Debug] Initializing lazy Prisma client...');
-      console.log('[Prisma Debug] NODE_ENV:', process.env.NODE_ENV);
-      console.log('[Prisma Debug] DATABASE_URL exists:', !!process.env.DATABASE_URL);
-      console.log('[Prisma Debug] Selected isPostgres:', isPostgres);
-
       if (isPostgres) {
-        try {
-          const mod = require('./adapters/postgres');
-          _prisma = mod.default || mod.prismaPostgres;
-          console.log('[Prisma Debug] Loaded Postgres adapter, client exists:', !!_prisma);
-        } catch (err) {
-          console.error('[Prisma Debug] Failed to load Postgres adapter:', err);
-        }
+        _prisma = prismaPostgres;
       } else {
         try {
-          const mod = require('./adapters/sqlite');
-          _prisma = mod.default || mod.prismaSqlite;
-          console.log('[Prisma Debug] Loaded SQLite adapter, client exists:', !!_prisma);
+          _prisma = require('./adapters/sqlite').default;
         } catch (err) {
           console.warn('[Prisma Debug] Failed to load SQLite adapter in dev mode:', err);
         }
