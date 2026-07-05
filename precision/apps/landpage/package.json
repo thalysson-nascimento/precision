@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "node ../../scripts/vercel-generate.js && next build",
+    "build": "next build",
     "start": "next start"
   },
   "dependencies": {
