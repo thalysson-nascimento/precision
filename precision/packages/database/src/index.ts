@@ -13,6 +13,7 @@ const prisma = new Proxy({} as any, {
     if (!_prisma) {
       if (isPostgres) {
         _prisma = prismaPostgres;
+        console.log('[Prisma Debug] Loaded Postgres adapter statically, client exists:', !!_prisma);
       } else {
         try {
           _prisma = require('./adapters/sqlite').default;
