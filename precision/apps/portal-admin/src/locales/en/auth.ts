@@ -14,4 +14,8 @@ export const auth = {
   expiredMsg2: 'To reactivate the account and allow your employees to register their time again, please make the subscription payment or contact our support team.',
   expiredLogout: 'Back to Login',
   accessDenied: 'Access denied. This portal is for the exclusive use of administrators and managers.',
+  welcomeTitle: 'Welcome to Precision',
+  welcomeDesc: 'Precision simplifies employee attendance and team management. Everything in a modern, fast, and integrated interface.',
+  cardFeatureTitle: 'Smart Management',
+  cardFeatureDesc: 'Monitor employee attendance, organize teams, and track pending tasks with ease.',
 };

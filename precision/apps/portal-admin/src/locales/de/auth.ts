@@ -14,4 +14,8 @@ export const auth = {
   expiredMsg2: 'Um das Konto zu reaktivieren und Ihren Mitarbeitern die erneute Zeiterfassung zu ermöglichen, führen Sie bitte die Abonnementszahlung durch oder wenden Sie sich an unser Support-Team.',
   expiredLogout: 'Zurück zum Login',
   accessDenied: 'Zugriff verweigert. Dieses Portal ist für die ausschließliche Nutzung durch Administratoren und Manager bestimmt.',
+  welcomeTitle: 'Willkommen bei Precision',
+  welcomeDesc: 'Precision vereinfacht die Zeiterfassung und das Teammanagement der Mitarbeiter. Alles in einer modernen, schnellen und integrierten Oberfläche.',
+  cardFeatureTitle: 'Intelligente Verwaltung',
+  cardFeatureDesc: 'Überwachen Sie die Anwesenheit der Mitarbeiter, organisieren Sie Teams und verfolgen Sie ausstehende Aufgaben mit Leichtigkeit.',
 };

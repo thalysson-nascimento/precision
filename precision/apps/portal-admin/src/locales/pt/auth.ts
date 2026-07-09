@@ -14,4 +14,8 @@ export const auth = {
   expiredMsg2: 'Para reativar a conta e permitir que seus colaboradores registrem o ponto novamente, realize o pagamento da assinatura ou entre em contato com nosso suporte técnico.',
   expiredLogout: 'Voltar para Login',
   accessDenied: 'Acesso negado. Este portal é de uso exclusivo de administradores e gestores.',
+  welcomeTitle: 'Bem-vindo ao Precision',
+  welcomeDesc: 'O Precision simplifica o controle de ponto e a gestão de jornada da sua equipe. Tudo em uma interface moderna, rápida e integrada.',
+  cardFeatureTitle: 'Gestão Inteligente',
+  cardFeatureDesc: 'Monitore a frequência dos colaboradores, organize equipes e acompanhe pendências com facilidade.',
 };
