@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useI18n } from '../locales/useI18n';
-import { Locale } from '../locales';
+import React, { useEffect, useState } from 'react';
 import { Footer } from '../components/Footer';
+import { Locale } from '../locales';
+import { useI18n } from '../locales/useI18n';
 
 export default function Landpage() {
   const { t, locale, setLocale } = useI18n();
@@ -17,44 +17,44 @@ export default function Landpage() {
   // Detect location and set default language and currency (only on mount)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const browserLang = navigator.language || '';
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      
-      const isEurope = timeZone.includes('Europe') || 
-                       timeZone.includes('London') || 
-                       timeZone.includes('Berlin') || 
-                       timeZone.includes('Lisbon') || 
-                       timeZone.includes('Paris') || 
-                       timeZone.includes('Rome') || 
-                       timeZone.includes('Madrid') ||
-                       browserLang.includes('en-GB') ||
-                       browserLang.startsWith('en');
-                       
-      const isBrazil = browserLang.startsWith('pt') || 
-                       timeZone.includes('Sao_Paulo') || 
-                       timeZone.includes('Brazil') || 
-                       timeZone.includes('Fortaleza') || 
-                       timeZone.includes('Recife') || 
-                       timeZone.includes('Rio');
-                       
-      if (isEurope) {
-        setLocale('en'); // País da Europa -> Idioma em Inglês
-        setCurrency('EUR'); // Moeda em Euro
-      } else if (isBrazil) {
-        setLocale('pt');
-        setCurrency('BRL');
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      };
+
+      const savedLocale = getCookie('precision_locale');
+      if (savedLocale) {
+        setLocale(savedLocale as Locale);
+        setCurrency(savedLocale === 'pt' ? 'BRL' : 'EUR');
       } else {
-        // Outros países: tenta obter preferência prévia ou navegador
-        const getCookie = (name: string) => {
-          const value = `; ${document.cookie}`;
-          const parts = value.split(`; ${name}=`);
-          if (parts.length === 2) return parts.pop()?.split(';').shift();
-          return null;
-        };
-        const savedLocale = getCookie('precision_locale');
-        if (savedLocale) {
-          setLocale(savedLocale as Locale);
-          setCurrency(savedLocale === 'pt' ? 'BRL' : 'EUR');
+        const browserLang = navigator.language || '';
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        
+        const isEurope = timeZone.includes('Europe') || 
+                         timeZone.includes('London') || 
+                         timeZone.includes('Berlin') || 
+                         timeZone.includes('Lisbon') || 
+                         timeZone.includes('Paris') || 
+                         timeZone.includes('Rome') || 
+                         timeZone.includes('Madrid') ||
+                         browserLang.includes('en-GB') ||
+                         browserLang.startsWith('en');
+                         
+        const isBrazil = browserLang.startsWith('pt') || 
+                         timeZone.includes('Sao_Paulo') || 
+                         timeZone.includes('Brazil') || 
+                         timeZone.includes('Fortaleza') || 
+                         timeZone.includes('Recife') || 
+                         timeZone.includes('Rio');
+                         
+        if (isEurope) {
+          setLocale('en'); // País da Europa -> Idioma em Inglês
+          setCurrency('EUR'); // Moeda em Euro
+        } else if (isBrazil) {
+          setLocale('pt');
+          setCurrency('BRL');
         } else {
           const defaultLang: Locale = browserLang.startsWith('de') ? 'de' : 'en';
           setLocale(defaultLang);
@@ -66,6 +66,7 @@ export default function Landpage() {
 
   const handleLocaleChange = (newLocale: Locale) => {
     setLocale(newLocale);
+    document.cookie = `precision_locale=${newLocale}; path=/; max-age=31536000`;
     if (newLocale === 'pt') {
       setCurrency('BRL');
     } else {
@@ -73,14 +74,32 @@ export default function Landpage() {
     }
   };
 
+  const getMonthlyEquivalent = (priceStr: string): string => {
+    const numeric = parseFloat(priceStr.replace(/\./g, '').replace(',', '.'));
+    const monthly = numeric / 12;
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(monthly);
+  };
+
   const getPlansData = (cur: 'BRL' | 'EUR', cycle: 'MONTHLY' | 'ANNUAL') => {
+    const getOriginalPrice = (price: string) => {
+      const numeric = parseFloat(price.replace(/\./g, '').replace(',', '.'));
+      const original = Math.ceil(numeric * 2) - 0.01;
+      return new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(original);
+    };
+
     if (cur === 'BRL') {
       return [
         {
           id: `15_EMPLOYEES_${cycle}`,
           limit: 15,
           priceStr: cycle === 'MONTHLY' ? '189,99' : '1.599,99',
-          originalPriceStr: cycle === 'ANNUAL' ? '2.279,99' : null,
+          originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '189,99' : '1.599,99'),
           currency: 'BRL',
           badge: t('landpage.beginnerBadge'),
           title: t('landpage.plan15Title'),
@@ -90,7 +109,7 @@ export default function Landpage() {
           id: `30_EMPLOYEES_${cycle}`,
           limit: 30,
           priceStr: cycle === 'MONTHLY' ? '329,99' : '2.769,99',
-          originalPriceStr: cycle === 'ANNUAL' ? '3.959,99' : null,
+          originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '329,99' : '2.769,99'),
           currency: 'BRL',
           badge: t('landpage.professionalBadge'),
           title: t('landpage.plan30Title'),
@@ -100,7 +119,7 @@ export default function Landpage() {
           id: `50_EMPLOYEES_${cycle}`,
           limit: 50,
           priceStr: cycle === 'MONTHLY' ? '499,99' : '4.199,99',
-          originalPriceStr: cycle === 'ANNUAL' ? '5.999,99' : null,
+          originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '499,99' : '4.199,99'),
           currency: 'BRL',
           badge: t('landpage.corporateBadge'),
           title: t('landpage.plan50Title'),
@@ -113,7 +132,7 @@ export default function Landpage() {
           id: `15_EMPLOYEES_${cycle}`,
           limit: 15,
           priceStr: cycle === 'MONTHLY' ? '99,99' : '839,99',
-          originalPriceStr: cycle === 'ANNUAL' ? '1.199,99' : null,
+          originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '99,99' : '839,99'),
           currency: 'EUR',
           badge: t('landpage.beginnerBadge'),
           title: t('landpage.plan15Title'),
@@ -123,7 +142,7 @@ export default function Landpage() {
           id: `30_EMPLOYEES_${cycle}`,
           limit: 30,
           priceStr: cycle === 'MONTHLY' ? '169,99' : '1.429,99',
-          originalPriceStr: cycle === 'ANNUAL' ? '2.039,99' : null,
+          originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '169,99' : '1.429,99'),
           currency: 'EUR',
           badge: t('landpage.professionalBadge'),
           title: t('landpage.plan30Title'),
@@ -133,7 +152,7 @@ export default function Landpage() {
           id: `50_EMPLOYEES_${cycle}`,
           limit: 50,
           priceStr: cycle === 'MONTHLY' ? '249,99' : '2.099,99',
-          originalPriceStr: cycle === 'ANNUAL' ? '2.999,99' : null,
+          originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '249,99' : '2.099,99'),
           currency: 'EUR',
           badge: t('landpage.corporateBadge'),
           title: t('landpage.plan50Title'),
@@ -310,7 +329,17 @@ export default function Landpage() {
       <section className="pt-20 pb-16 px-md max-w-7xl mx-auto flex flex-col items-center text-center space-y-md">
         
         <h1 className="text-display-time-mobile md:text-[64px] md:leading-[72px] font-extrabold tracking-tight max-w-[900px] text-on-background">
-          Gestão de ponto inteligente, simples e <span className="text-primary">segura.</span>
+          {(() => {
+            const titleText = t('landpage.title');
+            const words = titleText.split(' ');
+            const lastWord = words.pop() || '';
+            const mainText = words.join(' ');
+            return (
+              <>
+                {mainText} <span className="text-primary">{lastWord}</span>
+              </>
+            );
+          })()}
         </h1>
         
         <p className="text-body-lg md:text-xl text-on-surface-muted max-w-[650px] leading-relaxed mt-md">
@@ -593,7 +622,7 @@ export default function Landpage() {
               {t('landpage.pricingTitle')}
             </h2>
             <p className="text-body-lg text-on-surface-muted leading-relaxed">
-              Escolha a melhor licença para otimizar a gestão de ponto da sua empresa. Sem taxas ocultas.
+              {t('landpage.pricingSubtitle')}
             </p>
 
             {/* Billing cycle switch (mensal / anual) */}
@@ -602,18 +631,21 @@ export default function Landpage() {
                 <button
                   type="button"
                   onClick={() => setBillingCycle('MONTHLY')}
-                  className={`px-lg py-xs rounded-full font-bold text-body-sm transition-all duration-200 cursor-pointer ${billingCycle === 'MONTHLY' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-muted hover:text-on-surface'}`}
+                  className={`px-lg py-xs rounded-full font-bold text-body-sm transition-all duration-200 cursor-pointer flex items-center gap-xs ${billingCycle === 'MONTHLY' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-muted hover:text-on-surface'}`}
                 >
-                  {t('landpage.pricingMonthly')}
+                  <span>{t('landpage.pricingMonthly')}</span>
+                  <span className={`pointer-events-none ${billingCycle === 'MONTHLY' ? 'bg-white text-primary' : 'bg-success text-white'} text-[9px] font-extrabold px-xs py-[2px] rounded-full uppercase leading-none`}>
+                    -50%
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setBillingCycle('ANNUAL')}
                   className={`px-lg py-xs rounded-full font-bold text-body-sm transition-all duration-200 cursor-pointer flex items-center gap-xs ${billingCycle === 'ANNUAL' ? 'bg-primary text-white shadow-sm' : 'text-on-surface-muted hover:text-on-surface'}`}
                 >
-                  {t('landpage.pricingAnnual')}
-                  <span className={`${billingCycle === 'ANNUAL' ? 'bg-white text-primary' : 'bg-success text-white'} text-[9px] font-extrabold px-xs py-[2px] rounded-full uppercase leading-none`}>
-                    -30%
+                  <span>{t('landpage.pricingAnnual')}</span>
+                  <span className={`pointer-events-none ${billingCycle === 'ANNUAL' ? 'bg-white text-primary' : 'bg-success text-white'} text-[9px] font-extrabold px-xs py-[2px] rounded-full uppercase leading-none`}>
+                    -50%
                   </span>
                 </button>
               </div>
@@ -633,7 +665,7 @@ export default function Landpage() {
               return (
                 <div
                   key={plan.id}
-                  className={`bg-white border rounded-3xl p-lg flex flex-col justify-between relative transition-all duration-300 min-h-[480px] hover:scale-[1.01] ${
+                  className={`bg-white border rounded-3xl p-lg flex flex-col justify-between relative transition-all duration-300 min-h-[580px] hover:scale-[1.01] ${
                     isRecommended 
                       ? 'border-2 border-primary shadow-lg shadow-primary/5 ring-1 ring-primary/10' 
                       : 'border-border/60 shadow-sm hover:shadow-md'
@@ -645,7 +677,7 @@ export default function Landpage() {
                     </div>
                   )}
 
-                  <div className="space-y-sm">
+                  <div className="space-y-md">
                     <span className={`text-[10px] font-bold px-sm py-[3px] rounded-full uppercase tracking-wider ${
                       isRecommended ? 'bg-primary/10 text-primary' : 'bg-on-surface/10 text-on-surface'
                     }`}>
@@ -657,43 +689,66 @@ export default function Landpage() {
 
                   <div className="space-y-sm pt-md border-t border-border/30">
                     <div className="flex flex-col">
-                      {plan.originalPriceStr && (
-                        <span className="text-body-sm text-on-surface-muted/65 line-through">
-                          {plan.currency === 'BRL' ? 'R$' : '€'} {plan.originalPriceStr}
-                        </span>
-                      )}
-                      <div>
-                        <span className="text-[40px] font-black tracking-tight text-on-surface font-bold">
-                          {plan.currency === 'BRL' ? 'R$' : '€'} {plan.priceStr}
-                        </span>
-                        <span className="text-body-sm text-on-surface-muted ml-xs font-normal">
-                          /{billingCycle === 'MONTHLY' ? 'mês' : 'ano'}
-                        </span>
-                      </div>
-                      {billingCycle === 'ANNUAL' && (
-                        <div className="text-success text-body-xs font-semibold mt-xs flex items-center gap-xs">
-                          <span className="material-symbols-outlined text-[16px]">savings</span>
-                          {t('landpage.pricingDiscountLabel')}
+                      <div className="flex flex-col gap-y-xs">
+                        {plan.originalPriceStr && (
+                          <span className="text-body-xs text-on-surface-muted/50 line-through">
+                            {plan.currency === 'BRL' ? 'R$' : '€'} {billingCycle === 'ANNUAL' ? getMonthlyEquivalent(plan.originalPriceStr) : plan.originalPriceStr}
+                          </span>
+                        )}
+                        <div className="flex items-baseline">
+                          <span className="text-[40px] font-black tracking-tight text-on-surface font-bold">
+                            {plan.currency === 'BRL' ? 'R$' : '€'} {billingCycle === 'ANNUAL' ? getMonthlyEquivalent(plan.priceStr) : plan.priceStr}
+                          </span>
+                          <span className="text-body-sm text-on-surface-muted ml-xs font-normal">
+                            /{t('landpage.pricingMonthlySuffix')}
+                          </span>
                         </div>
-                      )}
+                        <div className="text-body-xs text-on-surface-muted font-medium">
+                          {t('landpage.pricingTotal', {
+                            currency: plan.currency === 'BRL' ? 'R$' : '€',
+                            price: plan.priceStr,
+                            period: billingCycle === 'ANNUAL' ? t('landpage.pricingAnnualSuffix') : t('landpage.pricingMonthlySuffix')
+                          })}
+                        </div>
+                        <div className="text-success text-body-xs font-semibold flex items-center gap-xs mt-xs">
+                          <span className="material-symbols-outlined text-[16px]">savings</span>
+                          {billingCycle === 'MONTHLY' ? t('landpage.pricingDiscount') : t('landpage.pricingDiscountAnnual')}
+                        </div>
+                      </div>
                     </div>
 
                     <p className="text-body-xs text-on-surface-muted/90 font-medium pt-sm">
                       {t('landpage.pricingTrialPeriod')}
                     </p>
 
-                    <ul className="mt-md space-y-xs text-body-xs text-on-surface-muted/95 border-t border-border/30 pt-sm">
+                    <ul className="mt-lg space-y-sm text-body-xs text-on-surface-muted/95 border-t border-border/30 pt-md">
                       <li className="flex items-center gap-xs">
                         <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
                         {t('landpage.pricingFeatEmployees', { limit: plan.limit })}
                       </li>
                       <li className="flex items-center gap-xs">
                         <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
-                        {t('landpage.pricingFeatTrial')}
+                        {t('landpage.pricingFeatTimeTracking')}
                       </li>
                       <li className="flex items-center gap-xs">
                         <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
-                        {t('landpage.pricingFeatReports')}
+                        {t('landpage.pricingFeatTeams')}
+                      </li>
+                      <li className="flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
+                        {t('landpage.pricingFeatBlockDays')}
+                      </li>
+                      <li className="flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
+                        {t('landpage.pricingFeatBlockUsers')}
+                      </li>
+                      <li className="flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
+                        {t('landpage.pricingFeatReportsTrack')}
+                      </li>
+                      <li className="flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
+                        {t('landpage.pricingFeatLocation')}
                       </li>
                     </ul>
 
