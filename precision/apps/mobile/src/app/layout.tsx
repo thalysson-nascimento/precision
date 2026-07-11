@@ -35,7 +35,7 @@ export default async function RootLayout({
           rel="stylesheet" 
         />
       </head>
-      <body className="bg-background text-on-surface min-h-screen pb-24">
+      <body className="bg-background text-on-surface min-h-screen">
         <I18nProvider initialLocale={locale}>
           <Suspense fallback={null}>
             <Header />

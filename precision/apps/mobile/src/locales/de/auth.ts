@@ -1,6 +1,6 @@
 export const auth = {
   title: 'Precision',
-  subtitle: 'Erfassen Sie Ihre Arbeitszeit einfach und sicher.',
+  subtitle: 'Verwalten Sie Ihre Produktivität mit Präzision und absoluter Klarheit.',
   email: 'Unternehmens-E-Mail',
   password: 'Passwort',
   loginButton: 'EINLOGGEN',
@@ -28,4 +28,6 @@ export const auth = {
   notAuthenticated: 'Nicht authentifiziert.',
   allFieldsRequired: 'Alle Felder sind Pflichtfelder.',
   internalServerError: 'Interner Serverfehler.',
+  welcomeTitle: 'Willkommen zurück',
+  welcomeSubtitle: 'Melden Sie sich an, um fortzufahren',
 };

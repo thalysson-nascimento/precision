@@ -1,6 +1,6 @@
 export const auth = {
   title: 'Precision',
-  subtitle: 'Registre seu ponto com facilidade e segurança.',
+  subtitle: 'Gerencie sua produtividade com precisão e clareza absoluta.',
   email: 'E-mail Corporativo',
   password: 'Senha',
   loginButton: 'ENTRAR',
@@ -28,5 +28,7 @@ export const auth = {
   notAuthenticated: 'Não autenticado.',
   allFieldsRequired: 'Todos os campos são obrigatórios.',
   internalServerError: 'Erro interno do servidor.',
+  welcomeTitle: 'Bem-vindo de volta',
+  welcomeSubtitle: 'Acesse sua conta para continuar',
 };
 

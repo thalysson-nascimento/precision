@@ -30,7 +30,7 @@ function MainContent() {
 export default function Home() {
   const { t } = useI18n();
   return (
-    <main className="max-w-7xl mx-auto px-container-margin space-y-xl pb-4 pt-md">
+    <main className="max-w-7xl mx-auto px-container-margin space-y-xl pb-28 pt-md">
       <Suspense fallback={
         <div className="text-center py-xl text-on-surface-variant font-semibold">
           {t('common.loading')}

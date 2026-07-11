@@ -1,6 +1,6 @@
 export const auth = {
   title: 'Precision',
-  subtitle: 'Register your shift point with ease and security.',
+  subtitle: 'Manage your productivity with precision and absolute clarity.',
   email: 'Corporate Email',
   password: 'Password',
   loginButton: 'SIGN IN',
@@ -28,5 +28,7 @@ export const auth = {
   notAuthenticated: 'Not authenticated.',
   allFieldsRequired: 'All fields are required.',
   internalServerError: 'Internal server error.',
+  welcomeTitle: 'Welcome back',
+  welcomeSubtitle: 'Access your account to continue',
 };
 
