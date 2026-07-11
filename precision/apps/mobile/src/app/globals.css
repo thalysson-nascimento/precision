@@ -136,3 +136,11 @@
 body {
   min-height: 100dvh;
 }
+
+.punch-box__check-icon {
+  font-size: 12px !important;
+}
+
+.punch-box__time-icon {
+  font-size: 12px !important;
+}

@@ -31,12 +31,47 @@ export const HistoryScreen: React.FC = () => {
     times: [],
   });
 
+  const processHistory = (res: any): HistoryDay[] => {
+    const todayRecords = res.records || [];
+    const inRec = todayRecords.find((r: any) => r.type === 'IN' && r.confirmed);
+    const lunchOutRec = todayRecords.find((r: any) => r.type === 'LUNCH_OUT' && r.confirmed);
+    const lunchInRec = todayRecords.find((r: any) => r.type === 'LUNCH_IN' && r.confirmed);
+    const outRec = todayRecords.find((r: any) => r.type === 'OUT' && r.confirmed);
+    
+    const isTodayComplete = !!(inRec && lunchOutRec && lunchInRec && outRec);
+    
+    let historyList = res.history || [];
+    if (isTodayComplete) {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+      
+      const todayItem: HistoryDay = {
+        date: todayStr,
+        times: [
+          inRec.time,
+          lunchOutRec.time,
+          lunchInRec.time,
+          outRec.time
+        ],
+        isComplete: true
+      };
+      
+      if (!historyList.some((dayItem: any) => dayItem.date === todayStr)) {
+        historyList = [todayItem, ...historyList];
+      }
+    }
+    return historyList;
+  };
+
   const loadData = async () => {
     try {
       setIsLoading(true);
       const res = await employeeService.getTodayRecords();
       setEmployee(res.employee);
-      setHistory(res.history || []);
+      setHistory(processHistory(res));
     } catch (e) {
       console.error('Erro ao carregar histórico:', e);
     } finally {
@@ -115,10 +150,11 @@ export const HistoryScreen: React.FC = () => {
   const handleSaveSuccess = async () => {
     // Recarregar os dados do histórico
     const res = await employeeService.getTodayRecords();
-    setHistory(res.history || []);
+    const updatedHistory = processHistory(res);
+    setHistory(updatedHistory);
     
     // Atualizar os valores do modal ativo para que a grade mude em tempo real
-    const updatedDay = res.history.find(d => d.date === modalState.date);
+    const updatedDay = updatedHistory.find(d => d.date === modalState.date);
     if (updatedDay) {
       setModalState(prev => ({
         ...prev,

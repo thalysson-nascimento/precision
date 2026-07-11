@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { employeeService, Employee, HistoryDay } from '@precision/api-client';
 import { DayAdjustModal } from '../ui/DayAdjustModal';
 import { useI18n } from '@/locales/useI18n';
+import { ProgressCircle } from '../ui/ProgressCircle';
+import { PunchBox } from './PunchBox';
 
 export const PunchCard: React.FC = () => {
   const { t, locale } = useI18n();
@@ -246,6 +248,28 @@ export const PunchCard: React.FC = () => {
     return `${year}-${month}-${day}`;
   };
 
+  const getExpectedWorkMinutes = (): number => {
+    if (!employee) return 480; // 8 hours default (8 * 60 = 480 mins)
+    const parseToMins = (tStr: string) => {
+      const [h, m] = tStr.split(':').map(Number);
+      return (h || 0) * 60 + (m || 0);
+    };
+    const totalMins = parseToMins(employee.workEnd) - parseToMins(employee.workStart);
+    const lunchMins = parseToMins(employee.lunchEnd) - parseToMins(employee.lunchStart);
+    return Math.max(0, totalMins - lunchMins);
+  };
+
+  const getTodayHistoryItem = (): HistoryDay | null => {
+    const isTodayComplete = entradaConfirmed && saidaAlmocoConfirmed && retornoAlmocoConfirmed && saidaFinalConfirmed;
+    if (!isTodayComplete) return null;
+    
+    return {
+      date: getTodayDateString(),
+      times: [entrada, saidaAlmoco, retornoAlmoco, saidaFinal],
+      isComplete: true,
+    };
+  };
+
   const handleHistoryDayClick = (day: HistoryDay) => {
     setSelectedHistoryDay({
       date: day.date,
@@ -353,8 +377,8 @@ export const PunchCard: React.FC = () => {
       )}
 
       {/* Cartão de Registro Principal */}
-      <section className="glass-card rounded-xl p-lg space-y-lg">
-        <div className="flex justify-between items-center">
+      <section className="glass-card rounded-xl p-lg space-y-lg flex flex-col items-center">
+        <div className="flex justify-between items-center w-full">
           <div>
             <h3 className="text-label-caps font-label-caps text-on-surface-variant">{t('dashboard.todayRegister')}</h3>
             <div className="flex items-center gap-xs text-primary mt-xs">
@@ -365,180 +389,85 @@ export const PunchCard: React.FC = () => {
           <span className="material-symbols-outlined text-outline-variant">schedule</span>
         </div>
         
-        {/* Horas Trabalhadas (Skeleton durante o load) */}
-        <div className="text-center py-md">
+        {/* Horas Trabalhadas (Skeleton / Circulo de Progresso centralizado) */}
+        <div className="flex justify-center py-md w-full">
           {isLoading ? (
-            <div className="space-y-2">
-              <div className="h-12 w-32 shimmer rounded mx-auto"></div>
-              <div className="h-4 w-40 shimmer rounded mx-auto"></div>
+            <div className="w-[200px] h-[200px] rounded-full shimmer flex items-center justify-center">
+              <div className="w-[160px] h-[160px] rounded-full bg-white flex flex-col items-center justify-center gap-2">
+                <div className="h-8 w-24 shimmer rounded"></div>
+                <div className="h-3 w-16 shimmer rounded"></div>
+              </div>
             </div>
           ) : (
-            <>
-              <h2 className="text-display-time-mobile md:text-display-time font-display-time text-on-background tracking-tighter">
-                {workedTime}
-              </h2>
-              <p className="text-body-sm text-on-surface-variant">{t('dashboard.totalWorkedHoursToday')}</p>
-            </>
+            <ProgressCircle
+              workedTime={workedTime}
+              expectedWorkMinutes={getExpectedWorkMinutes()}
+              label={t('dashboard.totalWorkedHoursToday')}
+            />
           )}
         </div>
         
-        {/* Time Grid (Skeletons durante o load) */}
-        <div className="grid grid-cols-2 gap-md">
+        {/* Time Grid (Horizontal Row) */}
+        <div className="grid grid-cols-4 gap-2 w-full">
           
           {isLoading ? (
             [1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-surface-container-low p-md rounded-xl border border-outline-variant/30">
-                <div className="flex justify-between items-start mb-sm">
-                  <div className="h-4 w-12 shimmer rounded"></div>
-                  <div className="h-4 w-4 shimmer rounded-full"></div>
+              <div key={i} className="bg-surface-container-low p-2 rounded-xl border border-outline-variant/30 min-h-[72px] flex flex-col justify-between">
+                <div className="flex justify-between items-start">
+                  <div className="h-2 w-8 shimmer rounded"></div>
+                  <div className="h-2.5 w-2.5 shimmer rounded-full"></div>
                 </div>
-                <div className="flex items-center gap-sm mt-1">
-                  <div className="h-5 w-5 shimmer rounded-full"></div>
-                  <div className="h-6 w-16 shimmer rounded"></div>
+                <div className="flex items-center gap-1 mt-auto pt-1">
+                  <div className="h-3.5 w-3.5 shimmer rounded-full"></div>
+                  <div className="h-3.5 w-8 shimmer rounded"></div>
                 </div>
               </div>
             ))
           ) : (
             <>
               {/* Entrada */}
-              <div 
-                className={`p-md rounded-xl border transition-all duration-300 ${
-                  isInputDisabled('IN', employee?.workStart || '08:00', entradaConfirmed)
-                    ? 'bg-surface-container-lowest border-dashed border-outline-variant opacity-60'
-                    : 'bg-surface-container-low border-secondary-container'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.entry')}</span>
-                  {entradaConfirmed ? (
-                    <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      check_circle
-                    </span>
-                  ) : (
-                    !isInputDisabled('IN', employee?.workStart || '08:00', false) && (
-                      <button 
-                        onClick={() => openEditModal('IN')}
-                        className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
-                      >
-                        {t('common.edit')}
-                      </button>
-                    )
-                  )}
-                </div>
-                <div className="flex items-center gap-sm">
-                  <span className={`material-symbols-outlined ${entradaConfirmed ? 'text-secondary' : 'text-outline'}`} style={entradaConfirmed ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                    login
-                  </span>
-                  <span className="text-headline-md font-headline-md">
-                    {isInputDisabled('IN', employee?.workStart || '08:00', entradaConfirmed) ? '--:--' : entrada}
-                  </span>
-                </div>
-              </div>
+              <PunchBox
+                label={t('common.entry')}
+                time={entrada}
+                iconName="login"
+                isConfirmed={entradaConfirmed}
+                isDisabled={isInputDisabled('IN', employee?.workStart || '08:00', entradaConfirmed)}
+                onEdit={() => openEditModal('IN')}
+                showEditButton={!isInputDisabled('IN', employee?.workStart || '08:00', false)}
+              />
               
               {/* Saída Almoço */}
-              <div 
-                className={`p-md rounded-xl border transition-all duration-300 ${
-                  isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', saidaAlmocoConfirmed)
-                    ? 'bg-surface-container-lowest border-dashed border-outline-variant opacity-60'
-                    : 'bg-surface-container-low border-secondary-container'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.exit')}</span>
-                  {saidaAlmocoConfirmed ? (
-                    <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      check_circle
-                    </span>
-                  ) : (
-                    !isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', false) && (
-                      <button 
-                        onClick={() => openEditModal('LUNCH_OUT')}
-                        className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
-                      >
-                        {t('common.edit')}
-                      </button>
-                    )
-                  )}
-                </div>
-                <div className="flex items-center gap-sm">
-                  <span className={`material-symbols-outlined ${saidaAlmocoConfirmed ? 'text-secondary' : 'text-outline'}`} style={saidaAlmocoConfirmed ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                    logout
-                  </span>
-                  <span className="text-headline-md font-headline-md">
-                    {isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', saidaAlmocoConfirmed) ? '--:--' : saidaAlmoco}
-                  </span>
-                </div>
-              </div>
+              <PunchBox
+                label={t('common.exit')}
+                time={saidaAlmoco}
+                iconName="logout"
+                isConfirmed={saidaAlmocoConfirmed}
+                isDisabled={isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', saidaAlmocoConfirmed)}
+                onEdit={() => openEditModal('LUNCH_OUT')}
+                showEditButton={!isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', false)}
+              />
               
               {/* Retorno Almoço */}
-              <div 
-                className={`p-md rounded-xl border transition-all duration-300 ${
-                  isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', retornoAlmocoConfirmed)
-                    ? 'bg-surface-container-lowest border-dashed border-outline-variant opacity-60'
-                    : 'bg-surface-container-low border-secondary-container'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.return')}</span>
-                  {retornoAlmocoConfirmed ? (
-                    <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      check_circle
-                    </span>
-                  ) : (
-                    !isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', false) && (
-                      <button 
-                        onClick={() => openEditModal('LUNCH_IN')}
-                        className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
-                      >
-                        {t('common.edit')}
-                      </button>
-                    )
-                  )}
-                </div>
-                <div className="flex items-center gap-sm">
-                  <span className={`material-symbols-outlined ${retornoAlmocoConfirmed ? 'text-secondary' : 'text-outline'}`} style={retornoAlmocoConfirmed ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                    fastfood
-                  </span>
-                  <span className="text-headline-md font-headline-md">
-                    {isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', retornoAlmocoConfirmed) ? '--:--' : retornoAlmoco}
-                  </span>
-                </div>
-              </div>
+              <PunchBox
+                label={t('common.return')}
+                time={retornoAlmoco}
+                iconName="fastfood"
+                isConfirmed={retornoAlmocoConfirmed}
+                isDisabled={isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', retornoAlmocoConfirmed)}
+                onEdit={() => openEditModal('LUNCH_IN')}
+                showEditButton={!isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', false)}
+              />
               
               {/* Saída Final */}
-              <div 
-                className={`p-md rounded-xl border transition-all duration-300 ${
-                  isInputDisabled('OUT', employee?.workEnd || '18:00', saidaFinalConfirmed)
-                    ? 'bg-surface-container-lowest border-dashed border-outline-variant opacity-60'
-                    : 'bg-surface-container-low border-secondary-container'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-sm">
-                  <span className="text-label-caps font-label-caps text-on-surface-variant">{t('common.exit')}</span>
-                  {saidaFinalConfirmed ? (
-                    <span className="material-symbols-outlined text-secondary text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      check_circle
-                    </span>
-                  ) : (
-                    !isInputDisabled('OUT', employee?.workEnd || '18:00', false) && (
-                      <button 
-                        onClick={() => openEditModal('OUT')}
-                        className="text-primary text-[10px] font-bold hover:underline cursor-pointer"
-                      >
-                        {t('common.edit')}
-                      </button>
-                    )
-                  )}
-                </div>
-                <div className="flex items-center gap-sm">
-                  <span className={`material-symbols-outlined ${saidaFinalConfirmed ? 'text-secondary' : 'text-outline'}`} style={saidaFinalConfirmed ? { fontVariationSettings: "'FILL' 1" } : undefined}>
-                    home
-                  </span>
-                  <span className="text-headline-md font-headline-md">
-                    {isInputDisabled('OUT', employee?.workEnd || '18:00', saidaFinalConfirmed) ? '--:--' : saidaFinal}
-                  </span>
-                </div>
-              </div>
+              <PunchBox
+                label={t('common.exit')}
+                time={saidaFinal}
+                iconName="home"
+                isConfirmed={saidaFinalConfirmed}
+                isDisabled={isInputDisabled('OUT', employee?.workEnd || '18:00', saidaFinalConfirmed)}
+                onEdit={() => openEditModal('OUT')}
+                showEditButton={!isInputDisabled('OUT', employee?.workEnd || '18:00', false)}
+              />
             </>
           )}
           
@@ -591,33 +520,39 @@ export const PunchCard: React.FC = () => {
               </div>
             ))
           ) : (
-            /* Histórico Real vindo do banco - Filtrado para o mês atual */
-            history
-              .filter(day => day.date.startsWith(getTodayDateString().slice(0, 7)))
-              .map((day) => (
-              <div 
-                key={day.date} 
-                onClick={() => handleHistoryDayClick(day)}
-                className="flex items-center justify-between p-md hover:bg-surface-container-low transition-colors group cursor-pointer"
-              >
-                <div className="flex flex-col">
-                  <span className="text-body-lg font-bold">{formatHistoryDate(day.date)}</span>
-                  <span className="text-body-sm text-on-surface-variant">
-                    {day.times.join(' • ')}
-                  </span>
+            /* Histórico Real vindo do banco - Filtrado para os seis últimos registros */
+            (() => {
+              const todayHistoryItem = getTodayHistoryItem();
+              const displayHistory = todayHistoryItem
+                ? [todayHistoryItem, ...history.filter(day => day.date !== getTodayDateString())]
+                : history;
+              const limitedHistory = displayHistory.slice(0, 6);
+
+              return limitedHistory.map((day) => (
+                <div 
+                  key={day.date} 
+                  onClick={() => handleHistoryDayClick(day)}
+                  className="flex items-center justify-between p-md hover:bg-surface-container-low transition-colors group cursor-pointer"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-body-lg font-bold">{formatHistoryDate(day.date)}</span>
+                    <span className="text-body-sm text-on-surface-variant">
+                      {day.times.join(' • ')}
+                    </span>
+                  </div>
+                  {day.isComplete ? (
+                    <span className="material-symbols-outlined text-secondary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      check_circle
+                    </span>
+                  ) : (
+                    /* Ícone de alerta em caso de pendências/incompletos */
+                    <span className="material-symbols-outlined text-tertiary text-lg animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      warning
+                    </span>
+                  )}
                 </div>
-                {day.isComplete ? (
-                  <span className="material-symbols-outlined text-secondary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    check_circle
-                  </span>
-                ) : (
-                  /* Ícone de alerta em caso de pendências/incompletos */
-                  <span className="material-symbols-outlined text-tertiary text-lg animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>
-                    warning
-                  </span>
-                )}
-              </div>
-            ))
+              ));
+            })()
           )}
         </div>
 
