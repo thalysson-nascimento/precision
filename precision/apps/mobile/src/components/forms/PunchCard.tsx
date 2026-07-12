@@ -127,6 +127,13 @@ export const PunchCard: React.FC = () => {
       const now = new Date();
       let totalMs = 0;
 
+      // Se a saída final não está confirmada, pega o horário atual dinamicamente
+      if (!saidaFinalConfirmed) {
+        const curHours = String(now.getHours()).padStart(2, '0');
+        const curMinutes = String(now.getMinutes()).padStart(2, '0');
+        setSaidaFinal(`${curHours}:${curMinutes}`);
+      }
+
       // Período 1: Entrada até Saída Almoço
       if (entradaConfirmed) {
         const tEntrada = parseTime(entrada);
