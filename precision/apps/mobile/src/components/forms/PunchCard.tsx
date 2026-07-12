@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { employeeService, Employee, HistoryDay } from '@precision/api-client';
-import { DayAdjustModal } from '../ui/DayAdjustModal';
 import { useI18n } from '@/locales/useI18n';
+import { Employee, employeeService, HistoryDay } from '@precision/api-client';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import { DayAdjustModal } from '../ui/DayAdjustModal';
 import { ProgressCircle } from '../ui/ProgressCircle';
 import { PunchBox } from './PunchBox';
 
@@ -423,7 +423,7 @@ export const PunchCard: React.FC = () => {
       <div className="flex-1 w-full bg-[#F8F9FF] px-container-margin pt-6 pb-12 flex flex-col items-stretch">
         
         {/* Alerts in the white section */}
-        <div className="w-full max-w-[512px] space-y-md mb-4 mx-auto">
+        <div className="w-full max-w-[512px] space-y-md mx-auto">
           {/* Alerta de Pendência dinâmico */}
           {!isLoading && incompleteDays > 0 && (
             <div className="bg-tertiary-fixed text-on-tertiary-fixed p-md rounded-xl flex flex-col gap-sm border border-tertiary-container shadow-sm">
