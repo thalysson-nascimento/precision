@@ -52,24 +52,32 @@ export const Header: React.FC = () => {
   const displayName = employee?.name || t('common.employee');
 
   return (
-    <header className="bg-background sticky top-0 z-50 border-b border-outline-variant/30 backdrop-blur-md">
-      {/* Top micro-bar for the Precision branding */}
-      <div className="max-w-7xl mx-auto px-container-margin py-[6px] flex justify-between items-center text-[10px] tracking-wider uppercase text-on-surface-variant font-bold border-b border-outline-variant/10">
-        <span className="text-primary font-bold">Precision</span>
-      </div>
-      
-      {/* Main AppBar contents */}
-      <div className="flex justify-between items-center w-full px-container-margin py-md max-w-7xl mx-auto">
-        <div className="flex flex-col">
-          <h1 className="text-headline-lg font-headline-lg font-semibold text-on-background">
-            {t('dashboard.greeting', { name: displayName })}
-          </h1>
-          <p className="text-body-sm font-body-sm text-on-surface-variant">
-            <CurrentDate />
-          </p>
+    <header className="bg-[#4A7EA9] w-full text-white p-4 select-none">
+      <div className="max-w-7xl mx-auto flex flex-col gap-4">
+        {/* Logo + Brand Name */}
+        <div className="flex items-center gap-2">
+          <img
+            alt="Precision Logo"
+            className="w-6 h-auto object-contain"
+            style={{ filter: 'brightness(0) invert(1)' }}
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAw600BN7q5ivLGkOrovv6d6A3taP3DE9GAfRfG6LZ7UYcXu_S-BaqgKSMAI8A8XAXKTRaU1qjau5-ngW9ghugWjZgK1Tnwfw2f2qVm9SMQY-VcK6AUTCUq6ehJKm_xkxBmKpVxzCFjgXAoUdoeku1ESq3Y7-pK9LHe29eLJeSt6vGDMOjrqVELidhE0nZ3sxlBb3dCZCVTK7ehgyOXMhwWFzzvpnrUljot15vo57VYgaNCp-DFrz08jTEbQ58OWdJNw"
+          />
+          <span className="font-bold text-lg tracking-tight font-sans text-white">Precision</span>
         </div>
-        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-fixed shadow-sm bg-surface-container-high flex items-center justify-center">
-          <span className="material-symbols-outlined text-primary text-3xl">account_circle</span>
+
+        {/* Greeting + Date + Avatar Row */}
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <h1 className="text-[24px] font-normal leading-tight font-sans text-white">
+              {t('dashboard.greeting', { name: displayName })}
+            </h1>
+            <p className="text-[12px] font-normal opacity-90 font-sans mt-[2px] text-white">
+              <CurrentDate />
+            </p>
+          </div>
+          <div className="w-12 h-12 rounded-full overflow-hidden border border-white/20 shadow-sm bg-white/10 flex items-center justify-center flex-shrink-0">
+            <span className="material-symbols-outlined text-white text-3xl">account_circle</span>
+          </div>
         </div>
       </div>
     </header>

@@ -328,74 +328,17 @@ export const PunchCard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-xl w-full">
-      
-      {/* Alerta de Pendência dinâmico com botão alinhado abaixo e à direita */}
-      {!isLoading && incompleteDays > 0 && (
-        <section className="w-full">
-          <div className="bg-tertiary-fixed text-on-tertiary-fixed p-md rounded-xl flex flex-col gap-sm border border-tertiary-container shadow-sm">
-            <div className="flex items-center gap-md">
-              <span className="material-symbols-outlined text-tertiary text-2xl">warning</span>
-              <div>
-                <h2 className="text-body-lg font-bold">{t('dashboard.pendingAlertTitle')}</h2>
-                <p className="text-body-sm text-on-tertiary-fixed/80">
-                  {t('dashboard.pendingAlertDesc', { 
-                    count: String(incompleteDays), 
-                    daysWord: incompleteDays === 1 ? t('dashboard.daysWordSingular') : t('dashboard.daysWordPlural')
-                  })}
-                </p>
-              </div>
-            </div>
-            {/* Botão alinhado abaixo e à direita */}
-            <div className="flex justify-end w-full">
-              <Link 
-                href="/?tab=historico"
-                className="bg-tertiary text-on-tertiary px-md py-xs rounded-lg text-label-caps font-label-caps hover:bg-tertiary-container transition-colors active:scale-95 duration-200 cursor-pointer block text-center"
-              >
-                {t('dashboard.adjustTime')}
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Alerta de Expediente Bloqueado */}
-      {!isLoading && blockage?.isBlocked && (
-        <section className="w-full">
-          <div className="bg-error-container text-on-error-container p-md rounded-xl flex items-center gap-md border border-error/20 shadow-sm animate-pulse">
-            <span className="material-symbols-outlined text-error text-[32px]">block</span>
-            <div className="space-y-[2px]">
-              <h2 className="text-body-lg font-bold text-error">{t('dashboard.punchLocked')}</h2>
-              <p className="text-body-sm text-on-error-container/80 font-medium">
-                {blockage.reason === 'WEEKDAY' 
-                  ? t('dashboard.weekendBlocked') 
-                  : t('dashboard.blockageReason', { reason: blockage.reason || '' })}
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Cartão de Registro Principal */}
-      <section className="glass-card rounded-xl p-lg space-y-lg flex flex-col items-center">
-        <div className="flex justify-between items-center w-full">
-          <div>
-            <h3 className="text-label-caps font-label-caps text-on-surface-variant">{t('dashboard.todayRegister')}</h3>
-            <div className="flex items-center gap-xs text-primary mt-xs">
-              <span className="material-symbols-outlined text-sm">location_on</span>
-              <span className="text-body-sm font-semibold">{location}</span>
-            </div>
-          </div>
-          <span className="material-symbols-outlined text-outline-variant">schedule</span>
-        </div>
+    <div className="w-full flex flex-col min-h-screen bg-[#F8F9FF] select-none">
+      {/* 1. Blue body section enclosing progress circle and horizontal time grid */}
+      <div className="bg-[#4A7EA9] w-full pb-8 flex flex-col items-stretch px-container-margin">
         
-        {/* Horas Trabalhadas (Skeleton / Circulo de Progresso centralizado) */}
-        <div className="flex justify-center py-md w-full">
+        {/* Skeleton/Progress Circle Container */}
+        <div className="mt-[74px] flex justify-center w-full mx-auto">
           {isLoading ? (
-            <div className="w-[200px] h-[200px] rounded-full shimmer flex items-center justify-center">
-              <div className="w-[160px] h-[160px] rounded-full bg-white flex flex-col items-center justify-center gap-2">
-                <div className="h-8 w-24 shimmer rounded"></div>
-                <div className="h-3 w-16 shimmer rounded"></div>
+            <div className="w-[250px] h-[250px] rounded-full shimmer flex items-center justify-center bg-white/5">
+              <div className="w-[210px] h-[210px] rounded-full bg-[#4A7EA9] flex flex-col items-center justify-center gap-2">
+                <div className="h-8 w-24 shimmer rounded opacity-30"></div>
+                <div className="h-3 w-16 shimmer rounded opacity-30"></div>
               </div>
             </div>
           ) : (
@@ -406,162 +349,209 @@ export const PunchCard: React.FC = () => {
             />
           )}
         </div>
-        
+
         {/* Time Grid (Horizontal Row) */}
-        <div className="grid grid-cols-4 gap-2 w-full">
-          
-          {isLoading ? (
-            [1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-surface-container-low p-2 rounded-xl border border-outline-variant/30 min-h-[72px] flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="h-2 w-8 shimmer rounded"></div>
-                  <div className="h-2.5 w-2.5 shimmer rounded-full"></div>
+        <div className="mt-[74px] w-full max-w-[512px] mx-auto">
+          <div className="grid grid-cols-4 divide-x divide-white/20 border border-white rounded-lg p-4 bg-[#4A7EA9]">
+            {isLoading ? (
+              [1, 2, 3, 4].map(i => (
+                <div key={i} className="flex flex-col justify-between min-h-[56px] px-2 opacity-50">
+                  <div className="h-3.5 w-8 shimmer rounded opacity-25"></div>
+                  <div className="h-4 w-12 shimmer rounded opacity-25 mt-auto"></div>
                 </div>
-                <div className="flex items-center gap-1 mt-auto pt-1">
-                  <div className="h-3.5 w-3.5 shimmer rounded-full"></div>
-                  <div className="h-3.5 w-8 shimmer rounded"></div>
+              ))
+            ) : (
+              <>
+                {/* Entrada */}
+                <PunchBox
+                  label={t('common.entry')}
+                  time={entrada}
+                  iconName="login"
+                  isConfirmed={entradaConfirmed}
+                  isDisabled={isInputDisabled('IN', employee?.workStart || '08:00', entradaConfirmed)}
+                  onEdit={() => openEditModal('IN')}
+                  showEditButton={!isInputDisabled('IN', employee?.workStart || '08:00', false)}
+                />
+                
+                {/* Saída Almoço */}
+                <PunchBox
+                  label={t('common.exit')}
+                  time={saidaAlmoco}
+                  iconName="logout"
+                  isConfirmed={saidaAlmocoConfirmed}
+                  isDisabled={isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', saidaAlmocoConfirmed)}
+                  onEdit={() => openEditModal('LUNCH_OUT')}
+                  showEditButton={!isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', false)}
+                />
+                
+                {/* Retorno Almoço */}
+                <PunchBox
+                  label={t('common.return')}
+                  time={retornoAlmoco}
+                  iconName="fastfood"
+                  isConfirmed={retornoAlmocoConfirmed}
+                  isDisabled={isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', retornoAlmocoConfirmed)}
+                  onEdit={() => openEditModal('LUNCH_IN')}
+                  showEditButton={!isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', false)}
+                />
+                
+                {/* Saída Final */}
+                <PunchBox
+                  label={t('common.exit')}
+                  time={saidaFinal}
+                  iconName="home"
+                  isConfirmed={saidaFinalConfirmed}
+                  isDisabled={isInputDisabled('OUT', employee?.workEnd || '18:00', saidaFinalConfirmed)}
+                  onEdit={() => openEditModal('OUT')}
+                  showEditButton={!isInputDisabled('OUT', employee?.workEnd || '18:00', false)}
+                />
+              </>
+            )}
+          </div>
+        </div>
+
+      </div>
+
+      {/* 2. White/Light-gray body section below the blue container */}
+      <div className="flex-1 w-full bg-[#F8F9FF] px-container-margin pt-6 pb-12 flex flex-col items-stretch">
+        
+        {/* Alerts in the white section */}
+        <div className="w-full max-w-[512px] space-y-md mb-4 mx-auto">
+          {/* Alerta de Pendência dinâmico */}
+          {!isLoading && incompleteDays > 0 && (
+            <div className="bg-tertiary-fixed text-on-tertiary-fixed p-md rounded-xl flex flex-col gap-sm border border-tertiary-container shadow-sm">
+              <div className="flex items-center gap-md">
+                <span className="material-symbols-outlined text-tertiary text-2xl">warning</span>
+                <div>
+                  <h2 className="text-body-lg font-bold">{t('dashboard.pendingAlertTitle')}</h2>
+                  <p className="text-body-sm text-on-tertiary-fixed/80">
+                    {t('dashboard.pendingAlertDesc', { 
+                      count: String(incompleteDays), 
+                      daysWord: incompleteDays === 1 ? t('dashboard.daysWordSingular') : t('dashboard.daysWordPlural')
+                    })}
+                  </p>
                 </div>
               </div>
-            ))
-          ) : (
-            <>
-              {/* Entrada */}
-              <PunchBox
-                label={t('common.entry')}
-                time={entrada}
-                iconName="login"
-                isConfirmed={entradaConfirmed}
-                isDisabled={isInputDisabled('IN', employee?.workStart || '08:00', entradaConfirmed)}
-                onEdit={() => openEditModal('IN')}
-                showEditButton={!isInputDisabled('IN', employee?.workStart || '08:00', false)}
-              />
-              
-              {/* Saída Almoço */}
-              <PunchBox
-                label={t('common.exit')}
-                time={saidaAlmoco}
-                iconName="logout"
-                isConfirmed={saidaAlmocoConfirmed}
-                isDisabled={isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', saidaAlmocoConfirmed)}
-                onEdit={() => openEditModal('LUNCH_OUT')}
-                showEditButton={!isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', false)}
-              />
-              
-              {/* Retorno Almoço */}
-              <PunchBox
-                label={t('common.return')}
-                time={retornoAlmoco}
-                iconName="fastfood"
-                isConfirmed={retornoAlmocoConfirmed}
-                isDisabled={isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', retornoAlmocoConfirmed)}
-                onEdit={() => openEditModal('LUNCH_IN')}
-                showEditButton={!isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', false)}
-              />
-              
-              {/* Saída Final */}
-              <PunchBox
-                label={t('common.exit')}
-                time={saidaFinal}
-                iconName="home"
-                isConfirmed={saidaFinalConfirmed}
-                isDisabled={isInputDisabled('OUT', employee?.workEnd || '18:00', saidaFinalConfirmed)}
-                onEdit={() => openEditModal('OUT')}
-                showEditButton={!isInputDisabled('OUT', employee?.workEnd || '18:00', false)}
-              />
-            </>
-          )}
-          
-        </div>
-        
-        {/* Action Button */}
-        <button 
-          disabled={isLoading || isPunching || blockage?.isBlocked || !hasEligiblePunchesPending()}
-          onClick={handlePunch}
-          className="w-full bg-secondary text-on-secondary py-md rounded-xl text-headline-md font-headline-md shadow-lg shadow-secondary/20 hover:bg-on-secondary-fixed-variant transition-all active:scale-[0.97] hover:scale-[1.01] duration-150 cursor-pointer flex items-center justify-center gap-md disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isPunching ? (
-            <svg className="animate-spin h-6 w-6 text-on-secondary" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-          ) : (
-            <>
-              <span className="material-symbols-outlined">
-                check_circle
-              </span>
-              <span>{t('dashboard.confirmPunch')}</span>
-            </>
-          )}
-        </button>
-      </section>
-
-      {/* Tabela de Histórico "Seus pontos registrados" dinâmico */}
-      <section className="space-y-md">
-        <div className="flex justify-between items-end">
-          <h3 className="text-headline-md font-headline-md text-on-background">{t('history.yourRegisteredPunches')}</h3>
-          {isLoading ? (
-            /* Shimmer loader no mês/ano */
-            <div className="h-5 w-24 shimmer rounded"></div>
-          ) : (
-            <span className="text-body-sm text-on-surface-variant font-semibold">{getLocalizedCurrentMonth()}</span>
-          )}
-        </div>
-        
-        <div className="bg-surface-container-lowest rounded-xl border border-outline-variant divide-y divide-outline-variant/30 overflow-hidden shadow-sm">
-          {isLoading ? (
-            /* Skeleton rows na tabela de registros */
-            [1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center justify-between p-md">
-                <div className="flex flex-col gap-2">
-                  <div className="h-5 w-28 shimmer rounded"></div>
-                  <div className="h-4 w-48 shimmer rounded"></div>
-                </div>
-                <div className="w-6 h-6 rounded-full shimmer"></div>
-              </div>
-            ))
-          ) : (
-            /* Histórico Real vindo do banco - Filtrado para os seis últimos registros */
-            (() => {
-              const todayHistoryItem = getTodayHistoryItem();
-              const displayHistory = todayHistoryItem
-                ? [todayHistoryItem, ...history.filter(day => day.date !== getTodayDateString())]
-                : history;
-              const limitedHistory = displayHistory.slice(0, 6);
-
-              return limitedHistory.map((day) => (
-                <div 
-                  key={day.date} 
-                  onClick={() => handleHistoryDayClick(day)}
-                  className="flex items-center justify-between p-md hover:bg-surface-container-low transition-colors group cursor-pointer"
+              <div className="flex justify-end w-full">
+                <Link 
+                  href="/?tab=historico"
+                  className="bg-tertiary text-on-tertiary px-md py-xs rounded-lg text-label-caps font-label-caps hover:bg-tertiary-container transition-colors active:scale-95 duration-200 cursor-pointer block text-center"
                 >
-                  <div className="flex flex-col">
-                    <span className="text-body-lg font-bold">{formatHistoryDate(day.date)}</span>
-                    <span className="text-body-sm text-on-surface-variant">
-                      {day.times.join(' • ')}
-                    </span>
-                  </div>
-                  {day.isComplete ? (
-                    <span className="material-symbols-outlined text-secondary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      check_circle
-                    </span>
-                  ) : (
-                    /* Ícone de alerta em caso de pendências/incompletos */
-                    <span className="material-symbols-outlined text-tertiary text-lg animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      warning
-                    </span>
-                  )}
-                </div>
-              ));
-            })()
+                  {t('dashboard.adjustTime')}
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Alerta de Expediente Bloqueado */}
+          {!isLoading && blockage?.isBlocked && (
+            <div className="bg-error-container text-on-error-container p-md rounded-xl flex items-center gap-md border border-error/20 shadow-sm animate-pulse">
+              <span className="material-symbols-outlined text-error text-[32px]">block</span>
+              <div className="space-y-[2px]">
+                <h2 className="text-body-lg font-bold text-error">{t('dashboard.punchLocked')}</h2>
+                <p className="text-body-sm text-on-error-container/80 font-medium">
+                  {blockage.reason === 'WEEKDAY' 
+                    ? t('dashboard.weekendBlocked') 
+                    : t('dashboard.blockageReason', { reason: blockage.reason || '' })}
+                </p>
+              </div>
+            </div>
           )}
         </div>
 
-        {!isLoading && (
-          <button className="w-full text-primary font-bold py-md text-body-sm hover:bg-surface-container-high rounded-xl transition-colors cursor-pointer">
-            {t('history.viewCompleteHistory')}
+        {/* Action Confirm Button */}
+        <div className="w-full max-w-[512px] mx-auto">
+          <button 
+            disabled={isLoading || isPunching || blockage?.isBlocked || !hasEligiblePunchesPending()}
+            onClick={handlePunch}
+            className="w-full bg-[#7A9771] text-white py-4 rounded-lg text-headline-md font-headline-md shadow-sm hover:opacity-90 active:scale-[0.97] transition-all duration-150 cursor-pointer flex items-center justify-center gap-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPunching ? (
+              <svg className="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            ) : (
+              t('dashboard.confirmPunch')
+            )}
           </button>
-        )}
-      </section>
+        </div>
+
+        {/* History List Container: distance of 44px from the button */}
+        <div className="w-full max-w-[512px] mt-[44px] mx-auto">
+          {/* Header Row */}
+          <div className="flex justify-between items-center mb-[28px]">
+            <h3 className="text-[12px] font-normal text-black/60 font-sans uppercase tracking-wide">
+              {t('history.yourRegisteredPunches')}
+            </h3>
+            {isLoading ? (
+              <div className="h-4 w-24 shimmer rounded opacity-30"></div>
+            ) : (
+              <span className="text-[12px] font-normal text-black/60 font-sans">
+                {getLocalizedCurrentMonth()}
+              </span>
+            )}
+          </div>
+
+          {/* Divider Line is 1px solid #E4E4E4 between items */}
+          <div className="flex flex-col border-t border-[#E4E4E4]">
+            {isLoading ? (
+              [1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center justify-between py-md border-b border-[#E4E4E4]">
+                  <div className="flex flex-col gap-2">
+                    <div className="h-5 w-28 shimmer rounded opacity-30"></div>
+                    <div className="h-4 w-48 shimmer rounded opacity-30"></div>
+                  </div>
+                  <div className="w-6 h-6 rounded-full shimmer opacity-30"></div>
+                </div>
+              ))
+            ) : (
+              (() => {
+                const todayHistoryItem = getTodayHistoryItem();
+                const displayHistory = todayHistoryItem
+                  ? [todayHistoryItem, ...history.filter(day => day.date !== getTodayDateString())]
+                  : history;
+                const limitedHistory = displayHistory.slice(0, 6);
+
+                if (limitedHistory.length === 0) {
+                  return (
+                    <div className="text-center py-md text-body-sm text-on-surface-variant font-medium">
+                      {t('history.listEmpty')}
+                    </div>
+                  );
+                }
+
+                return limitedHistory.map((day) => (
+                  <div 
+                    key={day.date} 
+                    onClick={() => handleHistoryDayClick(day)}
+                    className="flex items-center justify-between py-md border-b border-[#E4E4E4] hover:bg-surface-container-low/20 transition-colors group cursor-pointer"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-[14px] font-bold text-black font-sans">
+                        {formatHistoryDate(day.date)}
+                      </span>
+                      <span className="text-[12px] font-normal text-black/60 mt-1 font-sans">
+                        {day.times.join(' • ')}
+                      </span>
+                    </div>
+                    {day.isComplete ? (
+                      <span className="material-symbols-outlined text-secondary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        check_circle
+                      </span>
+                    ) : (
+                      <span className="material-symbols-outlined text-tertiary text-lg animate-pulse" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        warning
+                      </span>
+                    )}
+                  </div>
+                ));
+              })()
+            )}
+          </div>
+        </div>
+
+      </div>
 
       {/* Custom Toast Alert */}
       {toastMessage && (

@@ -17,7 +17,7 @@ export const ProgressCircle: React.FC<ProgressCircleProps> = ({
 
   // SVG parameters
   const size = 250;
-  const strokeWidth = 10;
+  const strokeWidth = 5;
   const radius = (size - strokeWidth) / 2 - 10; // 85
   const circumference = 2 * Math.PI * radius; // ~534.07
   
@@ -53,17 +53,17 @@ export const ProgressCircle: React.FC<ProgressCircleProps> = ({
           cy={size / 2}
           r={radius}
           fill="transparent"
-          stroke="#f1f5f9"
-          strokeWidth={strokeWidth}
+          stroke="#D9D9D9"
+          strokeWidth={strokeWidth - 1}
         />
 
-        {/* Main Progress Circle (Gradient blue-to-green or solid green when completed) */}
+        {/* Main Progress Circle (Solid green #7A9771) */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="transparent"
-          stroke={isCompleted ? '#34d399' : 'url(#blueToGreen)'}
+          stroke="#7A9771"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={mainDashoffset}
@@ -90,10 +90,10 @@ export const ProgressCircle: React.FC<ProgressCircleProps> = ({
 
       {/* Internal Text Labels */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 select-none">
-        <span className="text-[32px] font-bold text-on-background tracking-tighter leading-none">
+        <span className="text-[48px] font-normal text-white tracking-tighter leading-none">
           {workedTime}
         </span>
-        <span className="text-[11px] font-medium text-on-surface-variant max-w-[130px] leading-tight mt-xs">
+        <span className="text-[11px] font-normal text-white/70 max-w-[130px] leading-tight mt-xs">
           {label}
         </span>
       </div>
