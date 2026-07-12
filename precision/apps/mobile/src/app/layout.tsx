@@ -17,6 +17,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Precision - Registro de Horas",
   description: "Sistema moderno para registro e controle de ponto de funcionários",
+  icons: {
+    icon: '/favicon.ico',
+  }
 };
 
 export default async function RootLayout({

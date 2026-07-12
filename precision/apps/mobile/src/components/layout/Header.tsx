@@ -56,10 +56,6 @@ export const Header: React.FC = () => {
       {/* Top micro-bar for the Precision branding */}
       <div className="max-w-7xl mx-auto px-container-margin py-[6px] flex justify-between items-center text-[10px] tracking-wider uppercase text-on-surface-variant font-bold border-b border-outline-variant/10">
         <span className="text-primary font-bold">Precision</span>
-        <div className="flex items-center gap-1">
-          <span className="w-[6px] h-[6px] rounded-full bg-secondary shadow-sm animate-pulse"></span>
-          <span>{t('dashboard.activeSystem')}</span>
-        </div>
       </div>
       
       {/* Main AppBar contents */}

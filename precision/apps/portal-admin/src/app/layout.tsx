@@ -14,6 +14,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Precision - Portal Administrativo",
   description: "Painel administrativo de controle de ponto da Precision",
+  icons: {
+    icon: '/favicon.ico',
+  }
 };
 
 export default async function RootLayout({
