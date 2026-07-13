@@ -68,6 +68,23 @@ export const ReportsScreen: React.FC = () => {
   }
 
   const { employee, reports, summary } = data;
+
+  if (reports.length === 0) {
+    return (
+      <div className="text-center py-xl bg-surface-container-low rounded-xl border border-dashed border-outline-variant p-lg max-w-2xl mx-auto space-y-md">
+        <span className="material-symbols-outlined text-outline text-4xl">
+          analytics
+        </span>
+        <p className="text-body-lg font-bold text-on-background">
+          {t('reports.noRecordsYet')}
+        </p>
+        <p className="text-body-sm text-on-surface-variant">
+          {t('reports.noRecordsDesc')}
+        </p>
+      </div>
+    );
+  }
+
   const maxHours = getMaxHoursValue(reports);
   
   // Localize and format month key

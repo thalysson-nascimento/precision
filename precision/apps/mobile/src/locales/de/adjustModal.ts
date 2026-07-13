@@ -8,4 +8,5 @@ export const adjustModal = {
   adjustTimeTitle: 'Zeit anpassen',
   adjustTimeDesc: 'Geben Sie die neuen Stunden und Minuten für die Buchung {slot} am {date} ein.',
   confirmChange: 'Änderung bestätigen',
+  futureTimeAlert: 'Es ist nicht möglich, eine Uhrzeit in der Zukunft zu erfassen.',
 };

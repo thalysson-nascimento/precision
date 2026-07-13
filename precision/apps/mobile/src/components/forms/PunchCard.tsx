@@ -377,7 +377,7 @@ export const PunchCard: React.FC = () => {
                   isConfirmed={entradaConfirmed}
                   isDisabled={isInputDisabled('IN', employee?.workStart || '08:00', entradaConfirmed)}
                   onEdit={() => openEditModal('IN')}
-                  showEditButton={!isInputDisabled('IN', employee?.workStart || '08:00', false)}
+                  showEditButton={!entradaConfirmed && !blockage?.isBlocked}
                 />
                 
                 {/* Saída Almoço */}
@@ -388,7 +388,7 @@ export const PunchCard: React.FC = () => {
                   isConfirmed={saidaAlmocoConfirmed}
                   isDisabled={isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', saidaAlmocoConfirmed)}
                   onEdit={() => openEditModal('LUNCH_OUT')}
-                  showEditButton={!isInputDisabled('LUNCH_OUT', employee?.lunchStart || '12:00', false)}
+                  showEditButton={!saidaAlmocoConfirmed && !blockage?.isBlocked}
                 />
                 
                 {/* Retorno Almoço */}
@@ -399,7 +399,7 @@ export const PunchCard: React.FC = () => {
                   isConfirmed={retornoAlmocoConfirmed}
                   isDisabled={isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', retornoAlmocoConfirmed)}
                   onEdit={() => openEditModal('LUNCH_IN')}
-                  showEditButton={!isInputDisabled('LUNCH_IN', employee?.lunchEnd || '13:00', false)}
+                  showEditButton={!retornoAlmocoConfirmed && !blockage?.isBlocked}
                 />
                 
                 {/* Saída Final */}
@@ -410,7 +410,7 @@ export const PunchCard: React.FC = () => {
                   isConfirmed={saidaFinalConfirmed}
                   isDisabled={isInputDisabled('OUT', employee?.workEnd || '18:00', saidaFinalConfirmed)}
                   onEdit={() => openEditModal('OUT')}
-                  showEditButton={!isInputDisabled('OUT', employee?.workEnd || '18:00', false)}
+                  showEditButton={!saidaFinalConfirmed && !blockage?.isBlocked}
                 />
               </>
             )}

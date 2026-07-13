@@ -5,13 +5,25 @@ import { delay } from '@/lib/delay';
 import { getSessionFromCookies } from '@precision/auth';
 import type { TimeRecord } from '@precision/database';
 
-// Helper para obter a data local no formato YYYY-MM-DD
+// Helper para obter a data local no formato YYYY-MM-DD (America/Sao_Paulo)
 const getTodayDateString = (): string => {
   const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const tzStr = d.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  const localDate = new Date(tzStr);
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, '0');
+  const day = String(localDate.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+// Helper para obter a hora local formatada HH:MM (America/Sao_Paulo)
+const getLocalTimeStr = (): string => {
+  const d = new Date();
+  const tzStr = d.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' });
+  const localDate = new Date(tzStr);
+  const hours = String(localDate.getHours()).padStart(2, '0');
+  const minutes = String(localDate.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
 };
 
 // Helper para obter a hora local em minutos desde a meia-noite
@@ -245,11 +257,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Horário local atual
-    const now = new Date();
-    const currentHours = String(now.getHours()).padStart(2, '0');
-    const currentMinutes = String(now.getMinutes()).padStart(2, '0');
-    const currentTimeStr = `${currentHours}:${currentMinutes}`;
+    // Horário local atual (America/Sao_Paulo)
+    const currentTimeStr = getLocalTimeStr();
     const currentMinutesVal = timeToMinutes(currentTimeStr);
 
     // Mapeamento dos limites contratuais do funcionário
@@ -270,7 +279,7 @@ export async function POST(req: NextRequest) {
     const existingTypes = new Set(existingRecords.map((r) => r.type));
 
     // Filtrar contratos elegíveis.
-    const toRegister = contracts.filter(c => {
+    let toRegister = contracts.filter(c => {
       if (isToday) {
         const contractMinutesVal = timeToMinutes(c.time);
         return contractMinutesVal <= currentMinutesVal && !existingTypes.has(c.type);
@@ -278,6 +287,11 @@ export async function POST(req: NextRequest) {
         return !existingTypes.has(c.type);
       }
     });
+
+    // Se for hoje, garantimos que registramos apenas o primeiro pendente elegível para evitar registros múltiplos indesejados
+    if (isToday && toRegister.length > 1) {
+      toRegister = [toRegister[0]];
+    }
 
     // Registrar as marcações elegíveis
     if (toRegister.length > 0) {
@@ -287,7 +301,7 @@ export async function POST(req: NextRequest) {
             employeeId: employee.id,
             date: targetDate,
             type: item.type,
-            time: item.time, // Salva o horário contratual
+            time: isToday ? currentTimeStr : item.time, // Salva o horário atual de registro se for hoje, ou o contratual se for dia passado
             confirmed: true,
           },
         });

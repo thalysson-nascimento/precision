@@ -23,4 +23,6 @@ export const reports = {
   holidaySunday: 'Feiertag / Sonntag',
   accumulatedTotal: 'Kumuliertes Gesamtergebnis',
   loadError: 'Fehler beim Laden der Überstundenberichte.',
+  noRecordsYet: 'Keine Zeiterfassungsdatensätze gefunden, um Berichte zu generieren.',
+  noRecordsDesc: 'Berichte werden angezeigt, sobald Sie Ihre erste Zeiterfassung vorgenommen haben.',
 };

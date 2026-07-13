@@ -23,4 +23,6 @@ export const reports = {
   holidaySunday: 'Feriado / Domingo',
   accumulatedTotal: 'Total Acumulado',
   loadError: 'Erro ao carregar os relatórios de horas extras.',
+  noRecordsYet: 'Nenhum registro de ponto encontrado para gerar relatórios.',
+  noRecordsDesc: 'Os relatórios serão exibidos assim que você realizar o seu primeiro registro de ponto.',
 };

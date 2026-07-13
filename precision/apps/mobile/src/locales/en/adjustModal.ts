@@ -8,4 +8,5 @@ export const adjustModal = {
   adjustTimeTitle: 'Adjust Time',
   adjustTimeDesc: 'Enter the new hours and minutes for the {slot} punch on {date}.',
   confirmChange: 'Confirm change',
+  futureTimeAlert: 'It is not possible to register a time in the future.',
 };

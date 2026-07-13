@@ -164,25 +164,7 @@ export async function GET() {
       }
     } = {};
 
-    // Inicializar os meses de Janeiro a Junho de 2026 para garantir que apareçam mesmo vazios
-    const startMonth = 0; // Janeiro
-    const endMonth = 5;   // Junho
-    const startYear = 2026;
 
-    for (let m = startMonth; m <= endMonth; m++) {
-      const monthStr = String(m + 1).padStart(2, '0');
-      const key = `${startYear}-${monthStr}`;
-      monthlyGroups[key] = {
-        monthName: PORTUGUESE_MONTHS[m],
-        year: String(startYear),
-        workedMinutes: 0,
-        overtimeMinutes: 0,
-        overtimeUpTo2: 0,
-        overtimeAfter2: 0,
-        overtimeSaturday: 0,
-        overtimeSunday: 0,
-      };
-    }
 
     // Somar cálculos diários nos respectivos meses
     Object.keys(dailyCalculations).forEach(dateStr => {

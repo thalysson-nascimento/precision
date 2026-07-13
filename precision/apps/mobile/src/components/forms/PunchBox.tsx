@@ -21,9 +21,10 @@ export const PunchBox: React.FC<PunchBoxProps> = ({
 }) => {
   return (
     <div
+      onClick={!isConfirmed ? onEdit : undefined}
       className={`flex flex-col justify-between transition-all duration-300 min-h-[56px] px-2 ${
-        isDisabled ? 'opacity-50' : 'opacity-100'
-      }`}
+        isDisabled ? 'opacity-30' : 'opacity-100'
+      } ${!isConfirmed ? 'cursor-pointer hover:bg-white/5 rounded-md p-1' : ''}`}
     >
       {/* Box Header: Label + Confirmed check / Edit button */}
       <div className="flex justify-between items-center gap-1">
@@ -40,7 +41,10 @@ export const PunchBox: React.FC<PunchBoxProps> = ({
         ) : (
           showEditButton && (
             <button
-              onClick={onEdit}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
               className="text-white text-[10px] font-bold hover:underline cursor-pointer flex-shrink-0"
             >
               ✎
@@ -58,7 +62,7 @@ export const PunchBox: React.FC<PunchBoxProps> = ({
           {iconName}
         </span>
         <span className="text-[16px] font-normal text-white">
-          {isDisabled ? '--:--' : time}
+          {time}
         </span>
       </div>
     </div>

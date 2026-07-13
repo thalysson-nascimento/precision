@@ -8,4 +8,5 @@ export const adjustModal = {
   adjustTimeTitle: 'Ajustar Horário',
   adjustTimeDesc: 'Insira as novas horas e minutos para a marcação de {slot} em {date}.',
   confirmChange: 'Confirmar alteração',
+  futureTimeAlert: 'Não é possível registrar um horário no futuro.',
 };

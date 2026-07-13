@@ -143,6 +143,25 @@ export const DayAdjustModal: React.FC<DayAdjustModalProps> = ({
       return;
     }
 
+    // Impedir horários no futuro se for o dia de hoje
+    const getTodayDateString = (): string => {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    if (date === getTodayDateString()) {
+      const now = new Date();
+      const curH = now.getHours();
+      const curM = now.getMinutes();
+      if (h > curH || (h === curH && m > curM)) {
+        alert(t('adjustModal.futureTimeAlert') || 'Não é possível registrar um horário no futuro.');
+        return;
+      }
+    }
+
     const formattedTime = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
     setIsSaving(true);
 

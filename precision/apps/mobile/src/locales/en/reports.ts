@@ -23,4 +23,6 @@ export const reports = {
   holidaySunday: 'Holiday / Sunday',
   accumulatedTotal: 'Accumulated Total',
   loadError: 'Error loading overtime reports.',
+  noRecordsYet: 'No time records found to generate reports.',
+  noRecordsDesc: 'Reports will be displayed once you make your first time record.',
 };
