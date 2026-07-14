@@ -92,4 +92,11 @@ export const landpage = {
   pricingFeatBlockUsers: 'Benutzersperren und Zugriffsbeschränkungen',
   pricingFeatReportsTrack: 'Detaillierte Anwesenheitsberichte',
   pricingFeatLocation: 'Geolokalisierung und IP-Validierung',
+  mobileShowcaseTitle: 'Zeiterfassung in Ihrer Hand.',
+  mobileShowcaseSubtitle: 'Mit der mobilen App von Precision können Ihre Mitarbeiter ihre Zeit schnell, sicher und mit voller Transparenz erfassen.',
+  mobileFeat1: 'Vereinfachte Zeiterfassung: Kommen, Pause und Gehen mit nur einem einzigen Tippen auf den Bildschirm.',
+  mobileFeat2: 'Optimierte Anpassungen: Fordern Sie Korrekturen von Arbeitszeitprotokollen direkt über die App mit Begründung an.',
+  mobileFeat3: 'Vollständiger Verlauf: Greifen Sie auf alle Ihre früheren Aufzeichnungen zu und sehen Sie Ihr Arbeitszeitsaldo in Echtzeit.',
+  mobileFeat4: 'Vollständige individuelle Berichte: Behalten Sie geleistete Stunden und Überstunden direkt auf Ihrem Smartphone im Blick.',
+  mobileFeat5: 'Volle Zeitzonen-Konformität: Zeiterfassungen verwenden garantiert die lokale Zeitzone und IP-Sicherheitsfilter.',
 };

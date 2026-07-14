@@ -92,4 +92,11 @@ export const landpage = {
   pricingFeatBlockUsers: 'Bloqueio de usuários e restrições de acesso',
   pricingFeatReportsTrack: 'Relatórios detalhados de frequência',
   pricingFeatLocation: 'Registro com geolocalização e IP',
+  mobileShowcaseTitle: 'O controle de ponto na palma da mão.',
+  mobileShowcaseSubtitle: 'O aplicativo móvel da Precision permite que seus colaboradores registrem o ponto de forma ágil, segura e com total transparência.',
+  mobileFeat1: 'Registro de ponto simplificado: Entrada, almoço e saída com apenas um toque na tela.',
+  mobileFeat2: 'Ajustes de horas simplificados: Solicite correções de marcações diretamente pelo app com justificativa.',
+  mobileFeat3: 'Histórico completo: Acesse todos os seus registros passados e veja o saldo de horas trabalhadas em tempo real.',
+  mobileFeat4: 'Relatórios individuais completos: Acompanhe as horas trabalhadas e horas extras diretamente pelo seu smartphone.',
+  mobileFeat5: 'Total conformidade com o fuso horário: Garantia de registro com fuso horário local correto e segurança via IP.',
 };

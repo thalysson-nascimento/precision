@@ -92,4 +92,11 @@ export const landpage = {
   pricingFeatBlockUsers: 'User blocking and access restrictions',
   pricingFeatReportsTrack: 'Detailed attendance reports',
   pricingFeatLocation: 'Geolocation and IP validation',
+  mobileShowcaseTitle: 'Time tracking in the palm of your hand.',
+  mobileShowcaseSubtitle: 'Precision’s mobile app allows your employees to record their time quickly, securely, and with full transparency.',
+  mobileFeat1: 'Simplified clock-in: Entry, lunch, and exit with just a single tap on the screen.',
+  mobileFeat2: 'Streamlined adjustments: Request time log corrections directly through the app with proper justification.',
+  mobileFeat3: 'Full history: Access all your past records and see your worked hours balance in real time.',
+  mobileFeat4: 'Complete individual reports: Keep track of worked hours and overtime directly on your smartphone.',
+  mobileFeat5: 'Full timezone compliance: Clock-in records are guaranteed to use local timezone and IP security filters.',
 };

@@ -248,7 +248,7 @@ export default function Landpage() {
               alt="Precision Logo" 
               className="w-8 h-8 object-contain transition-transform duration-300 hover:scale-105" 
             />
-            <span className="font-bold text-headline-lg tracking-tight text-on-background font-sans">Precision</span>
+            <span className="hidden sm:inline font-bold text-headline-lg tracking-tight text-on-background font-sans">Precision</span>
           </div>
 
           {/* Navigation Links centered */}
@@ -288,10 +288,10 @@ export default function Landpage() {
           </nav>
 
           {/* Right Action buttons and language switches */}
-          <div className="flex items-center gap-md">
+          <div className="flex items-center gap-xs sm:gap-md">
             
-            {/* Language Dropdown Selector with 16px padding */}
-            <div className="flex items-center gap-xs border border-border/50 bg-white/50 px-md py-md rounded-xl text-body-sm font-semibold text-on-surface-variant">
+            {/* Language Dropdown Selector with responsive padding */}
+            <div className="flex items-center gap-xs border border-border/50 bg-white/50 px-sm py-xs sm:px-md sm:py-md rounded-xl text-body-sm font-semibold text-on-surface-variant">
               <span className="material-symbols-outlined text-[16px] text-on-surface-muted">language</span>
               <select 
                 value={locale} 
@@ -307,7 +307,7 @@ export default function Landpage() {
             {/* Login button (outline white) */}
             <button 
               onClick={() => setModalOpen(true)}
-              className="hidden sm:inline-flex border border-border bg-white text-on-surface font-bold hover:bg-background px-lg py-md rounded-full text-body-sm transition-all duration-200 cursor-pointer shadow-sm"
+              className="inline-flex border border-border bg-white text-on-surface font-bold hover:bg-background px-md py-xs sm:px-lg sm:py-md rounded-full text-body-sm transition-all duration-200 cursor-pointer shadow-sm"
             >
               {t('landpage.enter')}
             </button>
@@ -315,7 +315,7 @@ export default function Landpage() {
             {/* Register button (solid blue) */}
             <a 
               href="/register"
-              className="inline-flex bg-primary text-white font-bold hover:bg-primary-dark px-lg py-md rounded-full text-body-sm transition-all duration-200 cursor-pointer shadow-sm text-center"
+              className="inline-flex bg-primary text-white font-bold hover:bg-primary-dark px-md py-xs sm:px-lg sm:py-md rounded-full text-body-sm transition-all duration-200 cursor-pointer shadow-sm text-center"
             >
               {t('landpage.register')}
             </a>
@@ -608,6 +608,56 @@ export default function Landpage() {
               </div>
             </div>
 
+          </div>
+
+        </div>
+      </section>
+
+      {/* Mobile App Showcase Section */}
+      <section className="py-24 bg-[#F8F9FF] border-t border-border/30 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-md md:px-lg grid grid-cols-1 lg:grid-cols-2 gap-xl items-center">
+          
+          {/* Left Column: Title and Bullet List */}
+          <div className="space-y-lg text-left">
+            <h2 className="text-headline-lg md:text-[48px] md:leading-[56px] font-extrabold tracking-tight text-on-background">
+              {t('landpage.mobileShowcaseTitle')}
+            </h2>
+            <p className="text-body-lg text-on-surface-muted leading-relaxed">
+              {t('landpage.mobileShowcaseSubtitle')}
+            </p>
+            <ul className="space-y-md text-body-md text-on-surface-muted">
+              <li className="flex items-start gap-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary mt-[6px] flex-shrink-0"></span>
+                <span>{t('landpage.mobileFeat1')}</span>
+              </li>
+              <li className="flex items-start gap-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary mt-[6px] flex-shrink-0"></span>
+                <span>{t('landpage.mobileFeat2')}</span>
+              </li>
+              <li className="flex items-start gap-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary mt-[6px] flex-shrink-0"></span>
+                <span>{t('landpage.mobileFeat3')}</span>
+              </li>
+              <li className="flex items-start gap-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary mt-[6px] flex-shrink-0"></span>
+                <span>{t('landpage.mobileFeat4')}</span>
+              </li>
+              <li className="flex items-start gap-sm">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary mt-[6px] flex-shrink-0"></span>
+                <span>{t('landpage.mobileFeat5')}</span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Right Column: Mobile App Screenshot */}
+          <div className="flex justify-center lg:justify-end">
+            <div className="relative w-full max-w-[420px] rounded-[36px] overflow-hidden shadow-2xl border border-border/20 transition-transform duration-500 hover:scale-[1.02] bg-white">
+              <img 
+                src="/images/home.png" 
+                alt="Precision Mobile App Showcase"
+                className="w-full h-auto object-cover"
+              />
+            </div>
           </div>
 
         </div>
