@@ -297,8 +297,8 @@ const ReportsSkeleton: React.FC = () => {
       {/* Header Skeleton */}
       <section className="flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
         <div className="space-y-sm w-full md:w-1/3">
-          <div className="h-7 w-48 shimmer rounded"></div>
-          <div className="h-4 w-64 shimmer rounded"></div>
+          <div className="h-7 w-full max-w-[192px] shimmer rounded"></div>
+          <div className="h-4 w-full max-w-[256px] shimmer rounded"></div>
         </div>
         <div className="h-10 w-44 shimmer rounded-xl"></div>
       </section>
@@ -306,8 +306,8 @@ const ReportsSkeleton: React.FC = () => {
       {/* Chart Card Skeleton */}
       <section className="glass-card rounded-xl p-lg space-y-lg">
         <div className="space-y-sm">
-          <div className="h-6 w-36 shimmer rounded"></div>
-          <div className="h-4 w-96 shimmer rounded"></div>
+          <div className="h-6 w-full max-w-[144px] shimmer rounded"></div>
+          <div className="h-4 w-full max-w-[384px] shimmer rounded"></div>
         </div>
         <div className="space-y-md">
           {[1, 2, 3].map(i => (
@@ -325,7 +325,7 @@ const ReportsSkeleton: React.FC = () => {
 
       {/* Table Skeleton */}
       <section className="space-y-md">
-        <div className="h-6 w-48 shimmer rounded"></div>
+        <div className="h-6 w-full max-w-[192px] shimmer rounded"></div>
         <div className="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden p-md space-y-md">
           <div className="h-10 w-full shimmer rounded"></div>
           {[1, 2, 3, 4, 5, 6].map(i => (
