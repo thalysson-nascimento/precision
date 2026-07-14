@@ -40,6 +40,15 @@ export function Footer({ t, scrollToSection }: FooterProps) {
             </div>
           </div>
 
+          {/* Legal Column */}
+          <div className="flex flex-col gap-sm min-w-[140px]">
+            <span className="font-bold text-white uppercase text-[11px] tracking-wider">Legal</span>
+            <div className="flex flex-col gap-xs">
+              <a href="/terms-of-use" className="hover:text-white transition-colors py-[2px]">{t('landpage.termsLink')}</a>
+              <a href="/privacy-policy" className="hover:text-white transition-colors py-[2px]">{t('landpage.privacyLink')}</a>
+            </div>
+          </div>
+
           {/* Support/Info Column */}
           <div className="flex flex-col gap-sm min-w-[220px] whitespace-nowrap">
             <span className="font-bold text-white uppercase text-[11px] tracking-wider">{t('landpage.footerSupportTitle')}</span>

@@ -6,6 +6,7 @@ export async function middleware(request: NextRequest) {
 
   // Paths that do not require authentication
   const isAuthRoute = pathname === '/login' || pathname.startsWith('/api/auth');
+  const isLegalRoute = pathname === '/privacy-policy' || pathname === '/terms-of-use';
   const isExpiredRoute = pathname === '/expired';
   const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/images') || pathname === '/favicon.ico';
 
@@ -18,7 +19,7 @@ export async function middleware(request: NextRequest) {
 
   // 1. Unauthenticated users must be redirected to /login
   if (!session) {
-    if (!isAuthRoute) {
+    if (!isAuthRoute && !isLegalRoute) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
     return NextResponse.next();
@@ -29,7 +30,7 @@ export async function middleware(request: NextRequest) {
   const isApiRoute = pathname.startsWith('/api/');
 
   if (session.isPasswordTemp) {
-    if (!isChangePasswordRoute && !isAuthRoute) {
+    if (!isChangePasswordRoute && !isAuthRoute && !isLegalRoute) {
       if (isApiRoute) {
         return NextResponse.json(
           { error: 'Password change required' },
@@ -59,7 +60,7 @@ export async function middleware(request: NextRequest) {
     (subscriptionEndsAt && new Date(subscriptionEndsAt).getTime() < Date.now());
 
   if (isSubscriptionExpired) {
-    if (!isExpiredRoute && !pathname.startsWith('/api/auth')) {
+    if (!isExpiredRoute && !pathname.startsWith('/api/auth') && !isLegalRoute) {
       return NextResponse.redirect(new URL('/expired', request.url));
     }
     return NextResponse.next();

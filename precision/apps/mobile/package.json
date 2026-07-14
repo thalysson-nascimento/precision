@@ -11,6 +11,7 @@
     "@precision/api-client": "*",
     "@precision/auth": "*",
     "@precision/database": "*",
+    "@precision/shared": "*",
     "@prisma/client": "^7.8.0",
     "@tailwindcss/postcss": "^4.3.1",
     "better-sqlite3": "^12.11.1",

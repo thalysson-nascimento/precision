@@ -99,4 +99,6 @@ export const landpage = {
   mobileFeat3: 'Full history: Access all your past records and see your worked hours balance in real time.',
   mobileFeat4: 'Complete individual reports: Keep track of worked hours and overtime directly on your smartphone.',
   mobileFeat5: 'Full timezone compliance: Clock-in records are guaranteed to use local timezone and IP security filters.',
+  termsLink: 'Terms of Use',
+  privacyLink: 'Privacy Policy',
 };

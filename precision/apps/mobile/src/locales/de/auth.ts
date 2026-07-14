@@ -30,4 +30,7 @@ export const auth = {
   internalServerError: 'Interner Serverfehler.',
   welcomeTitle: 'Willkommen zurück',
   welcomeSubtitle: 'Melden Sie sich an, um fortzufahren',
+  agreeText: 'Mit dem Einloggen stimmen Sie unseren {terms} und unserer {privacy} zu.',
+  termsLink: 'Nutzungsbedingungen',
+  privacyLink: 'Datenschutzerklärung',
 };

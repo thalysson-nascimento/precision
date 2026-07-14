@@ -99,4 +99,6 @@ export const landpage = {
   mobileFeat3: 'Vollständiger Verlauf: Greifen Sie auf alle Ihre früheren Aufzeichnungen zu und sehen Sie Ihr Arbeitszeitsaldo in Echtzeit.',
   mobileFeat4: 'Vollständige individuelle Berichte: Behalten Sie geleistete Stunden und Überstunden direkt auf Ihrem Smartphone im Blick.',
   mobileFeat5: 'Volle Zeitzonen-Konformität: Zeiterfassungen verwenden garantiert die lokale Zeitzone und IP-Sicherheitsfilter.',
+  termsLink: 'Nutzungsbedingungen',
+  privacyLink: 'Datenschutzerklärung',
 };

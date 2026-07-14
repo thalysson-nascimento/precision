@@ -99,4 +99,6 @@ export const landpage = {
   mobileFeat3: 'Histórico completo: Acesse todos os seus registros passados e veja o saldo de horas trabalhadas em tempo real.',
   mobileFeat4: 'Relatórios individuais completos: Acompanhe as horas trabalhadas e horas extras diretamente pelo seu smartphone.',
   mobileFeat5: 'Total conformidade com o fuso horário: Garantia de registro com fuso horário local correto e segurança via IP.',
+  termsLink: 'Termos de Uso',
+  privacyLink: 'Política de Privacidade',
 };

@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@precision/shared": "*",
     "@tailwindcss/postcss": "^4.3.1",
     "next": "16.2.9",
     "react": "19.2.4",

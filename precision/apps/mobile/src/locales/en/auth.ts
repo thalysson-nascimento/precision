@@ -30,5 +30,8 @@ export const auth = {
   internalServerError: 'Internal server error.',
   welcomeTitle: 'Welcome back',
   welcomeSubtitle: 'Access your account to continue',
+  agreeText: 'By signing in, you agree to our {terms} and {privacy}.',
+  termsLink: 'Terms of Use',
+  privacyLink: 'Privacy Policy',
 };
 

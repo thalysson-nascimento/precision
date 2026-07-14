@@ -60,6 +60,31 @@ export default function MobileLoginPage() {
         </div>
 
         <LoginForm />
+
+        {/* Links for Terms and Privacy in Auth section */}
+        <div className="text-center text-[11px] text-on-surface-variant/80 mt-4 border-t border-slate-200/50 pt-4 leading-normal">
+          {(() => {
+            const text = t('auth.agreeText');
+            const parts = text.split(/(\{terms\}|\{privacy\})/);
+            return parts.map((part, index) => {
+              if (part === '{terms}') {
+                return (
+                  <a key={index} href="/terms-of-use" target="_blank" className="font-semibold underline text-primary hover:text-primary-dark transition-colors">
+                    {t('auth.termsLink')}
+                  </a>
+                );
+              }
+              if (part === '{privacy}') {
+                return (
+                  <a key={index} href="/privacy-policy" target="_blank" className="font-semibold underline text-primary hover:text-primary-dark transition-colors">
+                    {t('auth.privacyLink')}
+                  </a>
+                );
+              }
+              return part;
+            });
+          })()}
+        </div>
       </div>
     </div>
   );

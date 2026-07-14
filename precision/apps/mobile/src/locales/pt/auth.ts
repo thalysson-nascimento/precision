@@ -30,5 +30,8 @@ export const auth = {
   internalServerError: 'Erro interno do servidor.',
   welcomeTitle: 'Bem-vindo de volta',
   welcomeSubtitle: 'Acesse sua conta para continuar',
+  agreeText: 'Ao entrar, você aceita os nossos {terms} e {privacy}.',
+  termsLink: 'Termos de Uso',
+  privacyLink: 'Política de Privacidade',
 };
 
