@@ -53,13 +53,13 @@ export function Footer({ t, scrollToSection }: FooterProps) {
           <div className="flex flex-col gap-sm min-w-[220px] whitespace-nowrap">
             <span className="font-bold text-white uppercase text-[11px] tracking-wider">{t('landpage.footerSupportTitle')}</span>
             <div className="flex flex-col gap-xs">
-              <a href="mailto:suporte@precision.com" className="hover:text-white transition-colors flex items-center gap-xs py-[2px]">
+              <a href="mailto:precisionmanagement.hr@gmail.com" className="hover:text-white transition-colors flex items-center gap-xs py-[2px]">
                 <span className="material-symbols-outlined text-[16px] text-white/50">mail</span>
-                suporte@precision.com
+                precisionmanagement.hr@gmail.com
               </a>
               <a href="tel:+551140030000" className="hover:text-white transition-colors flex items-center gap-xs py-[2px]">
                 <span className="material-symbols-outlined text-[16px] text-white/50">call</span>
-                +55 (11) 4003-0000
+                {/* +55 (11) 4003-0000 */}
               </a>
             </div>
           </div>

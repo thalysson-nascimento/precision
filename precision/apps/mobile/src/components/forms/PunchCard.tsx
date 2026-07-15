@@ -114,6 +114,17 @@ export const PunchCard: React.FC = () => {
     fetchLocation();
   }, [t]);
 
+  // Função para verificar se a marcação contratual está no passado (elegível para bater)
+  const isSlotEligible = (contractTime: string): boolean => {
+    const now = new Date();
+    const currentTotal = now.getHours() * 60 + now.getMinutes();
+
+    const [h, m] = contractTime.split(':').map(Number);
+    const contractTotal = h * 60 + m;
+
+    return contractTotal <= currentTotal;
+  };
+
   // Calcular a quantidade de horas trabalhadas em tempo real (Apenas HH:MM)
   useEffect(() => {
     const parseTime = (timeStr: string): Date => {
@@ -127,11 +138,15 @@ export const PunchCard: React.FC = () => {
       const now = new Date();
       let totalMs = 0;
 
-      // Se a saída final não está confirmada, pega o horário atual dinamicamente
-      if (!saidaFinalConfirmed) {
-        const curHours = String(now.getHours()).padStart(2, '0');
-        const curMinutes = String(now.getMinutes()).padStart(2, '0');
-        setSaidaFinal(`${curHours}:${curMinutes}`);
+      // Se a saída final não está confirmada, pega o horário atual dinamicamente apenas após o horário predefinido de saída
+      if (!saidaFinalConfirmed && employee) {
+        if (isSlotEligible(employee.workEnd)) {
+          const curHours = String(now.getHours()).padStart(2, '0');
+          const curMinutes = String(now.getMinutes()).padStart(2, '0');
+          setSaidaFinal(`${curHours}:${curMinutes}`);
+        } else {
+          setSaidaFinal(employee.workEnd);
+        }
       }
 
       // Período 1: Entrada até Saída Almoço
@@ -177,16 +192,7 @@ export const PunchCard: React.FC = () => {
     }, 3000);
   };
 
-  // Função para verificar se a marcação contratual está no passado (elegível para bater)
-  const isSlotEligible = (contractTime: string): boolean => {
-    const now = new Date();
-    const currentTotal = now.getHours() * 60 + now.getMinutes();
 
-    const [h, m] = contractTime.split(':').map(Number);
-    const contractTotal = h * 60 + m;
-
-    return contractTotal <= currentTotal;
-  };
 
   // Função para verificar se há alguma marcação elegível que ainda não foi confirmada
   const hasEligiblePunchesPending = (): boolean => {
