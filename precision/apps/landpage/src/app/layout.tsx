@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import React from 'react';
+import { GoogleTagManager } from '@next/third-parties/google';
 import { Locale } from '../locales';
 import { I18nProvider } from '../locales/useI18n';
 import './globals.css';
@@ -97,6 +98,7 @@ export default async function RootLayout({
 
   return (
     <html lang={initialLocale}>
+      <GoogleTagManager gtmId="GTM-K5D8LFGR" />
       <head>
         {/* Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
