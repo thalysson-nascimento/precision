@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { sendGTMEvent } from '@next/third-parties/google';
 import { Footer } from '../components/Footer';
 import { Locale } from '../locales';
 import { useI18n } from '../locales/useI18n';
@@ -712,6 +713,14 @@ export default function Landpage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-lg max-w-5xl mx-auto pt-sm">
             {getPlansData(currency, billingCycle).map((plan) => {
               const isRecommended = plan.limit === 30; // 30 employees is "most popular / recommended"
+              const planNames: Record<number, string> = {
+                15: 'fifteen-employees',
+                30: 'thirty-employees',
+                50: 'fifty-employees'
+              };
+              const planKey = planNames[plan.limit] || 'custom';
+              const eventName = `GA4::Landpage:plan_${planKey}`;
+
               return (
                 <div
                   key={plan.id}
@@ -804,6 +813,7 @@ export default function Landpage() {
 
                     <a 
                       href="/register"
+                      onClick={() => sendGTMEvent({ event: eventName })}
                       className={`w-full py-md font-bold rounded-xl text-body-sm transition-all duration-200 mt-md cursor-pointer text-center block ${
                         isRecommended
                           ? 'bg-primary hover:bg-primary-dark text-white'
