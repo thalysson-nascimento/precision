@@ -301,7 +301,7 @@ export async function POST(req: NextRequest) {
             employeeId: employee.id,
             date: targetDate,
             type: item.type,
-            time: isToday ? currentTimeStr : item.time, // Salva o horário atual de registro se for hoje, ou o contratual se for dia passado
+            time: (isToday && item.type === 'OUT') ? currentTimeStr : item.time, // Salva o horário atual se for a saída final de hoje, ou o contratual nos demais casos
             confirmed: true,
           },
         });
