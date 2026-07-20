@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useI18n } from '../../locales/useI18n';
 import { Locale } from '../../locales';
 
@@ -700,6 +701,7 @@ export default function Register() {
                   {/* Submit Button */}
                   <button 
                     type="submit"
+                    onClick={() => sendGTMEvent({ event: 'GA4::Register:click_start_trial' })}
                     className="w-full py-md bg-primary hover:bg-primary-dark text-white font-bold rounded-xl text-body-md transition-all hover:scale-[1.01] active:scale-[0.99] duration-200 shadow-md shadow-primary/20 cursor-pointer text-center mt-lg"
                   >
                     {tLocal.submitButton}
