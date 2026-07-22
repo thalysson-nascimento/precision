@@ -75,6 +75,8 @@ export const landpage = {
   pricingTotal: 'Gesamt: {currency} {price}/{period}',
   pricingCurrencyLabelBRL: 'Preise in Real (BRL) basierend auf Ihrem Standort.',
   pricingCurrencyLabelEUR: 'Preise in Euro (EUR) basierend auf Ihrem Standort.',
+  pricingCurrencyLabelUSD: 'Preise in US-Dollar (USD) basierend auf Ihrem Standort.',
+  pricingCurrencyLabelCAD: 'Preise in Kanadischer Dollar (CAD) basierend auf Ihrem Standort.',
   pricingTrialPeriod: '30 Tage kostenlose Testversion in allen Tarifen enthalten',
   pricingBestValue: 'Am Beliebtesten',
   plan15Title: 'Bis zu 15 Mitarbeiter',

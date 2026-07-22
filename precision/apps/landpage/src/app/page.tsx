@@ -5,6 +5,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { Footer } from '../components/Footer';
 import { Locale } from '../locales';
 import { useI18n } from '../locales/useI18n';
+import { CountryCode, CurrencyCode, COUNTRIES, getCurrencySymbol } from '../locales/countries';
 
 export default function Landpage() {
   const { t, locale, setLocale } = useI18n();
@@ -12,10 +13,11 @@ export default function Landpage() {
   const [activeTab, setActiveTab] = useState<'inicio' | 'features' | 'reports' | 'support'>('inicio');
 
   // Subscription plans states
-  const [currency, setCurrency] = useState<'BRL' | 'EUR'>('BRL');
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>('BR');
+  const [currency, setCurrency] = useState<CurrencyCode>('BRL');
   const [billingCycle, setBillingCycle] = useState<'MONTHLY' | 'ANNUAL'>('MONTHLY');
 
-  // Detect location and set default language and currency (only on mount)
+  // Detect location and set default country, language and currency (only on mount)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const getCookie = (name: string) => {
@@ -25,54 +27,117 @@ export default function Landpage() {
         return null;
       };
 
+      const savedCountry = getCookie('precision_country');
+      if (savedCountry) {
+        const country = COUNTRIES.find((c) => c.code === savedCountry);
+        if (country) {
+          setSelectedCountry(country.code);
+          setLocale(country.locale);
+          setCurrency(country.currency);
+          return;
+        }
+      }
+
       const savedLocale = getCookie('precision_locale');
       if (savedLocale) {
         setLocale(savedLocale as Locale);
-        setCurrency(savedLocale === 'pt' ? 'BRL' : 'EUR');
+        if (savedLocale === 'pt') {
+          setSelectedCountry('BR');
+          setCurrency('BRL');
+        } else if (savedLocale === 'de') {
+          setSelectedCountry('DE');
+          setCurrency('EUR');
+        } else {
+          setSelectedCountry('US');
+          setCurrency('USD');
+        }
       } else {
         const browserLang = navigator.language || '';
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
         
-        const isEurope = timeZone.includes('Europe') || 
-                         timeZone.includes('London') || 
-                         timeZone.includes('Berlin') || 
-                         timeZone.includes('Lisbon') || 
-                         timeZone.includes('Paris') || 
-                         timeZone.includes('Rome') || 
-                         timeZone.includes('Madrid') ||
-                         browserLang.includes('en-GB') ||
-                         browserLang.startsWith('en');
-                         
+        let detectedCountryCode: CountryCode = 'US'; // Default
+
+        const isUS = timeZone.includes('New_York') || 
+                     timeZone.includes('Chicago') || 
+                     timeZone.includes('Denver') || 
+                     timeZone.includes('Los_Angeles') || 
+                     timeZone.includes('America/US') ||
+                     browserLang.includes('en-US');
+
+        const isCA = timeZone.includes('Toronto') || 
+                     timeZone.includes('Vancouver') || 
+                     timeZone.includes('Winnipeg') || 
+                     timeZone.includes('Halifax') ||
+                     browserLang.includes('en-CA') ||
+                     browserLang.includes('fr-CA');
+
+        const isGermany = timeZone.includes('Berlin') || 
+                          browserLang.startsWith('de');
+
         const isBrazil = browserLang.startsWith('pt') || 
                          timeZone.includes('Sao_Paulo') || 
                          timeZone.includes('Brazil') || 
                          timeZone.includes('Fortaleza') || 
                          timeZone.includes('Recife') || 
                          timeZone.includes('Rio');
-                         
-        if (isEurope) {
-          setLocale('en'); // País da Europa -> Idioma em Inglês
-          setCurrency('EUR'); // Moeda em Euro
-        } else if (isBrazil) {
-          setLocale('pt');
-          setCurrency('BRL');
-        } else {
-          const defaultLang: Locale = browserLang.startsWith('de') ? 'de' : 'en';
-          setLocale(defaultLang);
-          setCurrency('EUR');
+
+        const isSpain = timeZone.includes('Madrid') || browserLang.includes('es-ES');
+        const isFrance = timeZone.includes('Paris') || browserLang.includes('fr-FR');
+        const isItaly = timeZone.includes('Rome') || browserLang.includes('it-IT');
+        const isPortugal = timeZone.includes('Lisbon') || browserLang.includes('pt-PT');
+        const isNetherlands = timeZone.includes('Amsterdam') || browserLang.includes('nl-NL');
+        const isIreland = timeZone.includes('Dublin') || browserLang.includes('en-IE');
+        const isBelgium = timeZone.includes('Brussels') || browserLang.includes('nl-BE') || browserLang.includes('fr-BE');
+        const isAustria = timeZone.includes('Vienna') || browserLang.includes('de-AT');
+
+        if (isBrazil) {
+          detectedCountryCode = 'BR';
+        } else if (isGermany) {
+          detectedCountryCode = 'DE';
+        } else if (isUS) {
+          detectedCountryCode = 'US';
+        } else if (isCA) {
+          detectedCountryCode = 'CA';
+        } else if (isSpain) {
+          detectedCountryCode = 'ES';
+        } else if (isFrance) {
+          detectedCountryCode = 'FR';
+        } else if (isItaly) {
+          detectedCountryCode = 'IT';
+        } else if (isPortugal) {
+          detectedCountryCode = 'PT';
+        } else if (isNetherlands) {
+          detectedCountryCode = 'NL';
+        } else if (isIreland) {
+          detectedCountryCode = 'IE';
+        } else if (isBelgium) {
+          detectedCountryCode = 'BE';
+        } else if (isAustria) {
+          detectedCountryCode = 'AT';
+        } else if (
+          timeZone.includes('Europe') || 
+          timeZone.includes('London') || 
+          browserLang.includes('en-GB') ||
+          browserLang.startsWith('en')
+        ) {
+          detectedCountryCode = 'ES'; // Fallback for Europe
         }
+
+        const country = COUNTRIES.find((c) => c.code === detectedCountryCode) || COUNTRIES[0];
+        setSelectedCountry(country.code);
+        setLocale(country.locale);
+        setCurrency(country.currency);
       }
     }
   }, []);
 
-  const handleLocaleChange = (newLocale: Locale) => {
-    setLocale(newLocale);
-    document.cookie = `precision_locale=${newLocale}; path=/; max-age=31536000`;
-    if (newLocale === 'pt') {
-      setCurrency('BRL');
-    } else {
-      setCurrency('EUR');
-    }
+  const handleCountryChange = (newCountryCode: CountryCode) => {
+    const country = COUNTRIES.find((c) => c.code === newCountryCode) || COUNTRIES[0];
+    setSelectedCountry(newCountryCode);
+    setLocale(country.locale);
+    setCurrency(country.currency);
+    document.cookie = `precision_country=${newCountryCode}; path=/; max-age=31536000; SameSite=Lax`;
+    document.cookie = `precision_locale=${country.locale}; path=/; max-age=31536000; SameSite=Lax`;
   };
 
   const getMonthlyEquivalent = (priceStr: string): string => {
@@ -84,7 +149,7 @@ export default function Landpage() {
     }).format(monthly);
   };
 
-  const getPlansData = (cur: 'BRL' | 'EUR', cycle: 'MONTHLY' | 'ANNUAL') => {
+  const getPlansData = (cur: CurrencyCode, cycle: 'MONTHLY' | 'ANNUAL') => {
     const getOriginalPrice = (price: string) => {
       const numeric = parseFloat(price.replace(/\./g, '').replace(',', '.'));
       const original = Math.ceil(numeric * 2) - 0.01;
@@ -101,7 +166,7 @@ export default function Landpage() {
           limit: 15,
           priceStr: cycle === 'MONTHLY' ? '189,99' : '1.599,99',
           originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '189,99' : '1.599,99'),
-          currency: 'BRL',
+          currency: 'BRL' as CurrencyCode,
           badge: t('landpage.beginnerBadge'),
           title: t('landpage.plan15Title'),
           description: t('landpage.plan15Desc'),
@@ -111,7 +176,7 @@ export default function Landpage() {
           limit: 30,
           priceStr: cycle === 'MONTHLY' ? '329,99' : '2.769,99',
           originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '329,99' : '2.769,99'),
-          currency: 'BRL',
+          currency: 'BRL' as CurrencyCode,
           badge: t('landpage.professionalBadge'),
           title: t('landpage.plan30Title'),
           description: t('landpage.plan30Desc'),
@@ -121,7 +186,7 @@ export default function Landpage() {
           limit: 50,
           priceStr: cycle === 'MONTHLY' ? '499,99' : '4.199,99',
           originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '499,99' : '4.199,99'),
-          currency: 'BRL',
+          currency: 'BRL' as CurrencyCode,
           badge: t('landpage.corporateBadge'),
           title: t('landpage.plan50Title'),
           description: t('landpage.plan50Desc'),
@@ -134,7 +199,7 @@ export default function Landpage() {
           limit: 15,
           priceStr: cycle === 'MONTHLY' ? '99,99' : '839,99',
           originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '99,99' : '839,99'),
-          currency: 'EUR',
+          currency: cur,
           badge: t('landpage.beginnerBadge'),
           title: t('landpage.plan15Title'),
           description: t('landpage.plan15Desc'),
@@ -144,7 +209,7 @@ export default function Landpage() {
           limit: 30,
           priceStr: cycle === 'MONTHLY' ? '169,99' : '1.429,99',
           originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '169,99' : '1.429,99'),
-          currency: 'EUR',
+          currency: cur,
           badge: t('landpage.professionalBadge'),
           title: t('landpage.plan30Title'),
           description: t('landpage.plan30Desc'),
@@ -154,7 +219,7 @@ export default function Landpage() {
           limit: 50,
           priceStr: cycle === 'MONTHLY' ? '249,99' : '2.099,99',
           originalPriceStr: getOriginalPrice(cycle === 'MONTHLY' ? '249,99' : '2.099,99'),
-          currency: 'EUR',
+          currency: cur,
           badge: t('landpage.corporateBadge'),
           title: t('landpage.plan50Title'),
           description: t('landpage.plan50Desc'),
@@ -288,20 +353,22 @@ export default function Landpage() {
             </a>
           </nav>
 
-          {/* Right Action buttons and language switches */}
+          {/* Right Action buttons and country/language switches */}
           <div className="flex items-center gap-xs sm:gap-md">
             
-            {/* Language Dropdown Selector with responsive padding */}
-            <div className="flex items-center gap-xs border border-border/50 bg-white/50 px-sm py-xs sm:px-md sm:py-md rounded-xl text-body-sm font-semibold text-on-surface-variant">
-              <span className="material-symbols-outlined text-[16px] text-on-surface-muted">language</span>
+            {/* Country Dropdown Selector with responsive padding */}
+            <div className="flex items-center gap-xs border border-border/50 bg-white/50 px-xs py-xs sm:px-md sm:py-md rounded-xl text-body-sm font-semibold text-on-surface-variant">
+              <span className="material-symbols-outlined text-[16px] text-on-surface-muted">public</span>
               <select 
-                value={locale} 
-                onChange={(e) => handleLocaleChange(e.target.value as Locale)}
-                className="bg-transparent border-none outline-none cursor-pointer text-body-sm font-bold text-on-surface"
+                value={selectedCountry} 
+                onChange={(e) => handleCountryChange(e.target.value as CountryCode)}
+                className="bg-transparent border-none outline-none cursor-pointer text-body-sm font-bold text-on-surface max-w-[140px] sm:max-w-[180px] truncate"
               >
-                <option value="pt">PT</option>
-                <option value="en">EN</option>
-                <option value="de">DE</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.names[locale] || c.names['en']} ({c.currency})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -705,7 +772,10 @@ export default function Landpage() {
             {/* Currency indicator based on location */}
             <div className="text-center text-body-xs text-on-surface-muted/90 flex justify-center items-center gap-xs">
               <span className="material-symbols-outlined text-[14px]">public</span>
-              {currency === 'BRL' ? t('landpage.pricingCurrencyLabelBRL') : t('landpage.pricingCurrencyLabelEUR')}
+              {currency === 'BRL' && t('landpage.pricingCurrencyLabelBRL')}
+              {currency === 'EUR' && t('landpage.pricingCurrencyLabelEUR')}
+              {currency === 'USD' && t('landpage.pricingCurrencyLabelUSD')}
+              {currency === 'CAD' && t('landpage.pricingCurrencyLabelCAD')}
             </div>
           </div>
 
@@ -751,12 +821,12 @@ export default function Landpage() {
                       <div className="flex flex-col gap-y-xs">
                         {plan.originalPriceStr && (
                           <span className="text-body-xs text-on-surface-muted/50 line-through">
-                            {plan.currency === 'BRL' ? 'R$' : '€'} {billingCycle === 'ANNUAL' ? getMonthlyEquivalent(plan.originalPriceStr) : plan.originalPriceStr}
+                            {getCurrencySymbol(plan.currency)} {billingCycle === 'ANNUAL' ? getMonthlyEquivalent(plan.originalPriceStr) : plan.originalPriceStr}
                           </span>
                         )}
                         <div className="flex items-baseline">
                           <span className="text-[40px] font-black tracking-tight text-on-surface font-bold">
-                            {plan.currency === 'BRL' ? 'R$' : '€'} {billingCycle === 'ANNUAL' ? getMonthlyEquivalent(plan.priceStr) : plan.priceStr}
+                            {getCurrencySymbol(plan.currency)} {billingCycle === 'ANNUAL' ? getMonthlyEquivalent(plan.priceStr) : plan.priceStr}
                           </span>
                           <span className="text-body-sm text-on-surface-muted ml-xs font-normal">
                             /{t('landpage.pricingMonthlySuffix')}
@@ -764,7 +834,7 @@ export default function Landpage() {
                         </div>
                         <div className="text-body-xs text-on-surface-muted font-medium">
                           {t('landpage.pricingTotal', {
-                            currency: plan.currency === 'BRL' ? 'R$' : '€',
+                            currency: getCurrencySymbol(plan.currency),
                             price: plan.priceStr,
                             period: billingCycle === 'ANNUAL' ? t('landpage.pricingAnnualSuffix') : t('landpage.pricingMonthlySuffix')
                           })}

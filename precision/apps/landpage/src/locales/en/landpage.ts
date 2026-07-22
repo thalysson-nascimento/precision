@@ -75,6 +75,8 @@ export const landpage = {
   pricingTotal: 'Total: {currency} {price}/{period}',
   pricingCurrencyLabelBRL: 'Displaying prices in Brazilian Real (BRL) based on your location.',
   pricingCurrencyLabelEUR: 'Displaying prices in Euro (EUR) based on your location.',
+  pricingCurrencyLabelUSD: 'Displaying prices in US Dollar (USD) based on your location.',
+  pricingCurrencyLabelCAD: 'Displaying prices in Canadian Dollar (CAD) based on your location.',
   pricingTrialPeriod: '30 days free trial included in all plans',
   pricingBestValue: 'Most Popular',
   plan15Title: 'Up to 15 employees',
