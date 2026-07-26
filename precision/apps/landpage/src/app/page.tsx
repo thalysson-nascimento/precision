@@ -7,10 +7,123 @@ import { Locale } from '../locales';
 import { useI18n } from '../locales/useI18n';
 import { CountryCode, CurrencyCode, COUNTRIES, getCurrencySymbol } from '../locales/countries';
 
+const contactText = {
+  pt: {
+    title: 'Fale Conosco',
+    subtitle: 'Tem dúvidas ou deseja falar com nossa equipe? Preencha o formulário abaixo e entraremos em contato em breve.',
+    nameLabel: 'Nome Completo',
+    emailLabel: 'E-mail Corporativo',
+    phoneLabel: 'Telefone de Contato',
+    countryLabel: 'Selecione seu país',
+    countryPlaceholder: 'Escolha um país...',
+    subjectLabel: 'Descrição / Assunto',
+    submitButton: 'Enviar Mensagem',
+    sendingButton: 'Enviando...',
+    successMessage: 'Sua mensagem foi enviada com sucesso, em breve retornaremos.',
+    placeholderName: 'Seu nome',
+    placeholderEmail: 'exemplo@empresa.com',
+    placeholderPhone: '(00) 00000-0000',
+    placeholderSubject: 'Como podemos te ajudar?',
+  },
+  en: {
+    title: 'Contact Us',
+    subtitle: 'Have questions or want to speak with our team? Fill out the form below and we will get back to you shortly.',
+    nameLabel: 'Full Name',
+    emailLabel: 'Corporate Email',
+    phoneLabel: 'Contact Phone',
+    countryLabel: 'Select your country',
+    countryPlaceholder: 'Choose a country...',
+    subjectLabel: 'Description / Subject',
+    submitButton: 'Send Message',
+    sendingButton: 'Sending...',
+    successMessage: 'Your message has been sent successfully, we will return shortly.',
+    placeholderName: 'Your name',
+    placeholderEmail: 'example@company.com',
+    placeholderPhone: '+1 (000) 000-0000',
+    placeholderSubject: 'How can we help you?',
+  },
+  de: {
+    title: 'Kontaktieren Sie uns',
+    subtitle: 'Haben Sie Fragen oder möchten Sie mit unserem Team sprechen? Füllen Sie das Formular aus, wir melden uns in Kürze.',
+    nameLabel: 'Vollständiger Name',
+    emailLabel: 'Unternehmens-E-Mail',
+    phoneLabel: 'Kontakttelefon',
+    countryLabel: 'Land auswählen',
+    countryPlaceholder: 'Wählen Sie ein Land...',
+    subjectLabel: 'Beschreibung / Betreff',
+    submitButton: 'Nachricht senden',
+    sendingButton: 'Wird gesendet...',
+    successMessage: 'Ihre Nachricht wurde erfolgreich gesendet, wir melden uns in Kürze.',
+    placeholderName: 'Ihr Name',
+    placeholderEmail: 'beispiel@firma.com',
+    placeholderPhone: '+49 (0) 000 000000',
+    placeholderSubject: 'Wie können wir Ihnen helfen?',
+  }
+};
+
 export default function Landpage() {
   const { t, locale, setLocale } = useI18n();
   const [modalOpen, setModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'inicio' | 'features' | 'reports' | 'support'>('inicio');
+
+  // Contact form state
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [contactCountry, setContactCountry] = useState('');
+  const [contactDescription, setContactDescription] = useState('');
+  const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [contactErrorMessage, setContactErrorMessage] = useState('');
+
+  const isContactFormValid = 
+    contactName.trim() !== '' && 
+    contactEmail.trim() !== '' && 
+    contactPhone.trim() !== '' && 
+    contactCountry !== '' && 
+    contactDescription.trim() !== '';
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isContactFormValid) return;
+
+    setContactStatus('sending');
+    setContactErrorMessage('');
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: contactName,
+          email: contactEmail,
+          phone: contactPhone,
+          country: contactCountry,
+          description: contactDescription,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setContactStatus('success');
+        // Clear fields
+        setContactName('');
+        setContactEmail('');
+        setContactPhone('');
+        setContactCountry('');
+        setContactDescription('');
+      } else {
+        setContactStatus('error');
+        setContactErrorMessage(data.error || 'Erro ao enviar mensagem.');
+      }
+    } catch (err: any) {
+      console.error('Erro de envio de contato:', err);
+      setContactStatus('error');
+      setContactErrorMessage('Erro de conexão com o servidor.');
+    }
+  };
 
   // Subscription plans states
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>('BR');
@@ -898,6 +1011,199 @@ export default function Landpage() {
             })}
           </div>
 
+        </div>
+      </section>
+
+      {/* Contact Form Section */}
+      <section id="support" className="py-24 border-t border-border/40 bg-gradient-to-b from-white to-background/30">
+        <div className="max-w-7xl mx-auto px-md">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+            
+            {/* Left side: Heading and details */}
+            <div className="lg:col-span-5 space-y-lg text-left">
+              <span className="bg-primary/10 text-primary text-[11px] font-black px-md py-[6px] rounded-full uppercase tracking-wider self-start inline-block">
+                {t('landpage.support')}
+              </span>
+              <h2 className="text-display-time-mobile md:text-[38px] md:leading-[46px] font-extrabold tracking-tight text-on-background">
+                {contactText[locale as keyof typeof contactText]?.title || contactText.pt.title}
+              </h2>
+              <p className="text-body-lg text-on-surface-muted leading-relaxed">
+                {contactText[locale as keyof typeof contactText]?.subtitle || contactText.pt.subtitle}
+              </p>
+
+              {/* Cards / Info */}
+              <div className="space-y-md pt-md">
+                <div className="flex items-start gap-sm p-md rounded-2xl border border-border/60 bg-white/50 backdrop-blur-sm">
+                  <span className="material-symbols-outlined text-primary bg-primary/10 p-[10px] rounded-xl text-lg font-black font-semibold">mail</span>
+                  <div className="space-y-xs">
+                    <h4 className="font-bold text-body-md text-on-surface">E-mail de Contato</h4>
+                    <p className="text-body-sm text-on-surface-muted">
+                      <a href="mailto:precisionmanagement.hr@gmail.com" className="hover:text-primary transition-colors">
+                        precisionmanagement.hr@gmail.com
+                      </a>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-sm p-md rounded-2xl border border-border/60 bg-white/50 backdrop-blur-sm">
+                  <span className="material-symbols-outlined text-secondary bg-secondary/10 p-[10px] rounded-xl text-lg font-black font-semibold">call</span>
+                  <div className="space-y-xs">
+                    <h4 className="font-bold text-body-md text-on-surface">Suporte Comercial (WhatsApp)</h4>
+                    <p className="text-body-sm text-on-surface-muted">
+                      <a href="https://wa.me/5583996955484" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
+                        +55 (83) 99695-5484
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right side: Form Card */}
+            <div className="lg:col-span-7">
+              <div className="bg-white rounded-3xl border border-border/80 shadow-2xl p-xl max-w-xl mx-auto lg:mx-0 w-full space-y-md">
+                
+                {contactStatus === 'success' ? (
+                  <div className="text-center py-10 space-y-md animate-fade-in">
+                    <div className="w-14 h-14 rounded-full bg-success/15 text-success flex items-center justify-center mx-auto mb-md animate-bounce">
+                      <span className="material-symbols-outlined text-[32px] font-bold">check_circle</span>
+                    </div>
+                    <h3 className="font-bold text-[20px] text-on-surface">Enviado com sucesso!</h3>
+                    <p className="text-body-md text-on-surface-muted leading-relaxed px-sm">
+                      {contactText[locale as keyof typeof contactText]?.successMessage || contactText.pt.successMessage}
+                    </p>
+                    <button
+                      onClick={() => setContactStatus('idle')}
+                      className="mt-md bg-primary hover:bg-primary-dark text-white px-lg py-sm rounded-full text-body-sm font-bold transition-all hover:scale-105 active:scale-95 duration-200 cursor-pointer"
+                    >
+                      Enviar outra mensagem
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleContactSubmit} className="space-y-md text-left">
+                    
+                    {contactStatus === 'error' && (
+                      <div className="p-md rounded-2xl bg-danger/10 text-danger border border-danger/20 text-body-sm font-semibold flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-[18px]">error</span>
+                        {contactErrorMessage}
+                      </div>
+                    )}
+
+                    {/* Name Input */}
+                    <div className="space-y-xs">
+                      <label htmlFor="contact_name" className="text-body-sm font-bold text-on-surface-variant">
+                        {contactText[locale as keyof typeof contactText]?.nameLabel || contactText.pt.nameLabel}
+                      </label>
+                      <input
+                        id="contact_name"
+                        type="text"
+                        required
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder={contactText[locale as keyof typeof contactText]?.placeholderName || contactText.pt.placeholderName}
+                        className="w-full px-md py-sm rounded-xl border border-border bg-background focus:outline-none focus:border-primary focus:bg-white text-body-sm transition-all"
+                      />
+                    </div>
+
+                    {/* Grid for Email and Phone */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+                      {/* Email */}
+                      <div className="space-y-xs">
+                        <label htmlFor="contact_email" className="text-body-sm font-bold text-on-surface-variant">
+                          {contactText[locale as keyof typeof contactText]?.emailLabel || contactText.pt.emailLabel}
+                        </label>
+                        <input
+                          id="contact_email"
+                          type="email"
+                          required
+                          value={contactEmail}
+                          onChange={(e) => setContactEmail(e.target.value)}
+                          placeholder={contactText[locale as keyof typeof contactText]?.placeholderEmail || contactText.pt.placeholderEmail}
+                          className="w-full px-md py-sm rounded-xl border border-border bg-background focus:outline-none focus:border-primary focus:bg-white text-body-sm transition-all"
+                        />
+                      </div>
+
+                      {/* Phone */}
+                      <div className="space-y-xs">
+                        <label htmlFor="contact_phone" className="text-body-sm font-bold text-on-surface-variant">
+                          {contactText[locale as keyof typeof contactText]?.phoneLabel || contactText.pt.phoneLabel}
+                        </label>
+                        <input
+                          id="contact_phone"
+                          type="text"
+                          required
+                          value={contactPhone}
+                          onChange={(e) => setContactPhone(e.target.value)}
+                          placeholder={contactText[locale as keyof typeof contactText]?.placeholderPhone || contactText.pt.placeholderPhone}
+                          className="w-full px-md py-sm rounded-xl border border-border bg-background focus:outline-none focus:border-primary focus:bg-white text-body-sm transition-all"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Country Select */}
+                    <div className="space-y-xs">
+                      <label htmlFor="contact_country" className="text-body-sm font-bold text-on-surface-variant">
+                        {contactText[locale as keyof typeof contactText]?.countryLabel || contactText.pt.countryLabel}
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="contact_country"
+                          required
+                          value={contactCountry}
+                          onChange={(e) => setContactCountry(e.target.value)}
+                          className="w-full px-md py-sm rounded-xl border border-border bg-background focus:outline-none focus:border-primary focus:bg-white text-body-sm transition-all appearance-none cursor-pointer"
+                        >
+                          <option value="">
+                            {contactText[locale as keyof typeof contactText]?.countryPlaceholder || contactText.pt.countryPlaceholder}
+                          </option>
+                          {COUNTRIES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.flag} {c.names[locale as keyof typeof c.names] || c.names.en}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-muted text-[18px]">
+                          expand_more
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Subject/Description Area */}
+                    <div className="space-y-xs">
+                      <label htmlFor="contact_desc" className="text-body-sm font-bold text-on-surface-variant">
+                        {contactText[locale as keyof typeof contactText]?.subjectLabel || contactText.pt.subjectLabel}
+                      </label>
+                      <textarea
+                        id="contact_desc"
+                        rows={4}
+                        required
+                        value={contactDescription}
+                        onChange={(e) => setContactDescription(e.target.value)}
+                        placeholder={contactText[locale as keyof typeof contactText]?.placeholderSubject || contactText.pt.placeholderSubject}
+                        className="w-full px-md py-sm rounded-xl border border-border bg-background focus:outline-none focus:border-primary focus:bg-white text-body-sm transition-all resize-none"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="pt-sm">
+                      <button
+                        type="submit"
+                        disabled={!isContactFormValid || contactStatus === 'sending'}
+                        className="w-full py-md font-bold rounded-xl text-body-sm transition-all duration-200 cursor-pointer bg-primary hover:bg-primary-dark text-white shadow-md hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 disabled:shadow-none"
+                      >
+                        {contactStatus === 'sending'
+                          ? (contactText[locale as keyof typeof contactText]?.sendingButton || contactText.pt.sendingButton)
+                          : (contactText[locale as keyof typeof contactText]?.submitButton || contactText.pt.submitButton)}
+                      </button>
+                    </div>
+
+                  </form>
+                )}
+
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 

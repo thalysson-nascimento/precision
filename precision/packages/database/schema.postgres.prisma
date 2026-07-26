@@ -133,3 +133,14 @@ model SupportMessage {
   text       String
   createdAt  DateTime @default(now())
 }
+
+model ContactMessage {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  phone       String
+  country     String
+  description String
+  createdAt   DateTime @default(now())
+}
+
