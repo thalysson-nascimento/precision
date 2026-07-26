@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Paths that do not require authentication
-  const isAuthRoute = pathname === '/login' || pathname.startsWith('/api/auth') || pathname.startsWith('/api/webhooks');
+  const isAuthRoute = pathname === '/login' || pathname.startsWith('/api/auth') || pathname.startsWith('/api/webhooks') || pathname === '/api/contact';
   const isExpiredRoute = pathname === '/expired';
   const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/images') || pathname === '/favicon.ico';
 
