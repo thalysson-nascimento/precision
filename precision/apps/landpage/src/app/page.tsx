@@ -1020,7 +1020,7 @@ export default function Landpage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
             
             {/* Left side: Heading and details */}
-            <div className="lg:col-span-5 space-y-lg text-left">
+            <div className="lg:col-span-4 space-y-lg text-left">
               <span className="bg-primary/10 text-primary text-[11px] font-black px-md py-[6px] rounded-full uppercase tracking-wider self-start inline-block">
                 {t('landpage.support')}
               </span>
@@ -1030,38 +1030,11 @@ export default function Landpage() {
               <p className="text-body-lg text-on-surface-muted leading-relaxed">
                 {contactText[locale as keyof typeof contactText]?.subtitle || contactText.pt.subtitle}
               </p>
-
-              {/* Cards / Info */}
-              <div className="space-y-md pt-md">
-                <div className="flex items-start gap-sm p-md rounded-2xl border border-border/60 bg-white/50 backdrop-blur-sm">
-                  <span className="material-symbols-outlined text-primary bg-primary/10 p-[10px] rounded-xl text-lg font-black font-semibold">mail</span>
-                  <div className="space-y-xs">
-                    <h4 className="font-bold text-body-md text-on-surface">E-mail de Contato</h4>
-                    <p className="text-body-sm text-on-surface-muted">
-                      <a href="mailto:precisionmanagement.hr@gmail.com" className="hover:text-primary transition-colors">
-                        precisionmanagement.hr@gmail.com
-                      </a>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-sm p-md rounded-2xl border border-border/60 bg-white/50 backdrop-blur-sm">
-                  <span className="material-symbols-outlined text-secondary bg-secondary/10 p-[10px] rounded-xl text-lg font-black font-semibold">call</span>
-                  <div className="space-y-xs">
-                    <h4 className="font-bold text-body-md text-on-surface">Suporte Comercial (WhatsApp)</h4>
-                    <p className="text-body-sm text-on-surface-muted">
-                      <a href="https://wa.me/5583996955484" target="_blank" rel="noopener noreferrer" className="hover:text-secondary transition-colors">
-                        +55 (83) 99695-5484
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Right side: Form Card */}
-            <div className="lg:col-span-7">
-              <div className="bg-white rounded-3xl border border-border/80 shadow-2xl p-xl max-w-xl mx-auto lg:mx-0 w-full space-y-md">
+            <div className="lg:col-span-8">
+              <div className="bg-white rounded-3xl border border-border/80 shadow-2xl p-xl w-full space-y-md">
                 
                 {contactStatus === 'success' ? (
                   <div className="text-center py-10 space-y-md animate-fade-in">
