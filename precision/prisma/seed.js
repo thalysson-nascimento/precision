@@ -35,6 +35,8 @@ async function main() {
       address: 'Av. Paulista',
       number: '1000',
       contact: 'contato@precisiontech.com.br',
+      email: 'billing@precisiontech.com',
+      country: 'BR',
       subscriptionPlan: 'THREE_MONTHS',
       subscriptionStatus: 'ACTIVE',
       subscriptionEndsAt: activeDate,
@@ -47,6 +49,8 @@ async function main() {
       address: 'Rua das Flores',
       number: '45',
       contact: 'contato@alphacorp.com.br',
+      email: 'billing@alphacorp.com',
+      country: 'BR',
       subscriptionPlan: 'SIX_MONTHS',
       subscriptionStatus: 'EXPIRED',
       subscriptionEndsAt: expiredDate,
@@ -59,6 +63,48 @@ async function main() {
       address: 'Rua do Teste',
       number: '123',
       contact: 'contato@trialexpired.com',
+      email: 'billing@trialexpired.com',
+      country: 'US',
+      subscriptionPlan: 'TRIAL',
+      subscriptionStatus: 'EXPIRED',
+      subscriptionEndsAt: expiredDate,
+    },
+  });
+
+  const companyNewExpired = await prisma.company.create({
+    data: {
+      name: 'Expired Trial Corp',
+      address: 'Avenida Brasil, 1500 - Jardim América',
+      number: '1500',
+      contact: 'contato@newexpired.com.br',
+      email: 'billing@newexpired.com',
+      country: 'BR',
+      document: '42.342.342/0001-42',
+      corporateName: 'Expired Trial Corporacao Ltda',
+      zip: '01430-000',
+      street: 'Avenida Brasil',
+      city: 'São Paulo',
+      state: 'SP',
+      subscriptionPlan: 'TRIAL',
+      subscriptionStatus: 'EXPIRED',
+      subscriptionEndsAt: expiredDate,
+    },
+  });
+
+  const companyStripeTest = await prisma.company.create({
+    data: {
+      name: 'Stripe Test Corp',
+      address: 'Alameda Santos, 1000 - Cerqueira César',
+      number: '1000',
+      contact: 'contato@stripetest.com',
+      email: 'billing@stripetest.com',
+      country: 'BR',
+      document: '55.555.555/0001-55',
+      corporateName: 'Stripe Test Servicos Ltda',
+      zip: '01419-001',
+      street: 'Alameda Santos',
+      city: 'São Paulo',
+      state: 'SP',
       subscriptionPlan: 'TRIAL',
       subscriptionStatus: 'EXPIRED',
       subscriptionEndsAt: expiredDate,
@@ -110,6 +156,22 @@ async function main() {
 
   const alphaDevTeam = await prisma.team.create({
     data: { name: 'Engenharia', companyId: companyAlpha.id }
+  });
+
+  const newExpiredRole = await prisma.jobRole.create({
+    data: { name: 'Analista', companyId: companyNewExpired.id }
+  });
+
+  const newExpiredTeam = await prisma.team.create({
+    data: { name: 'Operações', companyId: companyNewExpired.id }
+  });
+
+  const stripeTestRole = await prisma.jobRole.create({
+    data: { name: 'Analista', companyId: companyStripeTest.id }
+  });
+
+  const stripeTestTeam = await prisma.team.create({
+    data: { name: 'Operações', companyId: companyStripeTest.id }
   });
 
   // 3. Criar SUPERADMIN (sem empresa)
@@ -282,6 +344,85 @@ async function main() {
       companyId: companyExpiredTrial.id,
     },
   });
+
+  // 5c. Criar Colaboradores Expired Trial Corp (Nova Empresa Mock)
+  const companyNewExpiredOwner = await prisma.employee.create({
+    data: {
+      name: 'Novo Proprietário Expirado',
+      email: 'owner@newexpired.com',
+      password: '123456',
+      userRole: 'OWNER',
+      role: 'Presidente',
+      companyId: companyNewExpired.id,
+      isTeamLeader: true,
+      contractNumber: 'CT-7777-O',
+      phone: '(11) 99999-0000',
+      address: 'Avenida Paulista, 1000 - São Paulo, SP',
+    },
+  });
+
+  // Criar 18 colaboradores adicionais para totalizar 19 (e assim estourar o limite de 15 do plano TRIAL/Básico)
+  for (let i = 1; i <= 18; i++) {
+    await prisma.employee.create({
+      data: {
+        name: `Colaborador Fictício ${i}`,
+        email: `emp${i}@newexpired.com`,
+        password: '123456',
+        userRole: 'EMPLOYEE',
+        role: 'Auxiliar de Operações',
+        workStart: '08:00',
+        lunchStart: '12:00',
+        lunchEnd: '13:00',
+        workEnd: '18:00',
+        companyId: companyNewExpired.id,
+        teamId: newExpiredTeam.id,
+        contractNumber: `CT-7777-${i}`,
+        phone: `(11) 98888-${1000 + i}`,
+        address: `Rua Fictícia, ${10 * i} - São Paulo, SP`,
+        managerId: companyNewExpiredOwner.id,
+        createdAt: new Date(Date.now() - (19 - i) * 60 * 1000), // Diferentes tempos de criação (mais antigos primeiro)
+      },
+    });
+  }
+
+  // 5d. Criar Colaboradores Stripe Test Corp (Nova Empresa Mock para Novo Teste)
+  const companyStripeTestOwner = await prisma.employee.create({
+    data: {
+      name: 'Proprietário Stripe Test',
+      email: 'owner@stripetest.com',
+      password: '123456',
+      userRole: 'OWNER',
+      role: 'Presidente',
+      companyId: companyStripeTest.id,
+      isTeamLeader: true,
+      contractNumber: 'CT-8888-O',
+      phone: '(11) 98888-0000',
+      address: 'Alameda Santos, 1000 - São Paulo, SP',
+    },
+  });
+
+  for (let i = 1; i <= 18; i++) {
+    await prisma.employee.create({
+      data: {
+        name: `Colaborador Teste ${i}`,
+        email: `test${i}@stripetest.com`,
+        password: '123456',
+        userRole: 'EMPLOYEE',
+        role: 'Auxiliar de Ponto',
+        workStart: '08:00',
+        lunchStart: '12:00',
+        lunchEnd: '13:00',
+        workEnd: '18:00',
+        companyId: companyStripeTest.id,
+        teamId: stripeTestTeam.id,
+        contractNumber: `CT-8888-${i}`,
+        phone: `(11) 97777-${1000 + i}`,
+        address: `Rua Teste Fictício, ${10 * i} - São Paulo, SP`,
+        managerId: companyStripeTestOwner.id,
+        createdAt: new Date(Date.now() - (19 - i) * 60 * 1000),
+      },
+    });
+  }
 
   // 6. Gerar registros históricos para Thalysson
   const mainRecords = [];

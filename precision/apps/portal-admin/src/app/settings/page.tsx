@@ -272,7 +272,31 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
-    fetchSettingsData();
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === 'true') {
+      const refreshSession = async () => {
+        try {
+          // Call POST api/auth/me to refresh/re-sign the session cookie with updated values from the DB
+          const res = await fetch('/api/auth/me', { method: 'POST' });
+          if (res.ok) {
+            await fetchSettingsData();
+            // Replace history and refresh page to cleanly show unlocked portal
+            window.location.replace('/settings');
+          } else {
+            fetchSettingsData();
+          }
+        } catch (e) {
+          console.error('Erro ao atualizar a sessão:', e);
+          fetchSettingsData();
+        }
+      };
+      refreshSession();
+    } else if (params.get('cancelled') === 'true') {
+      // Clear URL and refresh page to show settings page
+      window.location.replace('/settings');
+    } else {
+      fetchSettingsData();
+    }
   }, []);
 
   const handleSaveSettings = async (e: React.FormEvent) => {
@@ -379,6 +403,43 @@ export default function SettingsPage() {
               ) : (
                 <div className="space-y-xl">
                   
+                  {/* Seção de Assinatura Simplificada (Link para Sub-Página) */}
+                  {company && (
+                    <div className="space-y-md">
+                      <div 
+                        onClick={() => window.location.href = '/settings/subscription'}
+                        className="bg-surface-container-lowest border border-outline-variant hover:border-primary rounded-xl p-lg md:p-xl shadow-sm transition-all duration-150 active:scale-[0.99] cursor-pointer flex items-center justify-between gap-md"
+                      >
+                        <div className="flex items-center gap-md">
+                          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
+                            <span className="material-symbols-outlined text-[24px]">receipt_long</span>
+                          </div>
+                          <div className="space-y-[4px]">
+                            <h2 className="text-body-lg font-bold text-on-surface">
+                              Assinatura
+                            </h2>
+                            <p className="text-body-xs text-on-surface-variant/80 flex flex-wrap items-center gap-xs font-semibold">
+                              <span>Plano: {getLocalizedPlanName(company.subscriptionPlan)}</span>
+                              <span className="text-outline-variant">•</span>
+                              <span className={`px-sm py-[2px] rounded-full text-[10px] font-bold uppercase tracking-wider ${company.subscriptionStatus === 'ACTIVE' ? 'bg-secondary/15 text-secondary' : 'bg-error/15 text-error'}`}>
+                                {company.subscriptionStatus}
+                              </span>
+                              {company.subscriptionEndsAt && (
+                                <>
+                                  <span className="text-outline-variant">•</span>
+                                  <span>Validade: {formatPlanEndsAt(company.subscriptionEndsAt)}</span>
+                                </>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-on-surface-variant/60 flex items-center">
+                          <span className="material-symbols-outlined text-[20px]">arrow_forward_ios</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Company settings Form */}
                   {company && (
                     <form 
@@ -595,158 +656,6 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  {/* Subscription card info */}
-                  {company && (
-                    <div className="space-y-md">
-                      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg md:p-xl shadow-sm space-y-md">
-                        <h2 className="text-body-lg font-bold text-primary border-b border-outline-variant pb-xs flex items-center gap-xs">
-                          <span className="material-symbols-outlined text-[20px]">receipt_long</span>
-                          {t('settings.subscriptionInfo')}
-                        </h2>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-                          <div className="bg-surface-container-low p-md rounded-xl border border-outline-variant/40">
-                            <p className="text-body-xs text-on-surface-variant font-medium uppercase">{t('settings.subscriptionPlan')}</p>
-                            <p className="text-body-lg font-bold text-on-surface mt-xs">{getLocalizedPlanName(company.subscriptionPlan)}</p>
-                          </div>
-                          <div className="bg-surface-container-low p-md rounded-xl border border-outline-variant/40">
-                            <p className="text-body-xs text-on-surface-variant font-medium uppercase">{t('settings.subscriptionStatus')}</p>
-                            <p className="text-body-lg font-bold text-secondary mt-xs">{company.subscriptionStatus}</p>
-                          </div>
-                          <div className="bg-surface-container-low p-md rounded-xl border border-outline-variant/40">
-                            <p className="text-body-xs text-on-surface-variant font-medium uppercase">{t('settings.subscriptionEnds')}</p>
-                            <p className="text-body-lg font-bold text-on-surface mt-xs">{formatPlanEndsAt(company.subscriptionEndsAt)}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Plans section */}
-                      <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg md:p-xl shadow-sm space-y-lg">
-                        <h2 className="text-body-lg font-bold text-primary border-b border-outline-variant pb-xs flex items-center gap-xs">
-                          <span className="material-symbols-outlined text-[20px]">loyalty</span>
-                          {getPlanTexts().plansTitle}
-                        </h2>
-                        
-                        {/* Billing period switcher */}
-                        <div className="flex justify-center my-md">
-                          <div className="bg-surface-container-low p-xs rounded-full flex gap-xs border border-outline-variant/50 relative">
-                            <button
-                              type="button"
-                              onClick={() => setBillingCycle('MONTHLY')}
-                              className={`px-lg py-xs rounded-full font-bold text-body-sm transition-all duration-200 cursor-pointer ${billingCycle === 'MONTHLY' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
-                            >
-                              {getPlanTexts().monthly}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setBillingCycle('ANNUAL')}
-                              className={`px-lg py-xs rounded-full font-bold text-body-sm transition-all duration-200 cursor-pointer flex items-center gap-xs ${billingCycle === 'ANNUAL' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface'}`}
-                            >
-                              {getPlanTexts().annual}
-                              <span className="bg-success text-on-success text-[10px] font-extrabold px-xs py-[2px] rounded-full uppercase leading-none">
-                                -30%
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Location / currency label */}
-                        <div className="text-center text-body-xs text-on-surface-variant/80 -mt-sm flex justify-center items-center gap-xs">
-                          <span className="material-symbols-outlined text-[14px]">public</span>
-                          {getPlanTexts().currencyLabel}
-                        </div>
-
-                        {/* Plans Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-md pt-sm">
-                          {getPlansData(currency, billingCycle).map((plan) => {
-                            const isCurrent = company.subscriptionPlan === plan.id;
-                            const subtitleStr = plan.limit === 15 
-                              ? getPlanTexts().subtitle15 
-                              : plan.limit === 30 
-                                ? getPlanTexts().subtitle30 
-                                : getPlanTexts().subtitle50;
-
-                            return (
-                              <div
-                                key={plan.id}
-                                className={`border rounded-2xl p-md flex flex-col justify-between transition-all duration-200 min-h-[320px] relative overflow-hidden hover:shadow-md ${
-                                  isCurrent 
-                                    ? 'border-primary bg-primary/5 ring-1 ring-primary' 
-                                    : 'border-outline-variant bg-surface-container-low'
-                                }`}
-                              >
-                                {isCurrent && (
-                                  <span className="absolute top-2 right-2 bg-primary text-on-primary font-bold text-[10px] px-sm py-[2px] rounded-full uppercase">
-                                    {getPlanTexts().btnCurrent}
-                                  </span>
-                                )}
-                                
-                                <div>
-                                  <h4 className="font-bold text-body-lg text-on-surface flex items-center gap-xs">
-                                    <span className="material-symbols-outlined text-primary text-[20px]">groups</span>
-                                    {getPlanTexts().featEmployees.replace('{limit}', String(plan.limit))}
-                                  </h4>
-                                  <p className="text-body-xs text-on-surface-variant/85 mt-xs leading-normal">
-                                    {subtitleStr}
-                                  </p>
-                                  
-                                  <div className="mt-md flex flex-col justify-end min-h-[60px]">
-                                    {plan.originalPriceStr && (
-                                      <span className="text-body-xs text-on-surface-variant/60 line-through">
-                                        {plan.currency === 'BRL' ? 'R$' : '€'} {plan.originalPriceStr}
-                                      </span>
-                                    )}
-                                    <div>
-                                      <span className="font-display-time-mobile text-display-time-mobile text-on-surface font-bold">
-                                        {plan.currency === 'BRL' ? 'R$' : '€'} {plan.priceStr}
-                                      </span>
-                                      <span className="text-body-xs text-on-surface-variant/80 ml-xs">
-                                        /{billingCycle === 'MONTHLY' ? 'mês' : 'ano'}
-                                      </span>
-                                    </div>
-                                    {billingCycle === 'ANNUAL' && (
-                                      <div className="text-success text-body-xs font-semibold mt-xs flex items-center gap-xs">
-                                        <span className="material-symbols-outlined text-[16px]">savings</span>
-                                        {getPlanTexts().discountLabel}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <ul className="mt-md space-y-xs text-body-xs text-on-surface-variant/90 border-t border-outline-variant/40 pt-sm">
-                                    <li className="flex items-center gap-xs">
-                                      <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
-                                      {getPlanTexts().featEmployees.replace('{limit}', String(plan.limit))}
-                                    </li>
-                                    <li className="flex items-center gap-xs">
-                                      <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
-                                      {getPlanTexts().featTrial}
-                                    </li>
-                                    <li className="flex items-center gap-xs">
-                                      <span className="material-symbols-outlined text-success text-[14px]">check_circle</span>
-                                      {getPlanTexts().featReports}
-                                    </li>
-                                  </ul>
-                                </div>
-
-                                <button
-                                  type="button"
-                                  disabled={isCurrent || saveLoading}
-                                  onClick={() => handleSelectPlan(plan.id)}
-                                  className={`w-full h-10 rounded-xl font-bold transition-all text-body-sm mt-lg flex items-center justify-center gap-xs cursor-pointer ${
-                                    isCurrent
-                                      ? 'bg-outline-variant text-on-surface-variant/50 cursor-not-allowed border border-outline-variant'
-                                      : 'bg-primary text-on-primary hover:opacity-90 active:scale-[0.98]'
-                                  }`}
-                                >
-                                  {isCurrent ? getPlanTexts().btnCurrent : getPlanTexts().btnSelect}
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Logout section */}
                   <div className="bg-surface-container-lowest border border-error/30 rounded-xl p-lg md:p-xl shadow-sm space-y-md">

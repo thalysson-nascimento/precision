@@ -89,6 +89,8 @@ model Company {
   subscriptionPlan   String     @default("TRIAL") // "TRIAL", "THREE_MONTHS", "SIX_MONTHS"
   subscriptionStatus String     @default("ACTIVE") // "ACTIVE", "EXPIRED"
   subscriptionEndsAt DateTime?
+  stripeCustomerId   String?
+  stripeSubscriptionId String?
   createdAt          DateTime   @default(now())
   employees          Employee[]
   teams              Team[]

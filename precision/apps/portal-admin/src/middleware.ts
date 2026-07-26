@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Paths that do not require authentication
-  const isAuthRoute = pathname === '/login' || pathname.startsWith('/api/auth');
+  const isAuthRoute = pathname === '/login' || pathname.startsWith('/api/auth') || pathname.startsWith('/api/webhooks');
   const isExpiredRoute = pathname === '/expired';
   const isStaticAsset = pathname.startsWith('/_next') || pathname.startsWith('/images') || pathname === '/favicon.ico';
 
@@ -50,8 +50,10 @@ export async function middleware(request: NextRequest) {
       (subscriptionEndsAt && new Date(subscriptionEndsAt).getTime() < Date.now());
 
     if (isSubscriptionExpired) {
-      // Block POST/PUT/DELETE API requests to admin/companies/etc routes
-      if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/admin/support') && request.method !== 'GET') {
+      console.log(`[Middleware Check] Path: ${pathname}, Method: ${request.method}, isExpired: ${isSubscriptionExpired}`);
+      // Block POST/PUT/DELETE API requests to admin/companies/etc routes, but allow billing APIs so they can pay/renew
+      if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/admin/support') && !pathname.startsWith('/api/admin/billing') && request.method !== 'GET') {
+        console.log(`[Middleware Blocked] Path blocked: ${pathname}`);
         return NextResponse.json({ error: 'subscription_expired' }, { status: 403 });
       }
       // Allow navigation to page routes

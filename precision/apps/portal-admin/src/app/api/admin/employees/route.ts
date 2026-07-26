@@ -106,6 +106,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'O ID da empresa é obrigatório.' }, { status: 400 });
     }
 
+    // Check plan employee limit
+    const company = await prisma.company.findUnique({
+      where: { id: targetCompanyId }
+    });
+
+    if (!company) {
+      return NextResponse.json({ error: 'Empresa não encontrada.' }, { status: 404 });
+    }
+
+    function getPlanLimit(planId: string): number {
+      if (planId === 'TRIAL') return 15;
+      if (planId === 'THREE_MONTHS') return 30;
+      if (planId === 'SIX_MONTHS') return 50;
+      const match = planId.match(/^(\d+)_EMPLOYEES_/);
+      if (match) {
+        return parseInt(match[1], 10);
+      }
+      return 15; // default fallback
+    }
+
+    const limit = getPlanLimit(company.subscriptionPlan);
+    const activeEmployeesCount = await prisma.employee.count({
+      where: { companyId: targetCompanyId, isActive: true }
+    });
+
+    if (activeEmployeesCount >= limit) {
+      return NextResponse.json({
+        error: `Você atingiu o limite máximo de ${limit} colaboradores ativos para o seu plano atual (${company.subscriptionPlan}). Faça um upgrade de plano para poder cadastrar mais colaboradores.`
+      }, { status: 400 });
+    }
+
     // Tenant boundary checks for Team and Manager
     if (teamId) {
       const team = await prisma.team.findUnique({ where: { id: teamId } });

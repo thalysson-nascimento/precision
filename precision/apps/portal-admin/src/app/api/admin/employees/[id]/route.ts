@@ -126,6 +126,42 @@ export async function PUT(
       }
     }
 
+    // Check if activating an employee and whether it exceeds the plan limit
+    const isActivating = isActive === true && !existingEmployee.isActive;
+    if (isActivating) {
+      if (!targetCompanyId) {
+        return NextResponse.json({ error: 'A empresa do colaborador é obrigatória.' }, { status: 400 });
+      }
+      const company = await prisma.company.findUnique({
+        where: { id: targetCompanyId }
+      });
+      if (!company) {
+        return NextResponse.json({ error: 'Empresa não encontrada.' }, { status: 404 });
+      }
+
+      function getPlanLimit(planId: string): number {
+        if (planId === 'TRIAL') return 15;
+        if (planId === 'THREE_MONTHS') return 30;
+        if (planId === 'SIX_MONTHS') return 50;
+        const match = planId.match(/^(\d+)_EMPLOYEES_/);
+        if (match) {
+          return parseInt(match[1], 10);
+        }
+        return 15;
+      }
+
+      const limit = getPlanLimit(company.subscriptionPlan);
+      const activeEmployeesCount = await prisma.employee.count({
+        where: { companyId: targetCompanyId, isActive: true }
+      });
+
+      if (activeEmployeesCount >= limit) {
+        return NextResponse.json({
+          error: `Você atingiu o limite máximo de ${limit} colaboradores ativos para o seu plano atual (${company.subscriptionPlan}). Faça um upgrade para poder ativar este colaborador.`
+        }, { status: 400 });
+      }
+    }
+
     const updatedEmployee = await prisma.employee.update({
       where: { id },
       data: {

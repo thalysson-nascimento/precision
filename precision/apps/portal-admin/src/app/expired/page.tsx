@@ -28,7 +28,7 @@ export default function AdminSubscriptionExpiredPage() {
 
         <div className="border-t border-outline-variant/30 pt-md space-y-sm">
           <button
-            onClick={() => alert('Renovação automática via Stripe estará disponível em breve!')}
+            onClick={() => window.location.href = '/settings'}
             className="w-full h-12 bg-primary text-on-primary hover:opacity-90 active:scale-[0.98] rounded-xl font-bold flex items-center justify-center gap-xs transition-all cursor-pointer shadow-sm"
           >
             <span className="material-symbols-outlined">payments</span>
