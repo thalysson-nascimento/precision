@@ -4,7 +4,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    let baseUrl = process.env.NEXT_PUBLIC_PORTAL_ADMIN_URL || 'http://localhost:3002';
+    let baseUrl = process.env.NEXT_PUBLIC_PORTAL_ADMIN_URL;
+    if (!baseUrl || baseUrl.trim() === '') {
+      baseUrl = process.env.NODE_ENV === 'production'
+        ? 'https://portal-admin.precision-hour.com'
+        : 'http://localhost:3002';
+    }
     // Remove trailing slashes to avoid double slashes in the path
     baseUrl = baseUrl.replace(/\/+$/, '');
 
