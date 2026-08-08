@@ -108,6 +108,14 @@ export default function Landpage() {
 
       if (response.ok && data.success) {
         setContactStatus('success');
+        
+        // Format message for WhatsApp
+        const waText = `*Nova mensagem de contato - Precision*\n\n*Nome:* ${contactName}\n*E-mail:* ${contactEmail}\n*Telefone:* ${contactPhone}\n*País:* ${contactCountry}\n*Mensagem:* ${contactDescription}`;
+        const waUrl = `https://wa.me/5583996955484?text=${encodeURIComponent(waText)}`;
+        
+        // Open WhatsApp in a new tab/window
+        window.open(waUrl, '_blank');
+
         // Clear fields
         setContactName('');
         setContactEmail('');
@@ -1036,25 +1044,15 @@ export default function Landpage() {
             <div className="lg:col-span-8">
               <div className="bg-white rounded-3xl border border-border/80 shadow-2xl p-xl w-full space-y-md">
                 
-                {contactStatus === 'success' ? (
-                  <div className="text-center py-10 space-y-md animate-fade-in">
-                    <div className="w-14 h-14 rounded-full bg-success/15 text-success flex items-center justify-center mx-auto mb-md animate-bounce">
-                      <span className="material-symbols-outlined text-[32px] font-bold">check_circle</span>
-                    </div>
-                    <h3 className="font-bold text-[20px] text-on-surface">Enviado com sucesso!</h3>
-                    <p className="text-body-md text-on-surface-muted leading-relaxed px-sm">
-                      {contactText[locale as keyof typeof contactText]?.successMessage || contactText.pt.successMessage}
-                    </p>
-                    <button
-                      onClick={() => setContactStatus('idle')}
-                      className="mt-md bg-primary hover:bg-primary-dark text-white px-lg py-sm rounded-full text-body-sm font-bold transition-all hover:scale-105 active:scale-95 duration-200 cursor-pointer"
-                    >
-                      Enviar outra mensagem
-                    </button>
-                  </div>
-                ) : (
                   <form onSubmit={handleContactSubmit} className="space-y-md text-left">
                     
+                    {contactStatus === 'success' && (
+                      <div className="p-md rounded-2xl bg-success/10 text-success border border-success/20 text-body-sm font-semibold flex items-center gap-xs">
+                        <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                        {contactText[locale as keyof typeof contactText]?.successMessage || contactText.pt.successMessage}
+                      </div>
+                    )}
+
                     {contactStatus === 'error' && (
                       <div className="p-md rounded-2xl bg-danger/10 text-danger border border-danger/20 text-body-sm font-semibold flex items-center gap-xs">
                         <span className="material-symbols-outlined text-[18px]">error</span>
@@ -1171,7 +1169,6 @@ export default function Landpage() {
                     </div>
 
                   </form>
-                )}
 
               </div>
             </div>
